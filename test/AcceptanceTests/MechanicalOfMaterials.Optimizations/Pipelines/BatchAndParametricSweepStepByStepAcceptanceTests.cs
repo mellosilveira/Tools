@@ -350,6 +350,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
     /// </summary>
     /// <param name="modelName">Constitutive model name to evaluate.</param>
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData("Fung")]
     [InlineData("SimplifiedFung")]
     [InlineData("Schapery")]

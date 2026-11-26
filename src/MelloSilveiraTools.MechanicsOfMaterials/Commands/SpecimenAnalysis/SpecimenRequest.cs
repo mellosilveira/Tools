@@ -24,7 +24,7 @@ public sealed record SpecimenRequest
     public double AreaInSquareMillimeters { get; init; }
 
     /// <summary>
-    /// The initial spatial orientation angle of the specimen formatted as a parseable 3D vector string (e.g. <c>"0;0;0"</c>).
+    /// The initial spatial orientation angle of the specimen formatted as a parseable 3D vector string (e.g. <c>"0,0,0"</c>).
     /// </summary>
     public required string InitialAngleAsString { get; init; }
 

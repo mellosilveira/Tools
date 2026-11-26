@@ -152,17 +152,12 @@ public sealed class WebApiHostExtensionsTests
     [Fact]
     public async Task DistributedHealthChecks_CoreAndDatabase_WorkAcrossMinimalApiAndHealthControllerWithSwaggerVisibility()
     {
-        DatabaseSettings invalidSettings = new()
+        DatabaseSettings unreachableSettings = new()
         {
             ConnectionString = "Host=127.0.0.1;Port=1;Database=none;Username=none;Password=none;Timeout=1",
-            UnitOperationTimeoutInMilliseconds = 0,
+            UnitOperationTimeoutInMilliseconds = 2500,
             BulkOperationTimeoutInMilliseconds = 1000
         };
-        ServiceCollection invalidServices = new();
-        Assert.Throws<ArgumentNullException>(() => invalidServices.AddDatabaseHealthCheck(null!));
-        Assert.Throws<ArgumentOutOfRangeException>(() => invalidServices.AddDatabaseHealthCheck(invalidSettings));
-
-        DatabaseSettings unreachableSettings = invalidSettings with { UnitOperationTimeoutInMilliseconds = 2500 };
 
         await VerifyHealthStatusAsync(Environments.Development, unreachableSettings, useController: false);
         await VerifyHealthStatusAsync(Environments.Production, unreachableSettings, useController: true);

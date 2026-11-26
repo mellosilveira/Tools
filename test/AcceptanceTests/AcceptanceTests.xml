@@ -388,8 +388,21 @@
         <member name="T:AcceptanceTests.MechanicsOfMaterials.SpecimenAnalysisDownloadAndDeleteAcceptanceTests">
             <summary>
             End-to-end Kestrel + physical disk acceptance tests verifying that <c>POST /api/v1/mechanics/specimen-analysis/execute</c>
-            streams the generated CSV file to the HTTP client and guarantees physical deletion afterward,
-            including automatic recovery from transient OS/file-lock errors.
+            computes and persists the generated CSV file and metadata record, streams the persisted CSV through
+            <c>GET /api/v1/storage-entry-metadata/{fileId}/download</c>, and cleanly deletes both metadata and physical file
+            via <c>DELETE /api/v1/storage-entry-metadata/{fileId}</c>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicsOfMaterials.SpecimenAnalysisDownloadAndDeleteAcceptanceTests.ExecuteSpecimenAnalysis_OverHttp_PersistsCsvStreamsDownloadAndDeletesPhysicalFileFromDisk">
+            <summary>
+            Executes a deterministic elastic specimen analysis over HTTP, downloads the persisted CSV artifact,
+            and deletes both metadata and physical file via the storage-entry-metadata endpoint.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicsOfMaterials.SpecimenAnalysisDownloadAndDeleteAcceptanceTests.ExecuteSpecimenAnalysis_WithInvalidRequestOrUnknownModel_ReturnsExpectedErrorAndWritesNoFile">
+            <summary>
+            Verifies that invalid ForceDisplacement geometry requests return HTTP 400 and unregistered mechanical models
+            return HTTP 404 without writing orphan CSV files to physical disk.
             </summary>
         </member>
         <member name="T:AcceptanceTests.Plugins.Helpers.TestPluginTypeProcessor">
@@ -481,6 +494,13 @@
             Gets a byte buffer representing arbitrary corrupted, non-PE binary bytes.
             </summary>
             <returns>The raw byte array.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.CreateInMemoryRepository">
+            <summary>
+            Creates an in-memory <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> mock supporting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>
+            and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> persistence, querying, and rollback deletion.
+            </summary>
+            <returns>A configured thread-safe <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> mock instance.</returns>
         </member>
         <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.Dispose">
             <inheritdoc/>

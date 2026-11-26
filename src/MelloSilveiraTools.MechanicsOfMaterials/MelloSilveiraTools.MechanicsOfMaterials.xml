@@ -1369,74 +1369,6 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.Output">
             <summary>JSON structure (JSON Schema) of the model output type.</summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream">
-            <summary>
-            Wraps a readable file <see cref="T:System.IO.Stream"/> and automatically deletes the underlying artifact from
-            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> immediately after the stream is closed/disposed (e.g., once an HTTP file download completes).
-            </summary>
-            <param name="logger">Logger used to report non-fatal cleanup failures.</param>
-            <param name="fileStorageService">Storage service managing the temporary artifact.</param>
-            <param name="innerStream">Readable stream of the generated file.</param>
-            <param name="location">Canonical storage location to delete upon disposal.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.IO.Stream,System.String)">
-            <summary>
-            Wraps a readable file <see cref="T:System.IO.Stream"/> and automatically deletes the underlying artifact from
-            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> immediately after the stream is closed/disposed (e.g., once an HTTP file download completes).
-            </summary>
-            <param name="logger">Logger used to report non-fatal cleanup failures.</param>
-            <param name="fileStorageService">Storage service managing the temporary artifact.</param>
-            <param name="innerStream">Readable stream of the generated file.</param>
-            <param name="location">Canonical storage location to delete upon disposal.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanRead">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanSeek">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanWrite">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Length">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Position">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Flush">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.FlushAsync(System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Read(System.Byte[],System.Int32,System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Read(System.Span{System.Byte})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Seek(System.Int64,System.IO.SeekOrigin)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.SetLength(System.Int64)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Write(System.Byte[],System.Int32,System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.DisposeAsync">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Dispose(System.Boolean)">
-            <inheritdoc/>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand">
             <summary>
             Executes a single deterministic specimen mechanical analysis for any statically registered or
@@ -1604,7 +1536,7 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.InitialAngleAsString">
             <summary>
-            The initial spatial orientation angle of the specimen formatted as a parseable 3D vector string (e.g. <c>"0;0;0"</c>).
+            The initial spatial orientation angle of the specimen formatted as a parseable 3D vector string (e.g. <c>"0,0,0"</c>).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.PreLoadStrain">

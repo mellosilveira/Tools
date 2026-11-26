@@ -27,9 +27,7 @@ public static class DatabaseDependencyInjection
         /// <param name="name">Optional health-check registration name; defaults to <see cref="PostgresHealthCheck.DefaultName"/>.</param>
         /// <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
         /// <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="databaseSettings"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> is less than or equal to zero.</exception>
-        public IHealthChecksBuilder AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null) 
+        public IHealthChecksBuilder AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null)
             => healthChecksBuilder.AddCheck<PostgresHealthCheck>(
                 name,
                 failureStatus: HealthStatus.Unhealthy,

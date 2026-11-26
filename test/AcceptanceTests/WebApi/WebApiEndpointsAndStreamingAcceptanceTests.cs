@@ -76,6 +76,7 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
     private readonly string _pluginDirectoryPrefix = $"accept-webapi-plugins-{Guid.NewGuid():N}";
     private readonly List<string> _createdPipelineIdentifiers = [];
     private readonly ConcurrentDictionary<long, StorageEntryMetadataEntity> _storedFiles = new();
+    private readonly ConcurrentDictionary<long, PluginSubmissionEntity> _storedPluginSubmissions = new();
     private readonly ConcurrentBag<MechanicalModelCurveFitOutputEntity> _storedCurveFits = [];
     private readonly ConcurrentBag<MechanicalModelSimulationEntity> _storedSimulations = [];
     private readonly ConcurrentBag<ParametricSweepEntity> _storedSweeps = [];
@@ -104,6 +105,44 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
         _storedFiles[seeded.Id] = seeded;
 
         Mock<IRepository> repositoryMock = new();
+        repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((StorageEntryMetadataEntity entity, CancellationToken _) =>
+            {
+                long id = Interlocked.Increment(ref _nextEntityId);
+                _storedFiles[id] = entity with { Id = id };
+                return id;
+            });
+
+        repositoryMock
+            .Setup(r => r.DeleteAsync<StorageEntryMetadataEntity>(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Returns((long id, CancellationToken ct) =>
+            {
+                _storedFiles.TryRemove(id, out _);
+                return Task.CompletedTask;
+            });
+
+        repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<PluginSubmissionEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PluginSubmissionEntity entity, CancellationToken _) =>
+            {
+                long id = Interlocked.Increment(ref _nextEntityId);
+                _storedPluginSubmissions[id] = entity with { Id = id };
+                return id;
+            });
+
+        repositoryMock
+            .Setup(r => r.GetAsync<PluginSubmissionEntity>(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((long id, CancellationToken _) => _storedPluginSubmissions.TryGetValue(id, out PluginSubmissionEntity? entity) ? entity : null);
+
+        repositoryMock
+            .Setup(r => r.GetAsync<PluginSubmissionEntity, PluginSubmissionFilter>(
+                It.IsAny<PluginSubmissionFilter>(),
+                It.IsAny<Pagination?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((PluginSubmissionFilter filter, Pagination? _, CancellationToken ct) =>
+                StreamPluginSubmissionsAsync(filter, ct));
+
         repositoryMock
             .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((StorageEntryMetadataEntity entity, CancellationToken _) =>
@@ -590,6 +629,28 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
         catch
         {
             // Best-effort cleanup of temp directory
+        }
+    }
+
+    private async IAsyncEnumerable<PluginSubmissionEntity> StreamPluginSubmissionsAsync(
+        PluginSubmissionFilter filter,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        foreach (PluginSubmissionEntity entity in _storedPluginSubmissions.Values.OrderBy(e => e.Id))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!string.IsNullOrWhiteSpace(filter.PluginName)
+                && !string.Equals(entity.PluginName, filter.PluginName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (filter.Status.HasValue && entity.Status != filter.Status.Value)
+                continue;
+
+            yield return entity;
         }
     }
 

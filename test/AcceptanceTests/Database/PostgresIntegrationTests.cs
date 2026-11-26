@@ -37,11 +37,13 @@ public sealed class PostgresIntegrationTests
     /// (anonymous public append-only, authenticated private + public read + cross-FK to public dataset,
     /// and DB-backed superuser + instant revocation) against live PostgreSQL using the non-superuser <c>tools_app</c> role.
     /// </summary>
-    [Fact]
+    [PostgresIntegrationFact]
     public async Task Postgres_CrudLifecycleAndRlsPolicies_ShouldEnforceAnonymousPrivateAndSuperuserAccess()
     {
         PostgreSqlContainer? container = null;
         string? adminConnectionString = null;
+        Exception? containerException = null;
+        Exception? fallbackException = null;
 
         try
         {
@@ -56,8 +58,9 @@ public sealed class PostgresIntegrationTests
                 await container.StartAsync();
                 adminConnectionString = container.GetConnectionString();
             }
-            catch
+            catch (Exception ex)
             {
+                containerException = ex;
                 container = null;
             }
 
@@ -74,14 +77,19 @@ public sealed class PostgresIntegrationTests
                     await testConn.OpenAsync();
                     adminConnectionString = candidate;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    fallbackException = ex;
                     adminConnectionString = null;
                 }
             }
 
             if (string.IsNullOrWhiteSpace(adminConnectionString))
-                return;
+            {
+                Assert.Fail(
+                    $"PostgreSQL integration test could not connect via Testcontainers ({containerException?.GetType().Name}: {containerException?.Message}) " +
+                    $"or fallback connection ({fallbackException?.GetType().Name}: {fallbackException?.Message}).");
+            }
 
             // 1. Run clean DbUp migrations as database owner.
             ILogger migratorLogger = Mock.Of<ILogger>();
@@ -442,4 +450,42 @@ public sealed class PostgresIntegrationTests
         Iterations = 28,
         ConstitutiveParameters = "{\"c\": 1.25, \"A\": 0.85, \"B\": 12.4}"
     };
+
+    private sealed class PostgresIntegrationFactAttribute : FactAttribute
+    {
+        public PostgresIntegrationFactAttribute()
+        {
+            bool requireInCi = string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(Environment.GetEnvironmentVariable("REQUIRE_POSTGRES_TESTS"), "true", StringComparison.OrdinalIgnoreCase);
+
+            if (requireInCi)
+                return;
+
+            bool hasConfiguredConnection = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING"))
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
+
+            if (hasConfiguredConnection || IsDockerDaemonAvailable())
+                return;
+
+            Skip = "Docker daemon is not running and POSTGRES_CONNECTION_STRING is not set (skipped locally; enforced in CI).";
+        }
+
+        private static bool IsDockerDaemonAvailable()
+        {
+            try
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    string[] pipes = Directory.GetFiles(@"\\.\pipe\", "docker_engine");
+                    return pipes.Length > 0;
+                }
+
+                return File.Exists("/var/run/docker.sock");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
 }

@@ -31,6 +31,10 @@ public sealed class PostgresHealthCheck(
             await dataSource.PingAsync(databaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
             return HealthCheckResult.Healthy("PostgreSQL connection is healthy.");
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Health check '{HealthCheckName}' failed while connecting to PostgreSQL.", context.Registration.Name);

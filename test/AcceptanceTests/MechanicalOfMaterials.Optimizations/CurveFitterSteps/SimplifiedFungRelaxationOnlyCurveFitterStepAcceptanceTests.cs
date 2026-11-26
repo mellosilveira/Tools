@@ -8,6 +8,7 @@ namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;
 /// <summary>
 /// Acceptance tests for <see cref="SimplifiedFungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
 /// </summary>
+[Trait("Category", "Slow")]
 public class SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests : CurveFitterAcceptanceTestBase<SimplifiedFungRelaxationOnlyCurveFitterStep>
 {
     /// <inheritdoc/>

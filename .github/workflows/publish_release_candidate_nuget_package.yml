@@ -6,7 +6,11 @@ on:
   pull_request:
     paths:
       - '**/Directory.Build.props'
+      - '**/Directory.Build.targets'
+      - 'coverlet.runsettings'
       - '**/*.cs'
+      - '**/*.razor'
+      - '**/*.js'
       - '**/*.csproj'
       - '**/*.sln'
       - '.github/workflows/**'
@@ -42,11 +46,19 @@ jobs:
     - name: Build solution
       run: dotnet build MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-restore
 
-    - name: Run unit tests
-      run: dotnet test test/UnitTests/UnitTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+    - name: Run unit tests with coverage
+      run: dotnet test test/UnitTests/UnitTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --settings coverlet.runsettings --collect:"XPlat Code Coverage" --results-directory build/test-results/unit --logger "trx;LogFileName=unit-tests.trx" --verbosity normal
 
-    - name: Run acceptance tests
-      run: dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+    - name: Run acceptance tests with coverage
+      run: dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --settings coverlet.runsettings --collect:"XPlat Code Coverage" --results-directory build/test-results/acceptance --logger "trx;LogFileName=acceptance-tests.trx" --verbosity normal
+
+    - name: Upload test and coverage results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-pr-${{ github.event.pull_request.number }}
+        path: build/test-results/
+        if-no-files-found: ignore
 
     # All packages share the same VersionPrefix in Directory.Build.props (lockstep release).
     # Only pack and publish when the version is an RC ("*rc*") AND increments the existing RC.

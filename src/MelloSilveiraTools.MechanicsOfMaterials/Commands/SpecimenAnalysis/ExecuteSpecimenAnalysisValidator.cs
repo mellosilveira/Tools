@@ -30,7 +30,8 @@ public sealed class ExecuteSpecimenAnalysisValidator : IValidator<ExecuteSpecime
             .AddErrorIfInvalidEnum(value.LoadResponseRelationship, "LoadResponseRelationship is invalid.")
             .AddErrorIfInvalidEnum(value.ViscoelasticEffect, "ViscoelasticEffect is invalid.")
             .AddErrorIfInvalidEnum(value.RampTimeConsideration, "RampTimeConsideration is invalid.")
-            .AddErrorIf(value.LoadResponseRelationship == LoadResponseRelationship.ForceDisplacement && value.Specimen is null,
+            .AddErrorIf(
+            value.LoadResponseRelationship == LoadResponseRelationship.ForceDisplacement && value.Specimen is null,
                 "Specimen geometry is required for ForceDisplacement analyses.");
 
         if (value.Specimen is not null)
@@ -38,19 +39,10 @@ public sealed class ExecuteSpecimenAnalysisValidator : IValidator<ExecuteSpecime
             result = result
                 .AddErrorIfNegativeOrZero(value.Specimen.AreaInSquareMillimeters, "Specimen AreaInSquareMillimeters must be greater than zero.")
                 .AddErrorIfNegativeOrZero(value.Specimen.InitialLengthInMillimeters, "Specimen InitialLengthInMillimeters must be greater than zero.")
-                .AddErrorIfNullOrWhiteSpace(value.Specimen.InitialAngleAsString, "Specimen InitialAngleAsString is required.");
-
-            if (!string.IsNullOrWhiteSpace(value.Specimen.InitialAngleAsString))
-            {
-                try
-                {
-                    _ = Vector3D.Parse(value.Specimen.InitialAngleAsString);
-                }
-                catch (Exception ex) when (ex is FormatException or ArgumentException)
-                {
-                    result = result.AddError($"Specimen InitialAngleAsString is invalid: {ex.Message}");
-                }
-            }
+                .AddErrorIfNullOrWhiteSpace(value.Specimen.InitialAngleAsString, "Specimen InitialAngleAsString is required.")
+                .AddErrorIf(
+                    !string.IsNullOrWhiteSpace(value.Specimen.InitialAngleAsString) && !Vector3D.TryParse(value.Specimen.InitialAngleAsString, out _), 
+                    "Specimen InitialAngleAsString must be a valid comma-separated 3D vector (e.g. '0,0,0').");
         }
 
         return ValueTask.FromResult(result);

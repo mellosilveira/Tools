@@ -321,4 +321,84 @@ public sealed class UploadPluginTests
             _storageMock.Verify(s => s.WriteAndHashAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
+
+    [Fact]
+    public async Task WriteAndPersistAsync_WhenStorageMetadataInsertFails_DeletesUploadedFileAndRethrows()
+    {
+        byte[] validAssemblyBytes = File.ReadAllBytes(typeof(UploadPlugin).Assembly.Location);
+        string fileName = "Rollback.Metadata.v1.0.0.dll";
+        string incomingLocation = "storage/plugins/incoming/Rollback.Metadata.v1.0.0.dll";
+
+        Mock<IFormFile> fileMock = new();
+        fileMock.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(validAssemblyBytes));
+
+        _storageMock.SetupGet(s => s.Provider).Returns(StorageProvider.Local);
+        _storageMock
+            .Setup(s => s.WriteAndHashAsync("plugins", PluginStoragePartitions.Incoming, fileName, It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((incomingLocation, "storage/plugins/incoming", "abc123", (long)validAssemblyBytes.Length));
+        _repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB metadata insert failure"));
+
+        PluginSubmissionPersistence persistence = new(NullLogger<PluginSubmissionPersistence>.Instance, _storageMock.Object, _repositoryMock.Object, _settings);
+
+        InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => persistence.WriteAndPersistAsync(
+            fileMock.Object,
+            fileName,
+            "Rollback.Metadata",
+            new PluginVersion(1, 0, 0),
+            PluginStoragePartitions.Incoming,
+            storageOwnerUserId: null,
+            (fileId, hash) => new PluginSubmissionEntity { StorageEntryMetadataId = fileId, PluginName = "Rollback.Metadata", PluginVersion = "v1.0.0", Sha256Hash = hash },
+            TimeProvider.System.GetUtcNow()));
+
+        Assert.Equal("DB metadata insert failure", ex.Message);
+        _storageMock.Verify(s => s.DeleteAsync(incomingLocation, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(r => r.DeleteAsync<StorageEntryMetadataEntity>(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WriteAndPersistAsync_WhenSubmissionInsertFailsAndRollbackThrows_CleansBothAndPreservesOriginalException()
+    {
+        byte[] validAssemblyBytes = File.ReadAllBytes(typeof(UploadPlugin).Assembly.Location);
+        string fileName = "Rollback.Submission.v1.0.0.dll";
+        string incomingLocation = "storage/plugins/incoming/Rollback.Submission.v1.0.0.dll";
+
+        Mock<IFormFile> fileMock = new();
+        fileMock.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(validAssemblyBytes));
+
+        _storageMock.SetupGet(s => s.Provider).Returns(StorageProvider.Local);
+        _storageMock
+            .Setup(s => s.WriteAndHashAsync("plugins", PluginStoragePartitions.Incoming, fileName, It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((incomingLocation, "storage/plugins/incoming", "def456", (long)validAssemblyBytes.Length));
+        _storageMock
+            .Setup(s => s.DeleteAsync(incomingLocation, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("Storage cleanup failed"));
+
+        _repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(909L);
+        _repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<PluginSubmissionEntity>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB submission insert failure"));
+        _repositoryMock
+            .Setup(r => r.DeleteAsync<StorageEntryMetadataEntity>(909L, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("DB rollback failed"));
+
+        PluginSubmissionPersistence persistence = new(NullLogger<PluginSubmissionPersistence>.Instance, _storageMock.Object, _repositoryMock.Object, _settings);
+
+        InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => persistence.WriteAndPersistAsync(
+            fileMock.Object,
+            fileName,
+            "Rollback.Submission",
+            new PluginVersion(1, 0, 0),
+            PluginStoragePartitions.Incoming,
+            storageOwnerUserId: 10L,
+            (fileId, hash) => new PluginSubmissionEntity { StorageEntryMetadataId = fileId, PluginName = "Rollback.Submission", PluginVersion = "v1.0.0", Sha256Hash = hash },
+            TimeProvider.System.GetUtcNow()));
+
+        Assert.Equal("DB submission insert failure", ex.Message);
+        _repositoryMock.Verify(r => r.DeleteAsync<StorageEntryMetadataEntity>(909L, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.DeleteAsync(incomingLocation, It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

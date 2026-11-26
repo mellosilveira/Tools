@@ -100,7 +100,7 @@ public static class StorageEntryMetadataEndpoints
             {
                 DeleteStorageEntryRequest effectiveRequest = request is null
                     ? new DeleteStorageEntryRequest { FileId = fileId }
-                    : request with { FileId = request.FileId ?? fileId };
+                    : request with { FileId = fileId };
 
                 return await command
                     .ExecuteAsync(effectiveRequest, httpContext.RequestAborted)

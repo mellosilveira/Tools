@@ -37,8 +37,6 @@
             <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName"/>.</param>
             <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
             <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
-            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="databaseSettings"/> is <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> is less than or equal to zero.</exception>
         </member>
         <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>

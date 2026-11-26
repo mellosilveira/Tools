@@ -55,7 +55,7 @@ public sealed class PluginPhysicalDiskLifecycleAcceptanceTests : IAsyncLifetime
                         BaseDirectory = _tempBasePath
                     }
                 })
-            .AddSingleton(Mock.Of<IRepository>())
+            .AddSingleton(PluginTestFixture.CreateInMemoryRepository())
             .AddSingleton<IPluginTypeProcessor>(_typeProcessor)
             .AddPluginServices(new PluginSettings
             {

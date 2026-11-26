@@ -1,7 +1,10 @@
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
@@ -10,6 +13,8 @@ using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace AcceptanceTests.Plugins.Helpers;
 
@@ -120,7 +125,7 @@ public sealed class PluginTestFixture : IAsyncDisposable, IDisposable
         Services.AddKeyedSingleton<IFileStorageService>(StorageProvider.AwsS3, AwsS3Storage.Mock.Object);
         Services.AddScoped<IFileStorageService>((IServiceProvider sp) => sp.GetRequiredKeyedService<IFileStorageService>(Settings.StorageProvider));
 
-        Services.AddSingleton(Mock.Of<IRepository>());
+        Services.AddSingleton(CreateInMemoryRepository());
         Services.AddSingleton(Mock.Of<MelloSilveiraTools.Core.Security.ICurrentUserProvider>(u => u.IsSuperuser()));
 
         Services.AddPluginServices(Settings);
@@ -172,6 +177,83 @@ public sealed class PluginTestFixture : IAsyncDisposable, IDisposable
     public static byte[] GetCorruptedPluginBytes()
     {
         return [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+    }
+
+    /// <summary>
+    /// Creates an in-memory <see cref="IRepository"/> mock supporting <see cref="StorageEntryMetadataEntity"/>
+    /// and <see cref="PluginSubmissionEntity"/> persistence, querying, and rollback deletion.
+    /// </summary>
+    /// <returns>A configured thread-safe <see cref="IRepository"/> mock instance.</returns>
+    public static IRepository CreateInMemoryRepository()
+    {
+        ConcurrentDictionary<long, StorageEntryMetadataEntity> storedFiles = new();
+        ConcurrentDictionary<long, PluginSubmissionEntity> submissions = new();
+        long nextId = 0L;
+
+        Mock<IRepository> repositoryMock = new();
+
+        repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((StorageEntryMetadataEntity entity, CancellationToken _) =>
+            {
+                long id = Interlocked.Increment(ref nextId);
+                storedFiles[id] = entity with { Id = id };
+                return id;
+            });
+
+        repositoryMock
+            .Setup(r => r.DeleteAsync<StorageEntryMetadataEntity>(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Returns((long id, CancellationToken ct) =>
+            {
+                storedFiles.TryRemove(id, out _);
+                return Task.CompletedTask;
+            });
+
+        repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<PluginSubmissionEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PluginSubmissionEntity entity, CancellationToken _) =>
+            {
+                long id = Interlocked.Increment(ref nextId);
+                submissions[id] = entity with { Id = id };
+                return id;
+            });
+
+        repositoryMock
+            .Setup(r => r.GetAsync<PluginSubmissionEntity>(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((long id, CancellationToken _) => submissions.TryGetValue(id, out PluginSubmissionEntity? entity) ? entity : null);
+
+        repositoryMock
+            .Setup(r => r.GetAsync<PluginSubmissionEntity, PluginSubmissionFilter>(
+                It.IsAny<PluginSubmissionFilter>(),
+                It.IsAny<Pagination?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((PluginSubmissionFilter filter, Pagination? _, CancellationToken ct) =>
+                StreamSubmissionsAsync(submissions, filter, ct));
+
+        return repositoryMock.Object;
+    }
+
+    private static async IAsyncEnumerable<PluginSubmissionEntity> StreamSubmissionsAsync(
+        ConcurrentDictionary<long, PluginSubmissionEntity> submissions,
+        PluginSubmissionFilter filter,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        foreach (PluginSubmissionEntity submission in submissions.Values)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!string.IsNullOrWhiteSpace(filter.PluginName)
+                && !submission.PluginName.Equals(filter.PluginName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (filter.Status.HasValue && submission.Status != filter.Status.Value)
+                continue;
+
+            yield return submission;
+        }
     }
 
     /// <inheritdoc/>
