@@ -38,22 +38,138 @@
         <div class="alert @(_isError ? "alert-error" : "alert-info")" role="status">@_statusMessage</div>
     }
 
-    <nav class="tabs" aria-label="Workbench Sections">
-        <button class="tab-btn @(_activeTab == TabExperimental ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabExperimental))">
+    <nav class="tabs" role="tablist" aria-label="Workbench Sections">
+        <button class="tab-btn @(_activeTab == TabHome ? "active" : string.Empty)" role="tab" aria-selected="@(_activeTab == TabHome)" @onclick="@(() => SelectTab(TabHome))">
+            Home &amp; Overview
+        </button>
+        <button class="tab-btn @(_activeTab == TabExperimental ? "active" : string.Empty)" role="tab" aria-selected="@(_activeTab == TabExperimental)" @onclick="@(() => SelectTab(TabExperimental))">
             Experimental &amp; Sweeps
         </button>
-        <button class="tab-btn @(_activeTab == TabMechanics ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabMechanics))">
+        <button class="tab-btn @(_activeTab == TabMechanics ? "active" : string.Empty)" role="tab" aria-selected="@(_activeTab == TabMechanics)" @onclick="@(() => SelectTab(TabMechanics))">
             Mechanics &amp; Fatigue
         </button>
-        <button class="tab-btn @(_activeTab == TabStorage ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabStorage))">
+        <button class="tab-btn @(_activeTab == TabStorage ? "active" : string.Empty)" role="tab" aria-selected="@(_activeTab == TabStorage)" @onclick="@(() => SelectTab(TabStorage))">
             Storage Explorer
         </button>
-        <button class="tab-btn @(_activeTab == TabPlugins ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabPlugins))">
+        <button class="tab-btn @(_activeTab == TabPlugins ? "active" : string.Empty)" role="tab" aria-selected="@(_activeTab == TabPlugins)" @onclick="@(() => SelectTab(TabPlugins))">
             Plugins &amp; Moderation
         </button>
     </nav>
 
-    @if (_activeTab == TabExperimental)
+    @if (_activeTab == TabHome)
+    {
+        <section role="tabpanel" aria-label="Home Overview">
+            <article class="card home-hero">
+                <div class="home-hero-badges">
+                    <span class="badge badge-info">.NET 10 / C# 13</span>
+                    <span class="badge badge-ok">PostgreSQL + RLS</span>
+                    <span class="badge badge-info">GPL-3.0-or-later</span>
+                    <span class="badge badge-warn">JOSS Scientific Workbench</span>
+                </div>
+                <h2>Welcome to MelloSilveiraTools</h2>
+                <p class="home-lead">
+                    <strong>MelloSilveiraTools</strong> is an open-source, modular scientific computing suite built for computational mechanics of materials,
+                    viscoelastic constitutive modeling, experimental stress-relaxation optimization, and reproducible biomechanics workflows.
+                </p>
+                <p class="muted">
+                    Use this interactive Blazor WebAssembly workbench to inspect experimental datasets, fit constitutive parameters, run One-At-A-Time (OAAT)
+                    sensitivity sweeps, manage persisted simulation artifacts, and extend constitutive models dynamically via isolated .NET plugins.
+                </p>
+                <div class="btn-row stack-gap">
+                    <button class="btn btn-primary" @onclick="@(() => SelectTab(TabExperimental))">Start Experimental Fit</button>
+                    <button class="btn btn-secondary" @onclick="@(() => SelectTab(TabMechanics))">Explore Constitutive Models</button>
+                    <a href="/swagger" target="_blank" class="btn btn-secondary">Open Swagger API Docs</a>
+                    <a href="/api/health" target="_blank" class="btn btn-secondary">Check API Health</a>
+                </div>
+            </article>
+
+            <div class="home-feature-grid stack-gap">
+                <article class="card home-feature-card">
+                    <h3>1. Experimental Data &amp; Parametric Sweeps</h3>
+                    <p class="muted">
+                        Ingest uniaxial stress-relaxation CSV curves, automatically segment loading phases (<code>Ramp</code>, <code>Relaxation</code>, <code>Descent</code>, <code>Recovery</code>),
+                        fit viscoelastic parameters with ALGLIB L-BFGS / MathNet, monitor real-time NDJSON progress, and execute 4-scenario OAAT sensitivity sweeps with interactive Apache ECharts plots.
+                    </p>
+                    <div class="btn-row">
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => SelectTab(TabExperimental))">Open Experimental &amp; Sweeps</button>
+                    </div>
+                </article>
+
+                <article class="card home-feature-card">
+                    <h3>2. Constitutive Models &amp; Fatigue</h3>
+                    <p class="muted">
+                        Evaluate analytical and numerical constitutive laws (Elastic, Maxwell, Fung QLV, Simplified Fung with Prony series, Schapery, and Modified Superposition Method),
+                        run 3D ligament specimen load-sharing analyses, and compute Goodman/Marin classical fatigue endurance limits.
+                    </p>
+                    <div class="btn-row">
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => SelectTab(TabMechanics))">Open Mechanics &amp; Fatigue</button>
+                    </div>
+                </article>
+
+                <article class="card home-feature-card">
+                    <h3>3. Scientific Storage Explorer</h3>
+                    <p class="muted">
+                        Manage experimental CSV datasets and computed outputs backed by PostgreSQL Row-Level Security (RLS). Browse public reference datasets immediately in
+                        <strong>Public Mode</strong> or sign in with JWE authentication to isolate private research workspaces.
+                    </p>
+                    <div class="btn-row">
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => SelectTab(TabStorage))">Open Storage Explorer</button>
+                    </div>
+                </article>
+
+                <article class="card home-feature-card">
+                    <h3>4. Dynamic Constitutive Plugins</h3>
+                    <p class="muted">
+                        Upload and hot-load custom <code>IMechanicalModelCalculator</code> assemblies into collectible .NET <code>AssemblyLoadContext</code> sandboxes
+                        without restarting the server, supported by two-level caching and community submission moderation.
+                    </p>
+                    <div class="btn-row">
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => SelectTab(TabPlugins))">Open Plugins &amp; Moderation</button>
+                    </div>
+                </article>
+            </div>
+
+            <article class="card stack-gap">
+                <h2>Suite Architecture &amp; Packages</h2>
+                <p class="muted">
+                    MelloSilveiraTools separates pure mathematical and biomechanical domain engines from infrastructure adapters across seven contextual NuGet packages:
+                </p>
+                <div class="metric-grid">
+                    <div class="metric-tile">
+                        <span class="metric-label">Core Foundations</span>
+                        <span class="metric-value">Core</span>
+                        <p class="muted">Result monad, TPL Dataflow pipelines, Polly v8 resilience, storage providers.</p>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Numerical Methods</span>
+                        <span class="metric-value">Mathematics</span>
+                        <p class="muted">Prony series, Simpson integration, Brent/Bisection roots, Newmark-&beta; ODEs.</p>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Constitutive Engines</span>
+                        <span class="metric-value">MechanicsOfMaterials</span>
+                        <p class="muted">Viscoelastic models, geometric profiles, 3D force sharing, fatigue.</p>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Optimization Pipelines</span>
+                        <span class="metric-value">Optimizations</span>
+                        <p class="muted">Phase segmentation, curve fitting (ALGLIB/MathNet), OAAT sensitivity sweeps.</p>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Persistence &amp; Web</span>
+                        <span class="metric-value">Database &amp; WebApi</span>
+                        <p class="muted">Pure Npgsql batch RLS repository, DbUp migrations, JWE auth, Swagger, NDJSON.</p>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Extensibility</span>
+                        <span class="metric-value">Plugins</span>
+                        <p class="muted">Collectible runtime assembly loading, binary validation, moderation workflows.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+    }
+    else if (_activeTab == TabExperimental)
     {
         <ExperimentalWorkbenchTab OnStatus="HandleStatus" AuthVersion="@_authVersion" />
     }
@@ -72,12 +188,13 @@
 </div>
 
 @code {
+    private const string TabHome = "home";
     private const string TabExperimental = "experimental";
     private const string TabMechanics = "mechanics";
     private const string TabStorage = "storage";
     private const string TabPlugins = "plugins";
 
-    private string _activeTab = TabExperimental;
+    private string _activeTab = TabHome;
     private int _authVersion;
     private string _authUsername = string.Empty;
     private string _authPassword = string.Empty;

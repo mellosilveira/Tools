@@ -43,4 +43,8 @@
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\SensitivityAnalysis\Steps\" />
   </ItemGroup>
 
+  <Target Name="RemoveReferencedHostAppSettings" AfterTargets="Build">
+    <Delete Files="$(OutDir)appsettings.json;$(OutDir)appsettings.Docker.json" />
+  </Target>
+
 </Project>

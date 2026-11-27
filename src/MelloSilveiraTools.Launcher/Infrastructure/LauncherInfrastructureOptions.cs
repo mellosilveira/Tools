@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.Migrator;
+using MelloSilveiraTools.Launcher.Steps;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Globalization;
@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.Launcher.Infrastructure;
 public enum ExecutionMode
 {
     /// <summary>
-    /// Runs <c>WebApi.Host</c> locally with ReadyToRun AOT enabled (using Docker or local PostgreSQL for the database).
+    /// Runs <c>WebApi.Host</c> locally with ReadyToRun AOT enabled (using local PostgreSQL).
     /// </summary>
     Local = 0,
 
@@ -22,25 +22,41 @@ public enum ExecutionMode
 }
 
 /// <summary>
-/// Resolved infrastructure configuration for execution mode, PostgreSQL, migrations, repository root, and the Web API host.
+/// Resolved infrastructure configuration for execution mode, PostgreSQL, migrations, repository root/branch, and the Web API host.
 /// </summary>
-/// <param name="Mode">Target execution mode (<see cref="ExecutionMode.Local"/> or <see cref="ExecutionMode.Docker"/>).</param>
+/// <param name="Mode">Resolved or requested execution mode (<see cref="ExecutionMode.Local"/> or <see cref="ExecutionMode.Docker"/>).</param>
+/// <param name="ModeExplicitlySet">Whether <paramref name="Mode"/> was explicitly forced via CLI arguments.</param>
 /// <param name="ConnectionString">Complete PostgreSQL connection string.</param>
 /// <param name="MigrationContext">Target DbUp migration context.</param>
 /// <param name="MigrationTimeoutSeconds">Migration command timeout in seconds.</param>
-/// <param name="WebApiPort">Local TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens.</param>
+/// <param name="WebApiPort">Local HTTP TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>26324</c>).</param>
+/// <param name="WebApiHttpsPort">External HTTPS TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>24263</c>).</param>
 /// <param name="RepositoryRoot">Optional explicit repository root path.</param>
+/// <param name="Branch">GitHub branch to clone when no local repository copy exists (default: <c>main</c>).</param>
+/// <param name="BranchExplicitlySet">Whether <paramref name="Branch"/> was explicitly supplied via CLI arguments.</param>
 /// <param name="AllowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
-/// <param name="OpenBrowser">Whether to open the default browser once <c>WebApi.Host</c> is healthy.</param>
+/// <param name="AllowPostgresInstall">Optional override for automatic local PostgreSQL installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
+/// <param name="OpenBrowser">Optional override for browser opening (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively once ready.</param>
+/// <param name="NonInteractive">Whether interactive stdin prompts are disabled.</param>
+/// <param name="HttpsCertificatePath">Optional path to a custom HTTPS PKCS#12 (<c>.pfx</c>) certificate file.</param>
+/// <param name="HttpsCertificatePassword">Optional password for <paramref name="HttpsCertificatePath"/>.</param>
 public sealed record LauncherInfrastructureOptions(
     ExecutionMode Mode,
+    bool ModeExplicitlySet,
     string ConnectionString,
-    MigrationContext MigrationContext,
+    LauncherMigrationContext MigrationContext,
     int MigrationTimeoutSeconds,
     int WebApiPort,
+    int WebApiHttpsPort,
     string? RepositoryRoot,
+    string Branch,
+    bool BranchExplicitlySet,
     bool? AllowDockerInstall,
-    bool OpenBrowser)
+    bool? AllowPostgresInstall,
+    bool? OpenBrowser,
+    bool NonInteractive,
+    string? HttpsCertificatePath = null,
+    string? HttpsCertificatePassword = null)
 {
     /// <summary>
     /// Builds the local <c>http://localhost:&lt;port&gt;</c> base URL for <c>MelloSilveiraTools.WebApi.Host</c>.
@@ -48,30 +64,69 @@ public sealed record LauncherInfrastructureOptions(
     public string BuildWebApiBaseUrl() => $"http://localhost:{WebApiPort}";
 
     /// <summary>
-    /// Builds a Docker-network-safe PostgreSQL connection string, mapping <c>localhost</c>/<c>127.0.0.1</c> to the <c>postgres</c> service.
+    /// Builds the <c>https://localhost:&lt;httpsPort&gt;</c> URL for <c>MelloSilveiraTools.WebApi.Host</c>.
     /// </summary>
-    public string BuildDockerConnectionString()
+    public string BuildWebApiHttpsUrl() => $"https://localhost:{WebApiHttpsPort}";
+
+    /// <summary>
+    /// Builds a Docker-network-safe PostgreSQL connection string, mapping <c>localhost</c>/<c>127.0.0.1</c>
+    /// either to the Compose <c>postgres</c> service or to <c>host.docker.internal</c> when reusing an external container.
+    /// </summary>
+    /// <param name="useHostGateway">When <see langword="true"/>, maps loopback hosts to <c>host.docker.internal</c> preserving the host port.</param>
+    public string BuildDockerConnectionString(bool useHostGateway = false)
     {
         NpgsqlConnectionStringBuilder builder = new(ConnectionString);
         if (string.Equals(builder.Host, "localhost", StringComparison.OrdinalIgnoreCase) || string.Equals(builder.Host, "127.0.0.1", StringComparison.Ordinal))
         {
-            builder.Host = "postgres";
-            builder.Port = 5432;
+            if (useHostGateway)
+            {
+                builder.Host = "host.docker.internal";
+                if (builder.Port <= 0)
+                    builder.Port = 5432;
+            }
+            else
+            {
+                builder.Host = "postgres";
+                builder.Port = 5432;
+            }
         }
 
         return builder.ConnectionString;
     }
 
     /// <summary>
+    /// Returns a copy of this options record with the PostgreSQL host port updated in <see cref="ConnectionString"/>.
+    /// </summary>
+    /// <param name="newPort">New PostgreSQL TCP port.</param>
+    public LauncherInfrastructureOptions WithPostgresPort(int newPort)
+    {
+        NpgsqlConnectionStringBuilder builder = new(ConnectionString) { Port = newPort };
+        return this with { ConnectionString = builder.ConnectionString };
+    }
+
+    /// <summary>
+    /// Returns a copy of this options record with <see cref="WebApiPort"/> updated.
+    /// </summary>
+    /// <param name="newPort">New Web API / Frontend local HTTP TCP port.</param>
+    public LauncherInfrastructureOptions WithWebApiPort(int newPort) => this with { WebApiPort = newPort };
+
+    /// <summary>
+    /// Returns a copy of this options record with <see cref="WebApiHttpsPort"/> updated.
+    /// </summary>
+    /// <param name="newPort">New Web API / Frontend HTTPS TCP port.</param>
+    public LauncherInfrastructureOptions WithWebApiHttpsPort(int newPort) => this with { WebApiHttpsPort = newPort };
+
+    /// <summary>
     /// Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
     /// When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
     /// swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
     /// </summary>
-    /// <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service.</param>
+    /// <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service (or <c>host.docker.internal</c>).</param>
+    /// <param name="useHostGateway">When <see langword="true"/> and <paramref name="forDocker"/> is <see langword="true"/>, uses <c>host.docker.internal</c>.</param>
     /// <returns>The resolved application connection string.</returns>
-    public string BuildApplicationConnectionString(bool forDocker = false)
+    public string BuildApplicationConnectionString(bool forDocker = false, bool useHostGateway = false)
     {
-        NpgsqlConnectionStringBuilder builder = new(forDocker ? BuildDockerConnectionString() : ConnectionString);
+        NpgsqlConnectionStringBuilder builder = new(forDocker ? BuildDockerConnectionString(useHostGateway) : ConnectionString);
         if (string.Equals(builder.Username, "postgres", StringComparison.OrdinalIgnoreCase))
         {
             builder.Username = "tools_app";
@@ -123,9 +178,11 @@ public sealed record LauncherInfrastructureOptions(
 public static class LauncherInfrastructureResolver
 {
     private const string DefaultConnectionString = "Host=localhost;Port=5432;Database=tools_db;Username=postgres;Password=postgres";
-    private const int DefaultWebApiPort = 24263;
-    private const MigrationContext DefaultMigrationContext = MigrationContext.All;
+    private const int DefaultWebApiPort = 26324;
+    private const int DefaultWebApiHttpsPort = 24263;
+    private const LauncherMigrationContext DefaultMigrationContext = LauncherMigrationContext.All;
     private const int DefaultMigrationTimeoutSeconds = 60;
+    private const string DefaultBranch = "main";
     private const string GitHubRepositoryUrl = "https://github.com/mellosilveira/Tools.git";
 
     /// <summary>
@@ -139,25 +196,32 @@ public static class LauncherInfrastructureResolver
     /// </summary>
     public static void PrintHelp()
     {
-        Console.WriteLine("Usage: dotnet run --project src/MelloSilveiraTools.Launcher -- [options]");
+        Console.WriteLine("Usage: MelloSilveiraTools.Launcher [options]");
         Console.WriteLine();
         Console.WriteLine("Options:");
-        Console.WriteLine("  -m, --mode <Local|Docker>          Execution mode: Local (default, ReadyToRun AOT) or Docker (self-contained containers).");
+        Console.WriteLine("  -m, --mode <Local|Docker>          Force execution mode: Local or Docker (default: auto-detect native PostgreSQL -> Docker -> install).");
         Console.WriteLine("  --docker                           Shorthand for --mode Docker.");
         Console.WriteLine("  -s, --connection-string <String>   PostgreSQL connection string (default: Host=localhost;Port=5432;Database=tools_db;Username=postgres;Password=********).");
         Console.WriteLine("  -c, --context <Context>            Target migration context: All (default), Common, Optimizations, Plugins.");
         Console.WriteLine($"  -t, --timeout <Seconds>            Migration command timeout in seconds (default: {DefaultMigrationTimeoutSeconds}).");
-        Console.WriteLine($"  -p, --port <Port>                  Local TCP port for WebApi.Host (default: {DefaultWebApiPort}).");
-        Console.WriteLine("  -r, --repo-root <Path>             Repository root path containing MelloSilveiraTools.sln (if omitted and not found locally, clones GitHub main branch).");
-        Console.WriteLine("  --install-docker                   Automatically allow installing Docker if neither Docker nor local PostgreSQL is found.");
-        Console.WriteLine("  --no-docker-install                Never prompt or install Docker automatically.");
+        Console.WriteLine($"  -p, --port <Port>                  Local HTTP TCP port for WebApi.Host & WebUi (default: {DefaultWebApiPort}).");
+        Console.WriteLine($"  --https-port <Port>                External HTTPS TCP port for WebApi.Host & WebUi (default: {DefaultWebApiHttpsPort}).");
+        Console.WriteLine("  --cert-path <Path>                 Path to a custom HTTPS (.pfx) certificate file (default: prompt or generate local cert).");
+        Console.WriteLine("  --cert-password <Password>         Optional password for the custom HTTPS certificate.");
+        Console.WriteLine("  -r, --repo-root <Path>             Repository root path containing MelloSilveiraTools.sln.");
+        Console.WriteLine($"  -b, --branch <Branch>              GitHub branch to clone when repository is absent locally (default: {DefaultBranch}).");
+        Console.WriteLine("  --install-docker                   Automatically allow installing Docker if neither PostgreSQL nor Docker is found.");
+        Console.WriteLine("  --no-docker-install                Decline automatic Docker installation.");
+        Console.WriteLine("  --install-postgres                 Automatically allow installing PostgreSQL + .NET 10 locally if Docker is declined.");
+        Console.WriteLine("  --no-postgres-install              Decline automatic PostgreSQL installation.");
+        Console.WriteLine("  --open-browser                     Automatically open the default browser on the frontend Home page when ready.");
         Console.WriteLine("  --no-browser                       Do not open the default browser when WebApi.Host is ready.");
         Console.WriteLine("  -y, --non-interactive              Skip interactive prompts and accept CLI/default values.");
         Console.WriteLine("  -h, --help                         Show this help message.");
     }
 
     /// <summary>
-    /// Resolves infrastructure options from CLI arguments, defaults, and optional interactive prompts.
+    /// Resolves infrastructure options from CLI arguments and defaults.
     /// </summary>
     /// <param name="logger">Logger for configuration diagnostics.</param>
     /// <param name="args">Command-line arguments.</param>
@@ -166,16 +230,20 @@ public static class LauncherInfrastructureResolver
     {
         ExecutionMode mode = ExecutionMode.Local;
         string connectionString = DefaultConnectionString;
-        MigrationContext migrationContext = DefaultMigrationContext;
+        LauncherMigrationContext migrationContext = DefaultMigrationContext;
         int migrationTimeoutSeconds = DefaultMigrationTimeoutSeconds;
         int webApiPort = DefaultWebApiPort;
+        int webApiHttpsPort = DefaultWebApiHttpsPort;
         string? repositoryRoot = null;
+        string branch = DefaultBranch;
+        bool branchSet = false;
         bool? allowDockerInstall = null;
-        bool openBrowser = true;
+        bool? allowPostgresInstall = null;
+        bool? openBrowser = null;
+        string? httpsCertificatePath = null;
+        string? httpsCertificatePassword = null;
 
         bool modeSet = false;
-        bool connectionStringSet = false;
-        bool webApiPortSet = false;
         bool nonInteractive = false;
 
         for (int i = 0; i < args.Length; i++)
@@ -208,6 +276,15 @@ public static class LauncherInfrastructureResolver
                 case "--no-docker-install":
                     allowDockerInstall = false;
                     break;
+                case "--install-postgres":
+                    allowPostgresInstall = true;
+                    break;
+                case "--no-postgres-install":
+                    allowPostgresInstall = false;
+                    break;
+                case "--open-browser":
+                    openBrowser = true;
+                    break;
                 case "--no-browser":
                     openBrowser = false;
                     break;
@@ -219,7 +296,6 @@ public static class LauncherInfrastructureResolver
                         return null;
                     }
 
-                    connectionStringSet = true;
                     break;
                 case "--context":
                 case "-c":
@@ -249,7 +325,14 @@ public static class LauncherInfrastructureResolver
                         return null;
                     }
 
-                    webApiPortSet = true;
+                    break;
+                case "--https-port":
+                    if (!TryReadValue(args, ref i, out string httpsPortRaw) || !TryParseValidPort(httpsPortRaw, out webApiHttpsPort))
+                    {
+                        logger.LogError("Invalid or missing value for {Option}. Expected an integer between 1 and 65535.", arg);
+                        return null;
+                    }
+
                     break;
                 case "--repo-root":
                 case "-r":
@@ -261,56 +344,84 @@ public static class LauncherInfrastructureResolver
 
                     repositoryRoot = rootRaw;
                     break;
+                case "--branch":
+                case "-b":
+                    if (!TryReadValue(args, ref i, out string branchRaw))
+                    {
+                        logger.LogError("Missing or empty value for {Option}.", arg);
+                        return null;
+                    }
+
+                    branch = branchRaw.Trim();
+                    branchSet = true;
+                    break;
+                case "--cert-path":
+                    if (!TryReadValue(args, ref i, out string certPathRaw))
+                    {
+                        logger.LogError("Missing or empty value for {Option}.", arg);
+                        return null;
+                    }
+
+                    httpsCertificatePath = certPathRaw;
+                    break;
+                case "--cert-password":
+                    if (i + 1 >= args.Length)
+                    {
+                        logger.LogError("Missing value for {Option}.", arg);
+                        return null;
+                    }
+
+                    httpsCertificatePassword = args[++i];
+                    break;
                 default:
                     logger.LogError("Unknown argument '{Argument}'. Run with --help to see supported options.", arg);
                     return null;
             }
         }
 
-        if (!nonInteractive && !Console.IsInputRedirected && (!modeSet || !connectionStringSet || !webApiPortSet))
+        if (nonInteractive)
         {
-            Console.WriteLine();
-            Console.WriteLine("Configure infrastructure parameters (press Enter to accept the default in brackets):");
-
-            if (!modeSet)
-                mode = PromptExecutionMode("  Execution Mode (Local/Docker)", mode);
-            if (!connectionStringSet)
-                connectionString = PromptConnectionString("  PostgreSQL Connection String", connectionString);
-            if (!webApiPortSet)
-                webApiPort = PromptPort("  WebApi.Host Port", webApiPort);
-
-            Console.WriteLine();
+            allowDockerInstall ??= false;
+            allowPostgresInstall ??= false;
         }
-
-        if (nonInteractive && allowDockerInstall is null)
-            allowDockerInstall = false;
 
         return new LauncherInfrastructureOptions(
             mode,
+            modeSet,
             connectionString,
             migrationContext,
             migrationTimeoutSeconds,
             webApiPort,
+            webApiHttpsPort,
             repositoryRoot,
+            branch,
+            branchSet,
             allowDockerInstall,
-            openBrowser);
+            allowPostgresInstall,
+            openBrowser,
+            nonInteractive,
+            httpsCertificatePath,
+            httpsCertificatePassword);
     }
 
     /// <summary>
-    /// Resolves the repository root from <paramref name="explicitRepoRoot"/>, local parent directories, or by cloning the GitHub <c>main</c> branch.
+    /// Resolves the repository root from <see cref="LauncherInfrastructureOptions.RepositoryRoot"/>, local directories, or by cloning from GitHub
+    /// after asking the user which branch to use (defaulting to <c>main</c>).
     /// </summary>
     /// <param name="logger">Logger for repository resolution diagnostics.</param>
-    /// <param name="explicitRepoRoot">Optional repository root passed via <c>--repo-root</c>.</param>
+    /// <param name="dependencyInstaller">Dependency installer used to ensure <c>git</c> is present before cloning.</param>
+    /// <param name="options">Resolved launcher infrastructure options.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The resolved repository root path, or <c>null</c> on failure.</returns>
     public static async Task<string?> ResolveOrCloneRepositoryRootAsync(
         ILogger logger,
-        string? explicitRepoRoot,
+        DependencyInstaller dependencyInstaller,
+        LauncherInfrastructureOptions options,
         CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(explicitRepoRoot))
+        if (!string.IsNullOrWhiteSpace(options.RepositoryRoot))
         {
-            string fullPath = Path.GetFullPath(explicitRepoRoot);
+            string fullPath = Path.GetFullPath(options.RepositoryRoot);
             if (File.Exists(Path.Combine(fullPath, "MelloSilveiraTools.sln")))
                 return fullPath;
 
@@ -318,27 +429,43 @@ public static class LauncherInfrastructureResolver
             return null;
         }
 
+        string targetDirectory = Path.Combine(Environment.CurrentDirectory, "MelloSilveiraTools");
         string? localRoot = FindRepositoryRoot(Environment.CurrentDirectory)
+            ?? FindRepositoryRoot(targetDirectory)
             ?? FindRepositoryRoot(AppContext.BaseDirectory);
         if (localRoot is not null)
+        {
+            logger.LogInformation("Local copy of MelloSilveiraTools found at '{RepoRoot}'.", localRoot);
             return localRoot;
+        }
 
-        string targetDirectory = Path.Combine(Environment.CurrentDirectory, "MelloSilveiraTools");
-        logger.LogInformation("Repository not found locally. Cloning main branch from {RepoUrl} into '{TargetDirectory}'...", GitHubRepositoryUrl, targetDirectory);
+        if (!await dependencyInstaller.EnsureGitInstalledAsync(cancellationToken).ConfigureAwait(false))
+            return null;
+
+        string targetBranch = options.Branch;
+        if (!options.BranchExplicitlySet && !options.NonInteractive && !Console.IsInputRedirected)
+        {
+            Console.Write($"  MelloSilveiraTools copy not found locally. Enter GitHub branch to clone [{DefaultBranch}]: ");
+            string? input = Console.ReadLine()?.Trim();
+            if (!string.IsNullOrEmpty(input))
+                targetBranch = input;
+        }
+
+        logger.LogInformation("Cloning branch '{Branch}' from {RepoUrl} into '{TargetDirectory}'...", targetBranch, GitHubRepositoryUrl, targetDirectory);
 
         (int exitCode, _, string stdErr) = await ProcessRunner.RunCommandAsync(
             "git",
-            $"clone --branch main --single-branch {GitHubRepositoryUrl} \"{targetDirectory}\"",
+            $"clone --branch \"{targetBranch}\" --single-branch {GitHubRepositoryUrl} \"{targetDirectory}\"",
             Environment.CurrentDirectory,
             cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (exitCode != 0 || !File.Exists(Path.Combine(targetDirectory, "MelloSilveiraTools.sln")))
         {
-            logger.LogError("Failed to clone repository from {RepoUrl}: {Error}", GitHubRepositoryUrl, stdErr);
+            logger.LogError("Failed to clone branch '{Branch}' from {RepoUrl}: {Error}", targetBranch, GitHubRepositoryUrl, stdErr);
             return null;
         }
 
-        logger.LogInformation("Repository cloned successfully at '{TargetDirectory}'.", targetDirectory);
+        logger.LogInformation("Repository cloned successfully at '{TargetDirectory}' (branch: {Branch}).", targetDirectory, targetBranch);
         return targetDirectory;
     }
 
@@ -354,47 +481,11 @@ public static class LauncherInfrastructureResolver
         return false;
     }
 
-    private static ExecutionMode PromptExecutionMode(string label, ExecutionMode defaultValue)
-    {
-        while (true)
-        {
-            Console.Write($"{label} [{defaultValue}]: ");
-            string? input = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(input))
-                return defaultValue;
-
-            if (Enum.TryParse(input, ignoreCase: true, out ExecutionMode parsed))
-                return parsed;
-
-            Console.WriteLine("  Invalid mode. Enter 'Local' or 'Docker'.");
-        }
-    }
-
-    private static string PromptConnectionString(string label, string defaultValue)
-    {
-        Console.Write($"{label} [{LauncherInfrastructureOptions.MaskConnectionString(defaultValue)}]: ");
-        string? input = Console.ReadLine()?.Trim();
-        return string.IsNullOrEmpty(input) ? defaultValue : input;
-    }
-
-    private static int PromptPort(string label, int defaultValue)
-    {
-        while (true)
-        {
-            Console.Write($"{label} [{defaultValue}]: ");
-            string? input = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(input))
-                return defaultValue;
-
-            if (TryParseValidPort(input, out int parsed))
-                return parsed;
-
-            Console.WriteLine("  Invalid port. Enter a number between 1 and 65535.");
-        }
-    }
-
     private static string? FindRepositoryRoot(string startDirectory)
     {
+        if (!Directory.Exists(startDirectory))
+            return null;
+
         DirectoryInfo? current = new(startDirectory);
         while (current is not null)
         {

@@ -6,12 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "etc", "etc", "{C87CB27D-FD2A-4506-A353-F6B36AA39AFB}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		AGENTS.md = AGENTS.md
 		CHANGELOG.md = CHANGELOG.md
-		CLAUDE.md = CLAUDE.md
+		coverlet.runsettings = coverlet.runsettings
 		Directory.Build.props = Directory.Build.props
-		LICENSE = LICENSE
-		README.md = README.md
+		Directory.Build.targets = Directory.Build.targets
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{92D89A6E-7E8A-4E65-955F-ECAC80987E27}"
@@ -20,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools", "src\M
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{17CB7414-9986-45D8-B2C1-39F91DC5D7A5}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\draft-pdf.yml = .github\workflows\draft-pdf.yml
+		.github\workflows\publish_launcher_executables.yml = .github\workflows\publish_launcher_executables.yml
 		.github\workflows\publish_nuget_package.yml = .github\workflows\publish_nuget_package.yml
 		.github\workflows\publish_release_candidate_nuget_package.yml = .github\workflows\publish_release_candidate_nuget_package.yml
 	EndProjectSection
@@ -53,6 +54,17 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.WebApi.Host", "src\MelloSilveiraTools.WebApi.Host\MelloSilveiraTools.WebApi.Host.csproj", "{7ED8CE6B-9F17-400F-8806-37E68EE3FFD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Launcher", "src\MelloSilveiraTools.Launcher\MelloSilveiraTools.Launcher.csproj", "{11EE7733-16C5-4AB3-9615-D45B0B42B375}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{79AD22AE-EB54-44D7-A40E-0150B9C0E633}"
+	ProjectSection(SolutionItems) = preProject
+		AGENTS.md = AGENTS.md
+		CLAUDE.md = CLAUDE.md
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		JOSS_RECOMMENDATIONS.md = JOSS_RECOMMENDATIONS.md
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

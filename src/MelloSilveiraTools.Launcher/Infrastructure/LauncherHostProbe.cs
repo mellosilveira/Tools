@@ -32,23 +32,25 @@ public static class LauncherHostProbe
 
     /// <summary>
     /// Polls <c>{baseUrl}/api/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
-    /// Optionally opens the default browser once healthy.
     /// </summary>
     /// <param name="logger">Logger for startup polling diagnostics.</param>
-    /// <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
-    /// <param name="openBrowser">When <see langword="true"/>, launches the default browser upon readiness.</param>
+    /// <param name="baseUrl">Local HTTP base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+    /// <param name="httpsBaseUrl">Optional external HTTPS base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
     /// <param name="hasExitedEarly">Optional callback returning <see langword="true"/> if the launched process terminated prematurely.</param>
     /// <param name="maxAttempts">Maximum polling attempts (5 seconds apart).</param>
+    /// <param name="timeProvider">Clock provider used for retry delays.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns><see langword="true"/> if the host became healthy (and browser launch succeeded when requested); otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the host became healthy; otherwise <see langword="false"/>.</returns>
     public static async Task<bool> WaitForHealthyAsync(
         ILogger logger,
         string baseUrl,
-        bool openBrowser,
+        string? httpsBaseUrl = null,
         Func<bool>? hasExitedEarly = null,
         int maxAttempts = 90,
+        TimeProvider? timeProvider = null,
         CancellationToken cancellationToken = default)
     {
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
             if (hasExitedEarly?.Invoke() == true)
@@ -56,16 +58,57 @@ public static class LauncherHostProbe
 
             if (await IsHealthyAsync(baseUrl, cancellationToken).ConfigureAwait(false))
             {
-                logger.LogInformation("Ready! Frontend: {BaseUrl} | Swagger: {BaseUrl}/swagger", baseUrl, baseUrl);
-                return !openBrowser || TryOpenBrowser(logger, baseUrl);
+                if (!string.IsNullOrWhiteSpace(httpsBaseUrl))
+                    logger.LogInformation("Ready! External HTTPS: {HttpsUrl} | Local HTTP: {HttpUrl} | Swagger: {HttpUrl}/swagger", httpsBaseUrl, baseUrl, baseUrl);
+                else
+                    logger.LogInformation("Ready! Frontend Home: {BaseUrl} | Backend Swagger API: {BaseUrl}/swagger", baseUrl, baseUrl);
+
+                return true;
             }
 
             logger.LogInformation("({CurrentAttempt}/{MaxAttempts}) Waiting {DelayTimeSpan} for WebApi.Host /api/health...", attempt, maxAttempts, RetryDelay);
-            await Task.Delay(RetryDelay, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(RetryDelay, clock, cancellationToken).ConfigureAwait(false);
         }
 
         logger.LogError("Timed out waiting for WebApi.Host /api/health endpoint at {BaseUrl}.", baseUrl);
         return false;
+    }
+
+    /// <summary>
+    /// Asks the user whether to open the default browser on the frontend Home page (unless overridden by CLI flags).
+    /// </summary>
+    /// <param name="logger">Logger for browser launch diagnostics.</param>
+    /// <param name="baseUrl">Frontend Home URL.</param>
+    /// <param name="openBrowserOverride">Explicit CLI flag override, or <see langword="null"/> to prompt interactively.</param>
+    /// <param name="nonInteractive">When <see langword="true"/>, skips prompting.</param>
+    public static void PromptAndOpenBrowserIfRequested(ILogger logger, string baseUrl, bool? openBrowserOverride, bool nonInteractive)
+    {
+        bool shouldOpen;
+        if (openBrowserOverride.HasValue)
+        {
+            shouldOpen = openBrowserOverride.Value;
+        }
+        else if (nonInteractive || Console.IsInputRedirected)
+        {
+            shouldOpen = false;
+        }
+        else
+        {
+            Console.Write($"  Do you want to open your browser at the frontend Home page ({baseUrl})? [Y/n]: ");
+            string? answer = Console.ReadLine()?.Trim();
+            shouldOpen = answer is not null
+                && (answer.Length == 0
+                    || answer.Equals("S", StringComparison.OrdinalIgnoreCase)
+                    || answer.Equals("Y", StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!shouldOpen)
+        {
+            logger.LogInformation("Browser launch skipped. Open {BaseUrl} manually to access the frontend Home page.", baseUrl);
+            return;
+        }
+
+        TryOpenBrowser(logger, baseUrl);
     }
 
     /// <summary>

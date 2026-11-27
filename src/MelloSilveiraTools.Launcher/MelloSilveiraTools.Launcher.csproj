@@ -6,12 +6,12 @@
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <AssemblyTitle>MelloSilveiraTools Quickstart Launcher</AssemblyTitle>
-    <Description>Cross-platform orchestrator that validates and bootstraps PostgreSQL, database migrations, Web API, and Blazor WebUI.</Description>
+    <Description>Standalone cross-platform orchestrator that validates and bootstraps PostgreSQL, database migrations, Web API, and Blazor WebUI.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MelloSilveiraTools.Database.Migrator\MelloSilveiraTools.Database.Migrator.csproj" />
-    <ProjectReference Include="..\MelloSilveiraTools.WebApi.Host\MelloSilveiraTools.WebApi.Host.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
   </ItemGroup>
 
 </Project>

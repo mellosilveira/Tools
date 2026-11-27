@@ -356,6 +356,48 @@ details summary {
     animation: spin 0.8s linear infinite;
 }
 
+.home-hero {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(30, 41, 59, 0.96));
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+.home-hero h2 {
+    font-size: 1.45rem;
+    color: var(--primary);
+    margin: 0.75rem 0 0.5rem;
+}
+
+.home-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.home-lead {
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.55rem;
+}
+
+.home-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 1.25rem;
+}
+
+.home-feature-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0 !important;
+}
+
+.home-feature-card h3 {
+    margin-top: 0;
+    color: #e2e8f0;
+}
+
 @keyframes spin {
     to { transform: rotate(360deg); }
 }

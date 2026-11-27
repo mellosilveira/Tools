@@ -12,6 +12,7 @@ using MelloSilveiraTools.WebApi.Host;
 using MelloSilveiraTools.WebApi.Host.Commands;
 using MelloSilveiraTools.WebApi.Host.Endpoints;
 using MelloSilveiraTools.WebApi.Host.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,12 @@ builder.Services.AddToolsServices(
     addMechanicalModels: settings.AddMechanicalModels);
 
 builder.Services.AddWebApiHealthChecks(settings.Database);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 builder.Services.AddJweAuthentication(settings.Jwt);
 builder.Services.AddDefaultRateLimiting();
 builder.Services.AddDefaultCors(settings.AllowedCorsOrigins, builder.Environment.IsDevelopment());
@@ -53,6 +60,7 @@ WebApplication app = builder.Build();
 
 await app.EnsureDatabaseRlsSafetyAsync().ConfigureAwait(false);
 
+app.UseForwardedHeaders();
 app.UseCustomMiddlewares();
 app.UseSwaggerDocs();
 app.UseCors();
