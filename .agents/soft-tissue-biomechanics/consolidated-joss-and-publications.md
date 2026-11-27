@@ -65,7 +65,7 @@ The engineering and scientific depth achieved supports **two complementary, syne
 > *(Note: CI build and test automation are already satisfied by `.github/workflows/publish_release_candidate_nuget_package.yml` and `.github/workflows/publish_nuget_package.yml`, without needing an additional `ci.yml`.)*
 
 #### Post-Acceptance (After JOSS Peer Review)
-* [ ] Create the final GitHub release tag (e.g., `v2.1.0`).
+* [ ] Create the final GitHub release tag (e.g., `v3.0.0`).
 * [ ] Archive the repository via [Zenodo](https://zenodo.org/) (or figshare) to mint a permanent **DOI**.
 * [ ] Report release version and DOI in the official JOSS review thread.
 

@@ -25,9 +25,9 @@ This document centralizes improvement opportunities, architectural extensions, a
     3. Contextualized experimental grounding (specimen ID, geometry/$L_0$, deformation phases — ramp, relaxation, recovery — fitted parameters, and $R^2$/RMSE metrics).
   - **Rationale:** Eliminates black-box outputs and guarantees the scientific auditability, methodological transparency, and full reproducibility required for the Master's defense (PPEMM/UFCIRJ) and international peer-reviewed journals.
 
-- **Expansion of Communication Protocols Beyond HTTP/HTTPS REST (`v2.1+`)**
+- **Expansion of Communication Protocols Beyond HTTP/HTTPS REST (`v3+`)**
   - **Context:** Web API Layer, Real-Time Telemetry, Distributed Workers & HPC/FEBio Coupling (`MelloSilveiraTools.WebApi` / `Core.Pipelines`).
-  - **Description:** Retain **HTTP/HTTPS + JSON + NDJSON Streaming** for the v2.1.0 Quickstart (JOSS) and progressively expand transport options in future releases:
+  - **Description:** Retain **HTTP/HTTPS + JSON + NDJSON Streaming** for the v3.0.0 Quickstart (JOSS) and progressively expand transport options in future releases:
     1. **WebSockets via SignalR (`Microsoft.AspNetCore.SignalR`):** Native ASP.NET Core bidirectional transport (zero third-party NuGets) for multiplexing multiple pipelines on one connection, auto-reconnection, and browser control commands (*pause/cancel*) with JWE authentication.
     2. **Server-Sent Events (SSE — `TypedResults.ServerSentEvents`):** Native `.NET 10` unidirectional streaming (`text/event-stream`) with named events (`topology`, `progress`, `error`) as a lightweight alternative to NDJSON.
     3. **gRPC / gRPC-Web (`Grpc.AspNetCore`):** High-performance binary transport over HTTP/2 + Protobuf (Native AOT compatible) for dense time series (20k–50k+ points) and Python/C++/FEBio solver coupling.
@@ -46,7 +46,7 @@ This document centralizes improvement opportunities, architectural extensions, a
     6. Remove `IL2xxx`/`IL3xxx` warning suppressions from `Directory.Build.props`.
   - **Benefits of NativeAOT:** Smaller containers/binaries without full `.NET` runtime, near-instant cold start, lower baseline RAM, zero runtime JIT overhead.
   - **Costs & Trade-offs:** High architectural refactoring cost; structural incompatibility with runtime dynamic plugin loading; `Expression.Compile()` falls back to interpreted mode unless source-generated; requires a host **C++ linker/toolchain** (Visual Studio C++ tools on Windows, `clang`/headers on Linux, Xcode CLT on macOS), raising setup friction for JOSS reviewers.
-  - **Current Decision Rationale:** For `v2.1.0` (JOSS submission), **`--self-contained` + `PublishReadyToRun=true` (managed ReadyToRun AOT)** is used in Docker containers (`runtime-deps:10.0`) and `Launcher` Local mode, keeping full `PublishAot=true` as future work for the composite host (while `MelloSilveiraTools.Database` and core libraries remain AOT-compatible).
+  - **Current Decision Rationale:** For `v3.0.0` (JOSS submission), **`--self-contained` + `PublishReadyToRun=true` (managed ReadyToRun AOT)** is used in Docker containers (`runtime-deps:10.0`) and `Launcher` Local mode, keeping full `PublishAot=true` as future work for the composite host (while `MelloSilveiraTools.Database` and core libraries remain AOT-compatible).
 
 - **PgBouncer Persistence Layer Adaptation for High Horizontal Concurrency**
   - **Context:** PostgreSQL Persistence Layer (`MelloSilveiraTools.Database` / `PostgresRepository` / `PostgresResiliencePipeline`) under future high-concurrency or serverless scaling.
