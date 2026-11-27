@@ -215,9 +215,9 @@ public sealed class PostgresIntegrationTests
                 MechanicalModelCurveFitOutputEntity userAFit2 = CreateCurveFit($"FIT-UA-2-{suffix}", $"EXT-UA-{suffix}");
                 long[] upsertedFitIds = await repository.UpsertAsync(
                     [userAFit1, userAFit2],
-                    new MechanicalModelCurveFitOutputFilter { ExtenalIdentifier = $"EXT-UA-{suffix}" });
+                    new MechanicalModelCurveFitOutputFilter { ExternalIdentifier = $"EXT-UA-{suffix}" });
                 Assert.Equal(2, upsertedFitIds.Length);
-                Assert.Equal(2L, await repository.CountAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExtenalIdentifier = $"EXT-UA-{suffix}" }));
+                Assert.Equal(2L, await repository.CountAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExternalIdentifier = $"EXT-UA-{suffix}" }));
             }
 
             // User B sees public file, CANNOT see User A's private file, simulation, or curve fits
@@ -227,7 +227,7 @@ public sealed class PostgresIntegrationTests
                 Assert.NotNull(await repository.GetAsync<StorageEntryMetadataEntity>(publicFileId));
                 Assert.Null(await repository.GetAsync<StorageEntryMetadataEntity>(userAFileId));
                 Assert.Null(await repository.GetAsync<MechanicalModelSimulationEntity>(userASimId));
-                Assert.Equal(0L, await repository.CountAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExtenalIdentifier = $"EXT-UA-{suffix}" }));
+                Assert.Equal(0L, await repository.CountAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExternalIdentifier = $"EXT-UA-{suffix}" }));
             }
 
             // Anonymous also CANNOT see User A's private records.
@@ -261,8 +261,8 @@ public sealed class PostgresIntegrationTests
                 await repository.DeleteAsync<MechanicalModelSimulationEntity>(userASimId);
                 await repository.DeleteAsync<StorageEntryMetadataEntity>(userAFileId);
                 await repository.DeleteAsync<StorageEntryMetadataEntity>(publicFileId);
-                await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExtenalIdentifier = $"EXT-PUB-{suffix}" });
-                await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExtenalIdentifier = $"EXT-UA-{suffix}" });
+                await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExternalIdentifier = $"EXT-PUB-{suffix}" });
+                await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(new MechanicalModelCurveFitOutputFilter { ExternalIdentifier = $"EXT-UA-{suffix}" });
             }
 
             // =========================================================================
@@ -439,7 +439,7 @@ public sealed class PostgresIntegrationTests
     private static MechanicalModelCurveFitOutputEntity CreateCurveFit(string identifier, string externalIdentifier) => new()
     {
         Identifier = identifier,
-        ExtenalIdentifier = externalIdentifier,
+        ExternalIdentifier = externalIdentifier,
         MechanicalModelName = "Fung",
         InitialAcceptedRange = 0.0,
         FinalAcceptedRange = 12.5,

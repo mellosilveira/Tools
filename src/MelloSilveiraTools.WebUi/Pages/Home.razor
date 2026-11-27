@@ -202,7 +202,12 @@
     private string? _statusMessage;
     private bool _isError;
 
-    private void SelectTab(string tab) => _activeTab = tab;
+    private void SelectTab(string tab)
+    {
+        _activeTab = tab;
+        _statusMessage = null;
+        _isError = false;
+    }
 
     private void HandleStatus((string Message, bool IsError) status)
     {

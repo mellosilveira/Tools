@@ -59,6 +59,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         ExecuteExperimentalDataPipeline singleCmd = new(
             NullLogger<ExecuteExperimentalDataPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             new ExecuteExperimentalDataPipelineValidator());
 
@@ -99,6 +100,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         ExecuteBatchExperimentalDataPipeline batchCmd = new(
             NullLogger<ExecuteBatchExperimentalDataPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             new ExecuteBatchExperimentalDataPipelineValidator());
 
@@ -144,6 +146,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         ExecuteExperimentalDataPipeline singleCmd = new(
             NullLogger<ExecuteExperimentalDataPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             new ExecuteExperimentalDataPipelineValidator());
 
@@ -161,6 +164,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         ExecuteBatchExperimentalDataPipeline batchCmd = new(
             NullLogger<ExecuteBatchExperimentalDataPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             new ExecuteBatchExperimentalDataPipelineValidator());
 
@@ -208,6 +212,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         ExecuteParametricSweepPipeline singleCmd = new(
             NullLogger<ExecuteParametricSweepPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             new ExecuteParametricSweepValidator());
 
@@ -230,6 +235,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         ServiceProvider sp = new ServiceCollection().BuildServiceProvider();
         ExecuteParametricSweepFromExperimentalDataCommand fromExpCmd = new(
             NullLogger<ExecuteParametricSweepFromExperimentalDataCommand>.Instance,
+            NullPipelineProgressNotifier.Instance,
             Mock.Of<IRepository>(),
             pipeMock.Object,
             new ExecuteParametricSweepFromExperimentalDataValidator(),
@@ -266,6 +272,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         ServiceProvider okSp = okServices.BuildServiceProvider();
         ExecuteParametricSweepFromExperimentalDataCommand okFromExpCmd = new(
             NullLogger<ExecuteParametricSweepFromExperimentalDataCommand>.Instance,
+            NullPipelineProgressNotifier.Instance,
             okRepoMock.Object,
             pipeMock.Object,
             new ExecuteParametricSweepFromExperimentalDataValidator(),
@@ -305,7 +312,7 @@ public sealed class OptimizationsControllersAndCommandsTests
             yield return new MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity
             {
                 Identifier = "fit-1",
-                ExtenalIdentifier = "exp-ok",
+                ExternalIdentifier = "exp-ok",
                 MechanicalModelName = nameof(MechanicalModel.Fung),
                 InitialAcceptedRange = 0.0,
                 FinalAcceptedRange = 0.05,
@@ -340,7 +347,7 @@ public sealed class OptimizationsControllersAndCommandsTests
 
         string ndjson = Encoding.UTF8.GetString(body.ToArray());
         Assert.Contains("Segmenter", ndjson);
-        Assert.Contains($"\"State\":{(int)PipelineStepState.Completed}", ndjson);
+        Assert.Contains("\"state\":\"Completed\"", ndjson);
 
         static async IAsyncEnumerable<PipelineProgressEvent> EventsAsync()
         {

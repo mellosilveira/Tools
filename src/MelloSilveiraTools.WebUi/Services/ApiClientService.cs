@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.WebUi.Services;
 
@@ -21,7 +22,8 @@ public sealed class ApiClientService(HttpClient httpClient)
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     private string? _bearerToken;
@@ -208,7 +210,7 @@ public sealed class ApiClientService(HttpClient httpClient)
     public async Task<List<MechanicalModelCurveFitOutputDto>> GetCurveFitsAsync(string? externalIdentifier = null, CancellationToken cancellationToken = default)
     {
         string url = BuildQueryUrl("/api/v1/curve-fit-outputs", [
-            ("ExtenalIdentifier", externalIdentifier),
+            ("ExternalIdentifier", externalIdentifier),
             ("PageNumber", "1"),
             ("PageSize", "50")
         ]);

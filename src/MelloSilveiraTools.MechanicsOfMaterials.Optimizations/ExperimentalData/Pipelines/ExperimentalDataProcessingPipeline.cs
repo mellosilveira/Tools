@@ -43,62 +43,74 @@ public sealed class ExperimentalDataProcessingPipeline(
     /// <inheritdoc />
     public async Task<Result<string>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default)
     {
-        ILogger<ExperimentalDataProcessingPipeline> logger = loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>();
+        pipelineFactory.EnsureProgressChannel(input.Identifier);
+        await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
 
-        IMechanicalModelTypeResolver mechanicalModelTypeResolver = serviceLocator.GetRequiredKeyedService<IMechanicalModelTypeResolver>(input.MechanicalModelName);
-
-        ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation, fileStorageService);
-        (string experimentalDataFileLocation, ExperimentalDataFileWriterStep experimentalDataFileWriterStep) = await ExperimentalDataFileWriterStep.CreateAsync(fileStorageService, input.Identifier).ConfigureAwait(false);
-        ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep);
-        CurveSegmentBuilderStep curveSegmentBuilderStep = new();
-        IMechanicalModelCurveFitterStep curveFitterStep = mechanicalModelStepFactory.CreateCurveFitterStep(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared, input.ConfidenceLevel);
-        CurveFitOutputIdentifierBuilderStep curveFitOutputIdentifierBuilderStep = new();
-        MechanicalModelSimulationStep mechanicalModelSimulationStep = new(fileStorageService, mechanicalModelTypeResolver, mechanicalModelCalculatorFactory, input.Identifier, input.SimulationTimeStep, input.FinalSimulationTime, input.AsymptoteConsecutivePointsThreshold);
-        CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository, input.Identifier, input.MechanicalModelName);
-        MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), fileStorageService, repository, input.Identifier, input.MechanicalModelName);
-
-        PipelineStepOptions fileWriterOptions = ResolveSequentialStepOptions(logger, nameof(ExperimentalDataFileWriterStep), settings.FileWriterOptions);
-        PipelineStepOptions segmentBuilderOptions = ResolveSequentialStepOptions(logger, nameof(CurveSegmentBuilderStep), settings.SegmentBuilderOptions);
-        PipelineStepOptions curveFitterOptions = ResolveSequentialStepOptions(logger, curveFitterStep.GetType().Name, settings.CurveFitterOptions);
-
-        IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = pipelineFactory
-            .CreateDataflow<ExperimentalDataSegmenterInput>(logger, input.Identifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
-            .WithLoggingErrors()
-            .AddStep(segmenterStep, settings.SegmenterOptions)
-            .AddBroadcastStep(experimentalDataFileWriterStep, options: fileWriterOptions)
-            .AddStep(downsamplerStep, PipelineStepOptions.Synchronous)
-            .AddStep(curveSegmentBuilderStep, segmentBuilderOptions)
-            .AddStep(curveFitterStep, curveFitterOptions)
-            .Fork(
-                originalBranch => originalBranch,
-                identifierBranch => identifierBranch.AddStep(curveFitOutputIdentifierBuilderStep),
-                simulationBranch => simulationBranch.AddStep(mechanicalModelSimulationStep, settings.SimulationInputBuilderOptions)
-            )
-            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1), settings.PersistanceOptions)
-            .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
-                experimentalDataFileLocation,
-                CurveFitOutputIdentifier: t.Item2,
-                t.Item3.AsymptoteTime,
-                t.Item3.DeltaOutput,
-                t.Item3.OutputFileMetadata)
-            )
-            .AddStep(mechanicalModelOutputPersistenceStep, settings.PersistanceOptions)
-            .BuildTerminal();
-
-        await using (pipeline)
+        try
         {
-            bool accepted = await pipeline.SendAsync(input.ToSegmenterInput(), cancellationToken).ConfigureAwait(false);
-            if (!accepted)
+            ILogger<ExperimentalDataProcessingPipeline> logger = loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>();
+
+            IMechanicalModelTypeResolver mechanicalModelTypeResolver = serviceLocator.GetRequiredKeyedService<IMechanicalModelTypeResolver>(input.MechanicalModelName);
+
+            ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation, fileStorageService);
+            (string experimentalDataFileLocation, ExperimentalDataFileWriterStep experimentalDataFileWriterStep) = await ExperimentalDataFileWriterStep.CreateAsync(fileStorageService, input.Identifier).ConfigureAwait(false);
+            ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep);
+            CurveSegmentBuilderStep curveSegmentBuilderStep = new();
+            IMechanicalModelCurveFitterStep curveFitterStep = mechanicalModelStepFactory.CreateCurveFitterStep(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared, input.ConfidenceLevel);
+            CurveFitOutputIdentifierBuilderStep curveFitOutputIdentifierBuilderStep = new();
+            MechanicalModelSimulationStep mechanicalModelSimulationStep = new(fileStorageService, mechanicalModelTypeResolver, mechanicalModelCalculatorFactory, input.Identifier, input.SimulationTimeStep, input.FinalSimulationTime, input.AsymptoteConsecutivePointsThreshold);
+            CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository, input.Identifier, input.MechanicalModelName);
+            MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), fileStorageService, repository, input.Identifier, input.MechanicalModelName);
+
+            PipelineStepOptions fileWriterOptions = ResolveSequentialStepOptions(logger, nameof(ExperimentalDataFileWriterStep), settings.FileWriterOptions);
+            PipelineStepOptions segmentBuilderOptions = ResolveSequentialStepOptions(logger, nameof(CurveSegmentBuilderStep), settings.SegmentBuilderOptions);
+            PipelineStepOptions curveFitterOptions = ResolveSequentialStepOptions(logger, curveFitterStep.GetType().Name, settings.CurveFitterOptions);
+
+            IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = pipelineFactory
+                .CreateDataflow<ExperimentalDataSegmenterInput>(logger, input.Identifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
+                .WithLoggingErrors()
+                .AddStep(segmenterStep, settings.SegmenterOptions)
+                .AddBroadcastStep(experimentalDataFileWriterStep, options: fileWriterOptions)
+                .AddStep(downsamplerStep, PipelineStepOptions.Synchronous)
+                .AddStep(curveSegmentBuilderStep, segmentBuilderOptions)
+                .AddStep(curveFitterStep, curveFitterOptions)
+                .Fork(
+                    originalBranch => originalBranch,
+                    identifierBranch => identifierBranch.AddStep(curveFitOutputIdentifierBuilderStep),
+                    simulationBranch => simulationBranch.AddStep(mechanicalModelSimulationStep, settings.SimulationInputBuilderOptions)
+                )
+                .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1), settings.PersistanceOptions)
+                .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
+                    experimentalDataFileLocation,
+                    CurveFitOutputIdentifier: t.Item2,
+                    t.Item3.AsymptoteTime,
+                    t.Item3.DeltaOutput,
+                    t.Item3.OutputFileMetadata)
+                )
+                .AddStep(mechanicalModelOutputPersistenceStep, settings.PersistanceOptions)
+                .BuildTerminal();
+
+            await using (pipeline)
             {
-                logger.LogError("Failed to ingest experimental data into the processing pipeline. Input: {@Input}", input);
-                return Result.CreateBadRequest("Failed to ingest experimental data into the processing pipeline.");
+                bool accepted = await pipeline.SendAsync(input.ToSegmenterInput(), cancellationToken).ConfigureAwait(false);
+                if (!accepted)
+                {
+                    logger.LogError("Failed to ingest experimental data into the processing pipeline. Input: {@Input}", input);
+                    pipelineFactory.CompleteProgressChannel(input.Identifier);
+                    return Result.CreateBadRequest("Failed to ingest experimental data into the processing pipeline.");
+                }
+
+                pipeline.Complete();
+                await pipeline.Completion.ConfigureAwait(false);
             }
 
-            pipeline.Complete();
-            await pipeline.Completion.ConfigureAwait(false);
+            return input.Identifier;
         }
-
-        return input.Identifier;
+        catch (Exception ex)
+        {
+            pipelineFactory.CompleteProgressChannel(input.Identifier, ex);
+            throw;
+        }
     }
 
     private static PipelineStepOptions ResolveSequentialStepOptions(

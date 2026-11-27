@@ -16,6 +16,20 @@ namespace MelloSilveiraTools.Core.Pipelines;
 public class PipelineFactory(IPipelineProgressNotifier progressNotifier, TimeProvider timeProvider)
 {
     /// <summary>
+    /// Ensures the progress notification channel for <paramref name="pipelineIdentifier"/> exists before
+    /// asynchronous pipeline execution starts, preventing <c>404 Not Found</c> race conditions when clients connect immediately.
+    /// </summary>
+    /// <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
+    public void EnsureProgressChannel(string pipelineIdentifier) => progressNotifier.EnsureChannel(pipelineIdentifier);
+
+    /// <summary>
+    /// Marks the progress channel for <paramref name="pipelineIdentifier"/> as completed when initialization or execution faults before terminal completion.
+    /// </summary>
+    /// <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
+    /// <param name="error">Optional terminal error.</param>
+    public void CompleteProgressChannel(string pipelineIdentifier, Exception? error = null) => progressNotifier.TryComplete(pipelineIdentifier, error);
+
+    /// <summary>
     /// Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="BufferBlock{T}"/> 
     /// as the ingestion head. Enforces bounded capacity backpressure, binds the mandatory progress notifier, 
     /// and injects the unified cancellation graph that dictates the lifecycle of all subsequent blocks.

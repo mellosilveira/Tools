@@ -40,10 +40,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Replaced `IProgress<PipelineProgressEvent>` with DI-injected `IPipelineProgressNotifier`, converted `PipelineFactory` from static to singleton, removed static service helpers from `PluginFileProcessor` and `UserContextMiddleware`, and replaced `CurveFittingController`/`FitCurve` with the unified `ExperimentalData` and `ParametricSweep` pipelines.
 
 ### Fixed
-- **SQL Generation, Numerical Stability & Runtime Reliability (`Database`, `Mathematics`, `Optimizations`, `Plugins`, `WebApi`)**:
+- **SQL Generation, Numerical Stability & Serialization (`Core`, `Database`, `Mathematics`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
   - Fixed `PostgresSqlProvider` `INSERT`/`TryInsert`/`BulkInsert`/`UPDATE` generated column handling (`id`, `creation_timestamp`) and FK join alias disambiguation.
-  - Fixed culture-invariant `Vector3D` parsing/formatting (`CultureInfo.InvariantCulture`), JSON reference cycles on `Function` calculus properties, `LogarithmicCurveFitter` zero-based indexing, `ConstantFunction`/`FunctionFactory` edge cases, `ResultExtensions` immutable record chaining, and file-handle scoping in `JsonFilePluginCachePersistence`.
-  - Fixed `WebApi.Host` rate-limiter middleware ordering (after authentication/authorization), Swagger endpoint URL escaping, polymorphic JSON `$type` ordering, and acceptance/PostgreSQL integration test reliability.
+  - Fixed culture-invariant `Vector3D` parsing/formatting (`CultureInfo.InvariantCulture`), JSON reference cycles and polymorphic JSON serialization/deserialization on `Function` and `PronySeries`, `LogarithmicCurveFitter` zero-based indexing, `ConstantFunction`/`FunctionFactory` edge cases, `ResultExtensions` immutable record chaining, and file-handle scoping in `JsonFilePluginCachePersistence`.
+  - Fixed `WriteLineAsNdJsonAsync` NDJSON serialization in `WebApi` to honor configured `JsonSerializerOptions` with string enum conversion, and improved test isolation and reliability across unit and PostgreSQL acceptance suites.
 
 ### Security
 - **PostgreSQL Row-Level Security & Platform Hardening (`Core`, `Database`, `Database.Migrator`, `WebApi`, `Plugins`)**:

@@ -152,4 +152,28 @@ public sealed class ChannelPipelineProgressNotifierTests
         Assert.Empty(events);
         await notifier.DisposeAsync();
     }
+
+    /// <summary>
+    /// Verifies EnsureChannel pre-allocates the pipeline channel before any NotifyAsync call.
+    /// </summary>
+    [Fact]
+    public async Task EnsureChannel_PreAllocatesChannelBeforeNotifyAsync()
+    {
+        PipelineProgressNotifierSettings settings = new()
+        {
+            ChannelCapacity = 4,
+            FullMode = BoundedChannelFullMode.Wait,
+            MaxChannels = 4
+        };
+        await using ChannelPipelineProgressNotifier notifier = new(new CurrentUserProvider(), TimeProvider.System, settings);
+
+        notifier.EnsureChannel("pre-allocated");
+        Assert.True(notifier.TryComplete("pre-allocated"));
+
+        List<PipelineProgressEvent> events = [];
+        await foreach (PipelineProgressEvent evt in notifier.ReadAllAsync("pre-allocated"))
+            events.Add(evt);
+
+        Assert.Empty(events);
+    }
 }

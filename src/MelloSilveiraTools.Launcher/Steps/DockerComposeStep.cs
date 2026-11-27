@@ -30,6 +30,7 @@ public sealed class DockerComposeStep(
     TimeProvider timeProvider)
 {
     private LauncherInfrastructureOptions _options = options;
+    private string _composeProjectName = ResolveDefaultComposeProjectName();
     private string? _hostCertificateFile;
     private string? _containerCertificatePassword;
 
@@ -45,6 +46,7 @@ public sealed class DockerComposeStep(
             return false;
 
         logger.LogInformation("[2/3] Running database migrator container, validating tables, and tearing down migrator...");
+        await RemoveOrphanContainerIfConflictingAsync("tools_migrator", removeUnconditionally: true, cancellationToken).ConfigureAwait(false);
         int migratorExit = await RunComposeInteractiveAsync("compose up --build --no-deps --exit-code-from migrator migrator", useExternalHostGateway, cancellationToken).ConfigureAwait(false);
         if (migratorExit != 0)
         {
@@ -155,7 +157,17 @@ public sealed class DockerComposeStep(
                     _options = _options.WithPostgresPort(container.HostPort.Value);
                 }
 
-                bool external = !string.Equals(container.Name, "tools_postgres", StringComparison.OrdinalIgnoreCase);
+                (bool sameComposeNetwork, string? containerComposeProject) = await InspectDockerContainerComposeStateAsync(container.Name, cancellationToken).ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("COMPOSE_PROJECT_NAME"))
+                    && !string.IsNullOrWhiteSpace(containerComposeProject)
+                    && string.Equals(container.Name, "tools_postgres", StringComparison.OrdinalIgnoreCase))
+                {
+                    _composeProjectName = containerComposeProject;
+                    sameComposeNetwork = await IsContainerOnNetworkAsync(container.Name, $"{_composeProjectName}_default", cancellationToken).ConfigureAwait(false);
+                }
+
+                bool external = !string.Equals(container.Name, "tools_postgres", StringComparison.OrdinalIgnoreCase)
+                    || !sameComposeNetwork;
                 bool containerReady = wasRunning
                     ? await DependencyInstaller.CanQueryPostgresAsync(_options.ConnectionString, cancellationToken).ConfigureAwait(false)
                     : await dependencyInstaller.WaitForPostgresReadyAsync(_options.ConnectionString, cancellationToken).ConfigureAwait(false);
@@ -260,6 +272,8 @@ public sealed class DockerComposeStep(
             if (resolvedHttpsPort != _options.WebApiHttpsPort)
                 _options = _options.WithWebApiHttpsPort(resolvedHttpsPort);
 
+            await RemoveOrphanContainerIfConflictingAsync("tools_webapi", removeUnconditionally: false, cancellationToken).ConfigureAwait(false);
+
             (int webApiExit, string stdOut, string stdErr) = await RunComposeCapturedAsync("compose up -d --no-deps --build webapi", useExternalHostGateway, cancellationToken).ConfigureAwait(false);
             if (webApiExit == 0)
                 return true;
@@ -337,6 +351,7 @@ public sealed class DockerComposeStep(
         (_, int postgresPort) = _options.ExtractHostAndPort();
         Dictionary<string, string> env = new()
         {
+            ["COMPOSE_PROJECT_NAME"] = _composeProjectName,
             ["TOOLS_POSTGRES_PORT"] = postgresPort.ToString(CultureInfo.InvariantCulture),
             ["TOOLS_WEBAPI_HTTP_PORT"] = _options.WebApiPort.ToString(CultureInfo.InvariantCulture),
             ["TOOLS_WEBAPI_HTTPS_PORT"] = _options.WebApiHttpsPort.ToString(CultureInfo.InvariantCulture),
@@ -350,5 +365,72 @@ public sealed class DockerComposeStep(
         };
         secrets.ApplyToEnvironment(env!, uppercaseKeys: true);
         return env;
+    }
+
+    private static string ResolveDefaultComposeProjectName()
+    {
+        string? configured = Environment.GetEnvironmentVariable("COMPOSE_PROJECT_NAME");
+        return string.IsNullOrWhiteSpace(configured) ? "mellosilveiratools" : configured.Trim();
+    }
+
+    private async Task RemoveOrphanContainerIfConflictingAsync(string containerName, bool removeUnconditionally, CancellationToken cancellationToken)
+    {
+        (int inspectCode, string projectOutput, _) = await ProcessRunner.RunCommandAsync(
+            "docker",
+            $"inspect --format \"{{{{index .Config.Labels \\\"com.docker.compose.project\\\"}}}}\" {containerName}",
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (inspectCode != 0)
+            return;
+
+        string containerProject = projectOutput.Trim();
+        if (!removeUnconditionally && string.Equals(containerProject, _composeProjectName, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        logger.LogInformation("Removing leftover container '{ContainerName}' (Compose project '{ProjectName}')...", containerName, string.IsNullOrWhiteSpace(containerProject) ? "none" : containerProject);
+        await ProcessRunner.RunCommandAsync("docker", $"rm -f {containerName}", cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<(bool SameNetwork, string? ComposeProject)> InspectDockerContainerComposeStateAsync(string containerName, CancellationToken cancellationToken)
+    {
+        (int inspectCode, string output, _) = await ProcessRunner.RunCommandAsync(
+            "docker",
+            $"inspect --format \"{{{{index .Config.Labels \\\"com.docker.compose.project\\\"}}}}|{{{{range $k, $v := .NetworkSettings.Networks}}}}{{$k}};{{{{end}}}}\" {containerName}",
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (inspectCode != 0 || string.IsNullOrWhiteSpace(output))
+            return (false, null);
+
+        string[] parts = output.Trim().Split('|', 2);
+        string? project = parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]) ? parts[0].Trim() : null;
+        string networks = parts.Length > 1 ? parts[1] : string.Empty;
+        string expectedNetwork = $"{_composeProjectName}_default";
+        bool onExpectedNetwork = ContainsNetwork(networks, expectedNetwork);
+        return (onExpectedNetwork, project);
+    }
+
+    private static async Task<bool> IsContainerOnNetworkAsync(string containerName, string networkName, CancellationToken cancellationToken)
+    {
+        (int inspectCode, string output, _) = await ProcessRunner.RunCommandAsync(
+            "docker",
+            $"inspect --format \"{{{{range $k, $v := .NetworkSettings.Networks}}}}{{$k}};{{{{end}}}}\" {containerName}",
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (inspectCode != 0 || string.IsNullOrWhiteSpace(output))
+            return false;
+
+        return ContainsNetwork(output, networkName);
+    }
+
+    private static bool ContainsNetwork(string networkList, string expectedNetwork)
+    {
+        string[] networks = networkList.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (string network in networks)
+        {
+            if (string.Equals(network, expectedNetwork, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 }

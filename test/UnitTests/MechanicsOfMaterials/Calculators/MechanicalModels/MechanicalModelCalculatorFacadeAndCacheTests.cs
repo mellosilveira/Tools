@@ -1,6 +1,11 @@
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Caching;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
@@ -8,6 +13,8 @@ using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Caching;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -15,6 +22,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System.Text.Json;
 
 namespace UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels;
 
@@ -186,5 +195,70 @@ public sealed class MechanicalModelCalculatorFacadeAndCacheTests
         Assert.Throws<InvalidCastException>(() => stressInvoker(
             elasticCalc,
             ["not-an-input", 0.0, 0.1]));
+    }
+
+    [Fact]
+    public async Task ExecuteSpecimenAnalysisCommand_ExecutesAllBuiltInModelExamplesSuccessfully()
+    {
+        Mock<IFileStorageService> storageMock = new();
+        storageMock
+            .Setup(s => s.CreateWriteTimebasedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => (new MemoryStream(), "out/spec.csv"));
+        storageMock
+            .Setup(s => s.GetMetadataAsync("out/spec.csv", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "out/spec.csv", "out", "spec.csv", 128, DateTimeOffset.UtcNow));
+
+        Mock<IRepository> repositoryMock = new();
+        repositoryMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(42L);
+
+        ServiceCollection services = new();
+        services.AddLogging();
+        services.AddCoreServices(new ResiliencePipelineSettings
+        {
+            BackoffType = Polly.DelayBackoffType.Constant,
+            DelayInMilliseconds = 10,
+            MaxRetryAttempts = 1,
+            UseJitter = false
+        });
+        services.AddMathematicsServices();
+        services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
+        services.AddSingleton(storageMock.Object);
+        services.AddSingleton(repositoryMock.Object);
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        GetMechanicalModelsCommand getModels = provider.GetRequiredService<GetMechanicalModelsCommand>();
+        ExecuteSpecimenAnalysisCommand executeAnalysis = provider.GetRequiredService<ExecuteSpecimenAnalysisCommand>();
+
+        ListedResult<MechanicalModelMetadata> models = await getModels.ExecuteAsync();
+        Assert.True(models.Success);
+        Assert.NotNull(models.Data);
+        Assert.Equal(6, models.Data.Count);
+
+        foreach (MechanicalModelMetadata model in models.Data)
+        {
+            using JsonDocument doc = JsonDocument.Parse(model.ConstitutiveParameters.ToJsonString());
+            Result<ExecuteSpecimenAnalysisResultData> result = await executeAnalysis.ExecuteAsync(new ExecuteSpecimenAnalysisRequest
+            {
+                MechanicalModelName = model.MechanicalModelName,
+                AnalysisParameter = new AnalysisParameter
+                {
+                    InitialDependentMechanicalParameterValue = 0.0,
+                    IndependentMechanicalParameter = new MechanicalParameter(0.05)
+                },
+                LoadResponseRelationship = LoadResponseRelationship.StressStrain,
+                ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+                RampTimeConsideration = RampTimeConsideration.Disregard,
+                InitialTime = 0.0,
+                TimeStep = 0.5,
+                FinalTime = 2.0,
+                ConstitutiveParameters = doc.RootElement.Clone()
+            });
+
+            Assert.True(result.Success, $"{model.MechanicalModelName} failed: {result.JoinedMessages}");
+            Assert.NotNull(result.Data);
+            Assert.Equal(0.05, result.Data.DeltaOutput.InitialOutput.Strain);
+        }
     }
 }

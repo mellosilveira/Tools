@@ -97,10 +97,12 @@ window.biomechanicsCharts = {
             title: { text: title, textStyle: { color: '#f1f5f9', fontSize: 14 } },
             tooltip: { trigger: 'axis' },
             legend: { top: 28, textStyle: { color: '#cbd5e1' } },
-            grid: { left: 65, right: 65, top: 75, bottom: 55 },
+            grid: { left: 65, right: 75, top: 80, bottom: 65 },
             xAxis: {
                 type: 'value',
                 name: 'Variable Value',
+                nameLocation: 'middle',
+                nameGap: 32,
                 nameTextStyle: { color: '#94a3b8' },
                 axisLabel: { color: '#94a3b8' },
                 splitLine: { lineStyle: { color: '#334155' } }

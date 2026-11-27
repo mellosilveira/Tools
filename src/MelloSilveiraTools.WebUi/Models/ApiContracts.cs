@@ -268,7 +268,7 @@ public sealed record MechanicalModelCurveFitOutputDto
     public string Identifier { get; init; } = string.Empty;
 
     /// <summary>Gets the external pipeline run identifier.</summary>
-    public string? ExtenalIdentifier { get; init; }
+    public string? ExternalIdentifier { get; init; }
 
     /// <summary>Gets the mechanical constitutive model name.</summary>
     public string MechanicalModelName { get; init; } = string.Empty;
@@ -465,8 +465,8 @@ public sealed record MechanicalModelMetadataDto
 /// </summary>
 public sealed record MechanicalParameterDto
 {
-    /// <summary>Gets the scalar value of the independent mechanical parameter.</summary>
-    public double Value { get; init; }
+    /// <summary>Gets the initial scalar value of the independent mechanical parameter.</summary>
+    public double InitialValue { get; init; }
 }
 
 /// <summary>

@@ -228,7 +228,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
 
         foreach (string groupId in yieldedIdentifiers)
         {
-            Assert.Contains(_persistedCurveFits, c => c.ExtenalIdentifier == groupId && c.MechanicalModelName == "SimplifiedFung");
+            Assert.Contains(_persistedCurveFits, c => c.ExternalIdentifier == groupId && c.MechanicalModelName == "SimplifiedFung");
             Assert.Contains(_persistedSimulations, s => s.ExternalIdentifier == groupId && s.MechanicalModelName == "SimplifiedFung");
             Assert.True(_persistedFiles.Count(f => f.ExternalIdentifier == groupId) >= 2, $"Expected persisted metadata for group '{groupId}'.");
 
@@ -273,7 +273,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
         });
 
         Assert.True(expResult.Success, $"Experimental pipeline for '{modelName}' failed: {expResult.JoinedMessages}");
-        Assert.Contains(_persistedCurveFits, c => c.ExtenalIdentifier == experimentalIdentifier && c.MechanicalModelName == modelName);
+        Assert.Contains(_persistedCurveFits, c => c.ExternalIdentifier == experimentalIdentifier && c.MechanicalModelName == modelName);
 
         // Arrange Step 2: Execute parametric sweep from stored curve fits
         Dictionary<string, RangeParameters> constantVariables = new()
@@ -406,7 +406,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
         MechanicalModelCurveFitOutput selectedFit = outputs[^1];
         string fitIdentifier = idBuilder.Execute(selectedFit);
         await fitPersistence.ExecuteAsync((fitIdentifier, selectedFit));
-        Assert.Contains(_persistedCurveFits, c => c.ExtenalIdentifier == experimentalIdentifier && c.MechanicalModelName == modelName);
+        Assert.Contains(_persistedCurveFits, c => c.ExternalIdentifier == experimentalIdentifier && c.MechanicalModelName == modelName);
 
         // Arrange Step 2: Run parametric sweep directly using the fitted constitutive baseline
         IPipeline<ParametricSweepPipelineInput, string> sweepPipeline = _serviceProvider.GetRequiredService<IPipeline<ParametricSweepPipelineInput, string>>();
@@ -511,7 +511,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrWhiteSpace(filter.ExtenalIdentifier) && !string.Equals(entity.ExtenalIdentifier, filter.ExtenalIdentifier, StringComparison.Ordinal))
+            if (!string.IsNullOrWhiteSpace(filter.ExternalIdentifier) && !string.Equals(entity.ExternalIdentifier, filter.ExternalIdentifier, StringComparison.Ordinal))
                 continue;
 
             if (!string.IsNullOrWhiteSpace(filter.MechanicalModelName) && !string.Equals(entity.MechanicalModelName, filter.MechanicalModelName, StringComparison.Ordinal))

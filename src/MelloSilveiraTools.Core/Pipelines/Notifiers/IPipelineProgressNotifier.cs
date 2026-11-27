@@ -9,6 +9,13 @@ namespace MelloSilveiraTools.Core.Pipelines.Notifiers;
 public interface IPipelineProgressNotifier : IAsyncDisposable
 {
     /// <summary>
+    /// Pre-allocates the progress channel for <paramref name="pipelineIdentifier"/> if it does not yet exist,
+    /// eliminating race conditions between background pipeline scheduling and client stream subscription.
+    /// </summary>
+    /// <param name="pipelineIdentifier">Mandatory unique business identifier correlating the pipeline execution.</param>
+    void EnsureChannel(string pipelineIdentifier);
+
+    /// <summary>
     /// Publishes a pipeline execution progress event asynchronously.
     /// </summary>
     /// <param name="progressEvent">The immutable progress event payload.</param>

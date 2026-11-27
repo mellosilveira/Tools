@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
@@ -27,8 +28,14 @@ internal static class MechanicsOfMaterialsJsonOptions
     internal static readonly JsonSerializerOptions Default = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
         TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
-        Converters = { new JsonStringEnumConverter() }
+        Converters =
+        {
+            new JsonStringEnumConverter(),
+            new PronySeriesJsonConverter(),
+            new FunctionJsonConverterFactory()
+        }
     };
 
     /// <summary>
@@ -246,5 +253,162 @@ internal static class MechanicsOfMaterialsJsonOptions
             return 500.0;
 
         return 1.0;
+    }
+
+    private sealed class PronySeriesJsonConverter : JsonConverter<PronySeries>
+    {
+        public override PronySeries? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                throw new JsonException($"Expected JSON object when deserializing '{nameof(PronySeries)}'.");
+
+            double independentParameter = TryReadDoubleProperty(root, nameof(PronySeries.IndependentParameter), options) ?? 0.0;
+            double[] iteratorCoefficients = TryReadDoubleArrayProperty(root, nameof(PronySeries.IteratorCoefficients), options) ?? [];
+            double? initialVariableValue = TryReadDoubleProperty(root, nameof(PronySeries.InitialVariableValue), options);
+            double? finalVariableValue = TryReadDoubleProperty(root, nameof(PronySeries.FinalVariableValue), options);
+
+            return new PronySeries(independentParameter, iteratorCoefficients, initialVariableValue, finalVariableValue);
+        }
+
+        public override void Write(Utf8JsonWriter writer, PronySeries value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber("independentParameter", value.IndependentParameter);
+            writer.WritePropertyName("iteratorCoefficients");
+            JsonSerializer.Serialize(writer, value.IteratorCoefficients, options);
+            writer.WriteString("type", value.Type.ToString());
+            writer.WritePropertyName("initialVariableValue");
+            JsonSerializer.Serialize(writer, value.InitialVariableValue, options);
+            writer.WritePropertyName("finalVariableValue");
+            JsonSerializer.Serialize(writer, value.FinalVariableValue, options);
+            writer.WriteEndObject();
+        }
+    }
+
+    private sealed class FunctionJsonConverterFactory : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) =>
+            typeof(Function).IsAssignableFrom(typeToConvert) && typeToConvert != typeof(GenericFunction);
+
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            Type converterType = typeof(FunctionJsonConverter<>).MakeGenericType(typeToConvert);
+            return (JsonConverter?)Activator.CreateInstance(converterType);
+        }
+    }
+
+    private sealed class FunctionJsonConverter<TFunction> : JsonConverter<TFunction> where TFunction : Function
+    {
+        public override TFunction? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                throw new JsonException($"Expected JSON object when deserializing '{typeToConvert.Name}'.");
+
+            FunctionType functionType = ResolveFunctionType(root, typeToConvert);
+            double[] coefficients = TryReadDoubleArrayProperty(root, nameof(Function.Coefficients), options) ?? [];
+            double? initialVariableValue = TryReadDoubleProperty(root, nameof(Function.InitialVariableValue), options);
+            double? finalVariableValue = TryReadDoubleProperty(root, nameof(Function.FinalVariableValue), options);
+
+            Function parsed = functionType switch
+            {
+                FunctionType.Constant => new ConstantFunction(coefficients.Length > 0 ? coefficients[0] : 0.0, initialVariableValue, finalVariableValue),
+                FunctionType.Polynomial => new PolynomialFunction(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.Exponential => new ExponentialFunction(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.Sine => new SineFunction(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.Cosine => new CosineFunction(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.PowerLaw => new PowerLaw(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.Logarithmic => new LogarithmicFunction(coefficients, initialVariableValue, finalVariableValue),
+                FunctionType.ExponentialIntegral => new ExponentialIntegralFunction(
+                    coefficients.Length > 0 ? coefficients[0] : MathematicConstants.Tolerance,
+                    initialVariableValue,
+                    finalVariableValue),
+                _ => throw new JsonException($"Unsupported {nameof(FunctionType)} '{functionType}' for JSON deserialization.")
+            };
+
+            if (parsed is not TFunction typedFunction)
+                throw new JsonException($"Parsed function type '{parsed.GetType().Name}' cannot be assigned to '{typeToConvert.Name}'.");
+
+            return typedFunction;
+        }
+
+        public override void Write(Utf8JsonWriter writer, TFunction value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("functionType", value.FunctionType.ToString());
+            writer.WritePropertyName("initialVariableValue");
+            JsonSerializer.Serialize(writer, value.InitialVariableValue, options);
+            writer.WritePropertyName("finalVariableValue");
+            JsonSerializer.Serialize(writer, value.FinalVariableValue, options);
+            writer.WritePropertyName("coefficients");
+            JsonSerializer.Serialize(writer, value.Coefficients, options);
+            writer.WriteEndObject();
+        }
+    }
+
+    private static FunctionType ResolveFunctionType(JsonElement root, Type targetType)
+    {
+        if (TryGetPropertyCaseInsensitive(root, nameof(Function.FunctionType), out JsonElement typeElement))
+        {
+            if (typeElement.ValueKind == JsonValueKind.String
+                && Enum.TryParse(typeElement.GetString(), ignoreCase: true, out FunctionType parsedEnum))
+            {
+                return parsedEnum;
+            }
+
+            if (typeElement.ValueKind == JsonValueKind.Number && typeElement.TryGetInt32(out int enumInt))
+                return (FunctionType)enumInt;
+        }
+
+        if (targetType == typeof(ConstantFunction)) return FunctionType.Constant;
+        if (targetType == typeof(PolynomialFunction)) return FunctionType.Polynomial;
+        if (targetType == typeof(ExponentialFunction)) return FunctionType.Exponential;
+        if (targetType == typeof(SineFunction)) return FunctionType.Sine;
+        if (targetType == typeof(CosineFunction)) return FunctionType.Cosine;
+        if (targetType == typeof(PowerLaw)) return FunctionType.PowerLaw;
+        if (targetType == typeof(LogarithmicFunction)) return FunctionType.Logarithmic;
+        if (targetType == typeof(ExponentialIntegralFunction)) return FunctionType.ExponentialIntegral;
+
+        throw new JsonException($"Missing '{nameof(Function.FunctionType)}' discriminator for '{targetType.Name}'.");
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty prop in element.EnumerateObject())
+        {
+            if (string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = prop.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static double? TryReadDoubleProperty(JsonElement element, string propertyName, JsonSerializerOptions options)
+    {
+        if (!TryGetPropertyCaseInsensitive(element, propertyName, out JsonElement propertyValue) || propertyValue.ValueKind == JsonValueKind.Null)
+            return null;
+
+        return propertyValue.Deserialize<double?>(options);
+    }
+
+    private static double[]? TryReadDoubleArrayProperty(JsonElement element, string propertyName, JsonSerializerOptions options)
+    {
+        if (!TryGetPropertyCaseInsensitive(element, propertyName, out JsonElement propertyValue) || propertyValue.ValueKind == JsonValueKind.Null)
+            return null;
+
+        return propertyValue.Deserialize<double[]>(options);
     }
 }

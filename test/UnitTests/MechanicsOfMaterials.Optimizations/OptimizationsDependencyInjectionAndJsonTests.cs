@@ -140,8 +140,8 @@ public sealed class OptimizationsDependencyInjectionAndJsonTests
         MechanicalModelCurveFitOutputEntity emptyEntity = new();
         Assert.Equal(string.Empty, emptyEntity.Identifier);
 
-        MechanicalModelCurveFitOutputFilter filter = new() { ExtenalIdentifier = "ext-1", MechanicalModelName = "Fung" };
-        Assert.Equal("ext-1", filter.ExtenalIdentifier);
+        MechanicalModelCurveFitOutputFilter filter = new() { ExternalIdentifier = "ext-1", MechanicalModelName = "Fung" };
+        Assert.Equal("ext-1", filter.ExternalIdentifier);
         Assert.Equal("Fung", filter.MechanicalModelName);
 
         Assert.Equal(0.0, rangeProny.InitialVariableValue);

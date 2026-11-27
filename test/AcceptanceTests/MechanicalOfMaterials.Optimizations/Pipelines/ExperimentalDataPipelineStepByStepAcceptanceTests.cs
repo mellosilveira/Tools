@@ -185,7 +185,7 @@ public sealed class ExperimentalDataPipelineStepByStepAcceptanceTests : IAsyncLi
         AssertStepStates(events, nameof(MechanicalModelOutputPersistenceStep), PipelineStepState.Started, PipelineStepState.Running);
 
         // Assert: Persisted Curve Fit Entities
-        List<MechanicalModelCurveFitOutputEntity> curveFits = [.. _persistedCurveFits.Where(c => c.ExtenalIdentifier == identifier)];
+        List<MechanicalModelCurveFitOutputEntity> curveFits = [.. _persistedCurveFits.Where(c => c.ExternalIdentifier == identifier)];
         Assert.NotEmpty(curveFits);
         Assert.All(curveFits, curveFit =>
         {
@@ -337,7 +337,7 @@ public sealed class ExperimentalDataPipelineStepByStepAcceptanceTests : IAsyncLi
         // Assert
         Assert.True(fitOutputs.Count >= 2, $"Expected anchor, segment, and consolidated Schapery fits, got {fitOutputs.Count}.");
 
-        List<MechanicalModelCurveFitOutputEntity> curveFits = [.. _persistedCurveFits.Where(c => c.ExtenalIdentifier == identifier && c.MechanicalModelName == "Schapery")];
+        List<MechanicalModelCurveFitOutputEntity> curveFits = [.. _persistedCurveFits.Where(c => c.ExternalIdentifier == identifier && c.MechanicalModelName == "Schapery")];
         Assert.Equal(fitOutputs.Count, curveFits.Count);
 
         List<MechanicalModelSimulationEntity> simulations = [.. _persistedSimulations.Where(s => s.ExternalIdentifier == identifier && s.MechanicalModelName == "Schapery")];
@@ -420,7 +420,7 @@ public sealed class ExperimentalDataPipelineStepByStepAcceptanceTests : IAsyncLi
             downsampledSegmentBuilderMaxReceived < baselineSegmentBuilderMaxReceived,
             $"Expected downsampling (0.5s skip) to pass fewer points to CurveSegmentBuilderStep ({downsampledSegmentBuilderMaxReceived}) than baseline ({baselineSegmentBuilderMaxReceived}).");
 
-        Assert.Contains(_persistedCurveFits, c => c.ExtenalIdentifier == downsampledIdentifier && c.MechanicalModelName == "SimplifiedFung");
+        Assert.Contains(_persistedCurveFits, c => c.ExternalIdentifier == downsampledIdentifier && c.MechanicalModelName == "SimplifiedFung");
         Assert.Contains(_persistedSimulations, s => s.ExternalIdentifier == downsampledIdentifier && s.MechanicalModelName == "SimplifiedFung");
     }
 

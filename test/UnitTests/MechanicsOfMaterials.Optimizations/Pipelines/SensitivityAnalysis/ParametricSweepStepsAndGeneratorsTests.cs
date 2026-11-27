@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
@@ -337,6 +338,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
 
         ExecuteParametricSweepPipeline command = new(
             NullLogger<ExecuteParametricSweepPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             pipeMock.Object,
             validator);
 
@@ -364,6 +366,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
 
         ExecuteParametricSweepFromExperimentalDataCommand command = new(
             NullLogger<ExecuteParametricSweepFromExperimentalDataCommand>.Instance,
+            NullPipelineProgressNotifier.Instance,
             repoMock.Object,
             pipeMock.Object,
             new ExecuteParametricSweepFromExperimentalDataValidator(),
@@ -434,7 +437,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
             yield return new MechanicalModelCurveFitOutputEntity
             {
                 Identifier = "bad",
-                ExtenalIdentifier = "exp-1",
+                ExternalIdentifier = "exp-1",
                 MechanicalModelName = nameof(MechanicalModel.Fung),
                 InitialAcceptedRange = 0.0,
                 FinalAcceptedRange = 0.05,
@@ -448,7 +451,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
             yield return new MechanicalModelCurveFitOutputEntity
             {
                 Identifier = "good",
-                ExtenalIdentifier = "exp-1",
+                ExternalIdentifier = "exp-1",
                 MechanicalModelName = nameof(MechanicalModel.Fung),
                 InitialAcceptedRange = 0.0,
                 FinalAcceptedRange = 0.05,

@@ -605,14 +605,16 @@
             Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
             </summary>
             <param name="logger">Structured logger instance for telemetry and diagnostic logging.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
             <param name="pipeline">Canonical experimental data processing pipeline implementation.</param>
             <param name="validator">Validator for the batch request payload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest})">
             <summary>
             Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
             </summary>
             <param name="logger">Structured logger instance for telemetry and diagnostic logging.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
             <param name="pipeline">Canonical experimental data processing pipeline implementation.</param>
             <param name="validator">Validator for the batch request payload.</param>
         </member>
@@ -753,7 +755,7 @@
             Executes the experimental data processing pipeline for a single pair of stress and strain files.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest})">
             <summary>
             Executes the experimental data processing pipeline for a single pair of stress and strain files.
             </summary>
@@ -983,7 +985,7 @@
             Filter model used to query <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity"/> records by external identifier and optional mechanical model name.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputFilter.ExtenalIdentifier">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputFilter.ExternalIdentifier">
             <summary>
             External pipeline identifier correlating the experimental run.
             </summary>
@@ -2286,17 +2288,19 @@
             Supports both sequential and concurrent (parallel) execution modes with error isolation per model.
             </summary>
             <param name="logger">Structured logger instance for diagnostic and operational logging.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
             <param name="repository">Database repository provider used to query fitted constitutive models.</param>
             <param name="serviceLocator">Service locator resolving keyed model type resolvers and sweep generators.</param>
             <param name="pipeline">Canonical parametric sweep pipeline implementation.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest},MelloSilveiraTools.Core.Providers.ServiceLocator)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand},MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest},MelloSilveiraTools.Core.Providers.ServiceLocator)">
             <summary>
             Executes parametric sweep sensitivity analyses across all fitted constitutive parameters generated from an experimental data pipeline run.
             Supports both sequential and concurrent (parallel) execution modes with error isolation per model.
             </summary>
             <param name="logger">Structured logger instance for diagnostic and operational logging.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
             <param name="repository">Database repository provider used to query fitted constitutive models.</param>
             <param name="serviceLocator">Service locator resolving keyed model type resolvers and sweep generators.</param>
             <param name="pipeline">Canonical parametric sweep pipeline implementation.</param>
@@ -2373,14 +2377,16 @@
             Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
             </summary>
             <param name="logger">The structured logger instance.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channel is pre-allocated prior to background scheduling.</param>
             <param name="pipeline">The parametric sweep pipeline.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest})">
             <summary>
             Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
             </summary>
             <param name="logger">The structured logger instance.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channel is pre-allocated prior to background scheduling.</param>
             <param name="pipeline">The parametric sweep pipeline.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/>.</param>
         </member>

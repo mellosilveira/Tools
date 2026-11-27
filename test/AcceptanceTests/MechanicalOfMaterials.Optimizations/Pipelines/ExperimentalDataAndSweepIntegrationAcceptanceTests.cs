@@ -181,7 +181,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
 
         Assert.True(result.Success);
         Assert.Equal(identifier, result.Data);
-        Assert.Contains(_savedCurveFits, e => e.ExtenalIdentifier == identifier);
+        Assert.Contains(_savedCurveFits, e => e.ExternalIdentifier == identifier);
         Assert.Contains(_savedSimulations, e => e.ExternalIdentifier == identifier);
         Assert.True(_savedFiles.Count(f => f.ExternalIdentifier == identifier) >= 2);
 
@@ -247,7 +247,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
         }
 
         Assert.NotEmpty(outputs);
-        Assert.Contains(_savedCurveFits, e => e.ExtenalIdentifier == expId);
+        Assert.Contains(_savedCurveFits, e => e.ExternalIdentifier == expId);
 
         ExecuteParametricSweepFromExperimentalDataCommand command = _serviceProvider.GetRequiredService<ExecuteParametricSweepFromExperimentalDataCommand>();
         Result<IAsyncEnumerable<string>> sweepResult = await command.ExecuteAsync(new ExecuteParametricSweepFromExperimentalDataRequest
@@ -309,7 +309,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
         foreach (MechanicalModelCurveFitOutputEntity entity in _savedCurveFits)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (filter.ExtenalIdentifier is null || entity.ExtenalIdentifier == filter.ExtenalIdentifier)
+            if (filter.ExternalIdentifier is null || entity.ExternalIdentifier == filter.ExternalIdentifier)
                 yield return entity;
         }
     }

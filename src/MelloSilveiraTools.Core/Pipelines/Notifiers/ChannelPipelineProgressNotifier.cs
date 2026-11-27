@@ -23,6 +23,9 @@ public sealed class ChannelPipelineProgressNotifier(
     private readonly ConcurrentDictionary<ChannelKey, ChannelEntry> _channels = new();
 
     /// <inheritdoc/>
+    public void EnsureChannel(string pipelineIdentifier) => _ = GetOrCreateEntry(BuildKey(pipelineIdentifier));
+
+    /// <inheritdoc/>
     public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default)
     {
         ChannelKey key = BuildKey(progressEvent.PipelineIdentifier);

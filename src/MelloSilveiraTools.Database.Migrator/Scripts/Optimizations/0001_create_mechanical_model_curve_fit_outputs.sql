@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS mechanical_model_curve_fit_outputs (
     creation_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     user_id BIGINT NULL REFERENCES users (id) DEFAULT public.current_app_user_id(),
     identifier TEXT NOT NULL,
-    extenal_identifier TEXT,
+    external_identifier TEXT,
     mechanical_model_name TEXT NOT NULL,
     initial_accepted_range DOUBLE PRECISION NOT NULL,
     final_accepted_range DOUBLE PRECISION NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS mechanical_model_curve_fit_outputs (
 
 CREATE INDEX IF NOT EXISTS ix_curve_fit_outputs_user_created ON mechanical_model_curve_fit_outputs (user_id, creation_timestamp DESC);
 CREATE INDEX IF NOT EXISTS ix_curve_fit_outputs_public ON mechanical_model_curve_fit_outputs (creation_timestamp DESC) WHERE user_id IS NULL;
-CREATE INDEX IF NOT EXISTS ix_curve_fit_outputs_extenal_identifier ON mechanical_model_curve_fit_outputs (extenal_identifier);
+CREATE INDEX IF NOT EXISTS ix_curve_fit_outputs_external_identifier ON mechanical_model_curve_fit_outputs (external_identifier);
 CREATE INDEX IF NOT EXISTS ix_curve_fit_outputs_model_name ON mechanical_model_curve_fit_outputs (mechanical_model_name);
 
 ALTER TABLE mechanical_model_curve_fit_outputs ENABLE ROW LEVEL SECURITY;

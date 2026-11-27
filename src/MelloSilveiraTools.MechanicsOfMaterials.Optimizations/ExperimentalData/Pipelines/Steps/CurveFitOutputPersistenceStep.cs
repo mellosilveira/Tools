@@ -33,7 +33,7 @@ public sealed class CurveFitOutputPersistenceStep(
         MechanicalModelCurveFitOutputEntity entity = new()
         {
             Identifier = identifier,
-            ExtenalIdentifier = pipelineIdentifier,
+            ExternalIdentifier = pipelineIdentifier,
             MechanicalModelName = mechanicalModelName,
             InitialAcceptedRange = curveFitOutput.AcceptedRange.InitialPoint,
             FinalAcceptedRange = curveFitOutput.AcceptedRange.FinalPoint,

@@ -27,7 +27,7 @@ public record MechanicalModelCurveFitOutputEntity : UserScopedEntityBase
     public required string Identifier { get; init; }
 
     [Column]
-    public string? ExtenalIdentifier { get; init; }
+    public string? ExternalIdentifier { get; init; }
 
     [Column]
     public required string MechanicalModelName { get; init; }

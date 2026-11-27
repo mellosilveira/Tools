@@ -495,17 +495,17 @@
         <member name="T:UnitTests.Core.Pipelines.Commands.ExecutePipelineTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline`3"/> verifying background execution,
-            Accepted result creation with mapped identifier, and fault logging.
+            progress channel pre-allocation, Accepted result creation with mapped identifier, and fault handling.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Pipelines.Commands.ExecutePipelineTests.ExecuteAsync_WithValidRequest_ReturnsAcceptedAndProcessesPipelineInBackground">
             <summary>
-            Verifies that ExecuteAsync returns Accepted with the mapped identifier and runs ProcessAsync in the background.
+            Verifies that ExecuteAsync pre-allocates the progress channel, returns Accepted with the mapped identifier, and runs ProcessAsync in the background.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Pipelines.Commands.ExecutePipelineTests.ExecuteAsync_WhenBackgroundPipelineThrows_LogsErrorAndReturnsAccepted">
             <summary>
-            Verifies that background pipeline faults are caught and logged without crashing the command response.
+            Verifies that background pipeline faults are caught, logged, and complete the progress channel without crashing the command response.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Pipelines.Dataflow.DataflowPipelineBuilderTests">
@@ -625,6 +625,11 @@
         <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NullPipelineProgressNotifier_NoOpsCleanly">
             <summary>
             Verifies NullPipelineProgressNotifier behaves as a zero-allocation no-op.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.EnsureChannel_PreAllocatesChannelBeforeNotifyAsync">
+            <summary>
+            Verifies EnsureChannel pre-allocates the pipeline channel before any NotifyAsync call.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Pipelines.Telemetry.ObservabilityExtensionsTests">

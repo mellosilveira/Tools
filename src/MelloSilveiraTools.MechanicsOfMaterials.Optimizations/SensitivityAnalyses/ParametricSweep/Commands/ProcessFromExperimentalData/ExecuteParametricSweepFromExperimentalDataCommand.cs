@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Database.Repositories;
@@ -20,12 +21,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// Supports both sequential and concurrent (parallel) execution modes with error isolation per model.
 /// </summary>
 /// <param name="logger">Structured logger instance for diagnostic and operational logging.</param>
+/// <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
 /// <param name="repository">Database repository provider used to query fitted constitutive models.</param>
 /// <param name="serviceLocator">Service locator resolving keyed model type resolvers and sweep generators.</param>
 /// <param name="pipeline">Canonical parametric sweep pipeline implementation.</param>
 /// <param name="validator">Request validator for <see cref="ExecuteParametricSweepFromExperimentalDataRequest"/>.</param>
 public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
     ILogger<ExecuteParametricSweepFromExperimentalDataCommand> logger,
+    IPipelineProgressNotifier progressNotifier,
     IRepository repository,
     IPipeline<ParametricSweepPipelineInput, string> pipeline,
     IValidator<ExecuteParametricSweepFromExperimentalDataRequest> validator,
@@ -44,7 +47,7 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
 
         MechanicalModelCurveFitOutputFilter filter = new()
         {
-            ExtenalIdentifier = request.ExperimentalDataIdentifier,
+            ExternalIdentifier = request.ExperimentalDataIdentifier,
             MechanicalModelName = request.MechanicalModelName
         };
 
@@ -82,7 +85,9 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
         {
             await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            string identifier = $"{entity.ExtenalIdentifier}_{entity.MechanicalModelName}_{Guid.NewGuid():N}";
+            string identifier = $"{entity.ExternalIdentifier}_{entity.MechanicalModelName}_{Guid.NewGuid():N}";
+
+            progressNotifier.EnsureChannel(identifier);
 
             _ = Task.Run(async () =>
             {
@@ -93,6 +98,7 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
                     if (deserialized is not ConstitutiveParameters baseline)
                     {
                         logger.LogError("Failed to deserialize constitutive parameters for model '{ModelName}' from entity '{Identifier}'.", entity.MechanicalModelName, entity.Identifier);
+                        progressNotifier.TryComplete(identifier);
                         return;
                     }
 
@@ -119,13 +125,19 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
                     Result<string> pipelineResult = await pipeline.ProcessAsync(input).ConfigureAwait(false);
 
                     if (pipelineResult.Success)
+                    {
                         logger.LogInformation("Parametric sweep pipeline completed successfully. Input: {@Input}. Result: {@Result}", input, pipelineResult);
+                    }
                     else
+                    {
                         logger.LogError("Parametric sweep pipeline failed. Input: {@Input}. Result: {@Result}", input, pipelineResult);
+                        progressNotifier.TryComplete(identifier);
+                    }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Parametric sweep pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
+                    progressNotifier.TryComplete(identifier, ex);
                 }
                 finally
                 {

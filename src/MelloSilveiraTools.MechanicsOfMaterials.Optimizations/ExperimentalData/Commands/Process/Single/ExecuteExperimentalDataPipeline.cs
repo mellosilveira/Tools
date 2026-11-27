@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Commands;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using Microsoft.Extensions.Logging;
@@ -11,9 +12,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// </summary>
 public class ExecuteExperimentalDataPipeline(
     ILogger<ExecuteExperimentalDataPipeline> logger,
+    IPipelineProgressNotifier progressNotifier,
     IPipeline<ExperimentalDataProcessingInput, string> pipeline,
     IValidator<ExecuteExperimentalDataPipelineRequest> validator)
-    : ExecutePipeline<ExecuteExperimentalDataPipelineRequest, ExperimentalDataProcessingInput, string>(logger, pipeline, validator)
+    : ExecutePipeline<ExecuteExperimentalDataPipelineRequest, ExperimentalDataProcessingInput, string>(logger, progressNotifier, pipeline, validator)
 {
     /// <inheritdoc/>
     protected override ExperimentalDataProcessingInput MapToInput(ExecuteExperimentalDataPipelineRequest request) => new()

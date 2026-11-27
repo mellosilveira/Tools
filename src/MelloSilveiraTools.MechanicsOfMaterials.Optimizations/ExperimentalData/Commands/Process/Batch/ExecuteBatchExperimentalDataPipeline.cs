@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models;
@@ -13,10 +14,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
 /// </summary>
 /// <param name="logger">Structured logger instance for telemetry and diagnostic logging.</param>
+/// <param name="progressNotifier">Pipeline progress notifier whose channels are pre-allocated prior to background scheduling.</param>
 /// <param name="pipeline">Canonical experimental data processing pipeline implementation.</param>
 /// <param name="validator">Validator for the batch request payload.</param>
 public class ExecuteBatchExperimentalDataPipeline(
     ILogger<ExecuteBatchExperimentalDataPipeline> logger,
+    IPipelineProgressNotifier progressNotifier,
     IPipeline<ExperimentalDataProcessingInput, string> pipeline,
     IValidator<ExecuteBatchExperimentalDataPipelineRequest> validator)
     : CommandBaseWithData<ExecuteBatchExperimentalDataPipelineRequest, IAsyncEnumerable<string>>(validator)
@@ -40,6 +43,8 @@ public class ExecuteBatchExperimentalDataPipeline(
             string identifier = string.IsNullOrWhiteSpace(group.Identifier) ? Guid.NewGuid().ToString("N") : group.Identifier;
             ExperimentalDataProcessingInput input = MapToInput(request, group, identifier);
 
+            progressNotifier.EnsureChannel(identifier);
+
             _ = Task.Run(async () =>
             {
                 try
@@ -48,13 +53,19 @@ public class ExecuteBatchExperimentalDataPipeline(
 
                     Result<string> result = await pipeline.ProcessAsync(input).ConfigureAwait(false);
                     if (result.Success)
+                    {
                         logger.LogInformation("Experimental data pipeline completed successfully. Input: {@Input}. Result: {@Result}", input, result);
+                    }
                     else
+                    {
                         logger.LogError("Experimental data pipeline failed. Input: {@Input}. Result: {@Result}", input, result);
+                        progressNotifier.TryComplete(identifier);
+                    }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Experimental data pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
+                    progressNotifier.TryComplete(identifier, ex);
                 }
                 finally
                 {

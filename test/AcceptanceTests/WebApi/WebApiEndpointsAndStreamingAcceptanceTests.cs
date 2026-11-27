@@ -469,7 +469,7 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
         Assert.Contains(expProgressEvents, e => e.StepName == "ExperimentalDataSegmenter" && e.State == PipelineStepState.Completed);
         Assert.Contains(expProgressEvents, e => e.StepName == "FungRelaxationOnlyCurveFitterStep" && e.State == PipelineStepState.Completed);
 
-        Assert.Contains(_storedCurveFits, c => c.ExtenalIdentifier == experimentalIdentifier && c.MechanicalModelName == "Fung");
+        Assert.Contains(_storedCurveFits, c => c.ExternalIdentifier == experimentalIdentifier && c.MechanicalModelName == "Fung");
         Assert.Contains(_storedSimulations, s => s.ExternalIdentifier == experimentalIdentifier && s.MechanicalModelName == "Fung");
 
         // Act 3: POST /api/v1/parametric-sweeps/process-from-experimental-data -> 202 Accepted NDJSON of sweep identifiers
@@ -681,8 +681,8 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrWhiteSpace(filter.ExtenalIdentifier)
-                && !string.Equals(entity.ExtenalIdentifier, filter.ExtenalIdentifier, StringComparison.Ordinal))
+            if (!string.IsNullOrWhiteSpace(filter.ExternalIdentifier)
+                && !string.Equals(entity.ExternalIdentifier, filter.ExternalIdentifier, StringComparison.Ordinal))
             {
                 continue;
             }

@@ -3256,6 +3256,32 @@
             </list>
             </remarks>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline`3">
+            <summary>
+            Base command that validates a pipeline request, pre-allocates its real-time progress channel,
+            dispatches execution asynchronously on a background worker, and immediately returns <c>202 Accepted</c>.
+            </summary>
+            <typeparam name="TRequest">Validated request payload type.</typeparam>
+            <typeparam name="TInput">Pipeline execution input deriving from <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineInputBase"/>.</typeparam>
+            <typeparam name="TOutput">Pipeline output payload type.</typeparam>
+            <param name="logger">Structured logger for background execution telemetry.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channel is pre-allocated prior to background scheduling.</param>
+            <param name="pipeline">Target pipeline instance executed in the background.</param>
+            <param name="validator">Request validator invoked prior to scheduling.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline`3.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline{`0,`1,`2}},MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,MelloSilveiraTools.Core.Pipelines.IPipeline{`1,`2},MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Base command that validates a pipeline request, pre-allocates its real-time progress channel,
+            dispatches execution asynchronously on a background worker, and immediately returns <c>202 Accepted</c>.
+            </summary>
+            <typeparam name="TRequest">Validated request payload type.</typeparam>
+            <typeparam name="TInput">Pipeline execution input deriving from <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineInputBase"/>.</typeparam>
+            <typeparam name="TOutput">Pipeline output payload type.</typeparam>
+            <param name="logger">Structured logger for background execution telemetry.</param>
+            <param name="progressNotifier">Pipeline progress notifier whose channel is pre-allocated prior to background scheduling.</param>
+            <param name="pipeline">Target pipeline instance executed in the background.</param>
+            <param name="validator">Request validator invoked prior to scheduling.</param>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline`3.ExecuteCommandAsync(`0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -4236,6 +4262,9 @@
             <param name="timeProvider">Mandatory time provider for recording creation timestamps to support LRU eviction if capacity is reached.</param>
             <param name="settings">Mandatory configuration settings defining buffer capacities, full mode policies, and maximum channel limits.</param>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.EnsureChannel(System.String)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -4253,6 +4282,13 @@
             Defines an asynchronous contract for emitting and consuming real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
             correlated by a mandatory unique analysis or pipeline execution identifier.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.EnsureChannel(System.String)">
+            <summary>
+            Pre-allocates the progress channel for <paramref name="pipelineIdentifier"/> if it does not yet exist,
+            eliminating race conditions between background pipeline scheduling and client stream subscription.
+            </summary>
+            <param name="pipelineIdentifier">Mandatory unique business identifier correlating the pipeline execution.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
             <summary>
@@ -4288,6 +4324,9 @@
             <summary>
             Gets the shared singleton instance of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.EnsureChannel(System.String)">
+            <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
             <inheritdoc/>
@@ -4339,6 +4378,20 @@
             </summary>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">The time provider instance used for timing and timeouts.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.EnsureProgressChannel(System.String)">
+            <summary>
+            Ensures the progress notification channel for <paramref name="pipelineIdentifier"/> exists before
+            asynchronous pipeline execution starts, preventing <c>404 Not Found</c> race conditions when clients connect immediately.
+            </summary>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CompleteProgressChannel(System.String,System.Exception)">
+            <summary>
+            Marks the progress channel for <paramref name="pipelineIdentifier"/> as completed when initialization or execution faults before terminal completion.
+            </summary>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
+            <param name="error">Optional terminal error.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Int32,System.Threading.CancellationToken)">
             <summary>

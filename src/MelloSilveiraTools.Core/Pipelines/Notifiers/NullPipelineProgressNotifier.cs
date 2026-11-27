@@ -16,6 +16,9 @@ public sealed class NullPipelineProgressNotifier : IPipelineProgressNotifier
     private NullPipelineProgressNotifier() { }
 
     /// <inheritdoc/>
+    public void EnsureChannel(string pipelineIdentifier) { }
+
+    /// <inheritdoc/>
     public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
     /// <inheritdoc/>

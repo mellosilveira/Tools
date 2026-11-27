@@ -14,7 +14,7 @@ public record MechanicalModelCurveFitOutputFilter : FilterBase
     /// External pipeline identifier correlating the experimental run.
     /// </summary>
     [FilterColumn(FilterClause.Equal)]
-    public string? ExtenalIdentifier { get; init; }
+    public string? ExternalIdentifier { get; init; }
 
     /// <summary>
     /// Optional filter by mechanical model name (e.g., "Fung", "SimplifiedFung", "Schapery").
