@@ -11,8 +11,9 @@
                 <tr>
                     <th>Model Name</th>
                     <th>Calculator Service</th>
-                    <th>Constitutive Parameters JSON Schema</th>
-                    <th>Output JSON Schema</th>
+                    <th>Constitutive Parameters Example</th>
+                    <th>Output Example</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,16 +23,15 @@
                         <td><strong>@model.MechanicalModelName</strong></td>
                         <td><code>@model.CalculatorTypeName</code></td>
                         <td>
-                            <details>
-                                <summary>View Parameters Schema</summary>
-                                <div class="code-block">@FormatJson(model.ConstitutiveParameters)</div>
-                            </details>
+                            <pre class="code-block code-block-compact">@FormatJson(model.ConstitutiveParameters)</pre>
                         </td>
                         <td>
-                            <details>
-                                <summary>View Output Schema</summary>
-                                <div class="code-block">@FormatJson(model.Output)</div>
-                            </details>
+                            <pre class="code-block code-block-compact">@FormatJson(model.Output)</pre>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" @onclick="@(() => UseModelExample(model))">
+                                Use Example
+                            </button>
                         </td>
                     </tr>
                 }
@@ -316,9 +316,11 @@
         try
         {
             _models = await ApiClient.GetMechanicalModelsAsync();
-            if (_models.Count > 0 && !_models.Any(m => m.MechanicalModelName == _specimenModel))
+            if (_models.Count > 0)
             {
-                _specimenModel = _models[0].MechanicalModelName;
+                if (!_models.Any(m => m.MechanicalModelName == _specimenModel))
+                    _specimenModel = _models[0].MechanicalModelName;
+
                 ApplySpecimenPreset();
             }
         }
@@ -332,15 +334,22 @@
         }
     }
 
+    private void UseModelExample(MechanicalModelMetadataDto model)
+    {
+        _specimenModel = model.MechanicalModelName;
+        _specimenParamsJson = FormatJson(model.ConstitutiveParameters);
+    }
+
     private void ApplySpecimenPreset()
     {
-        _specimenParamsJson = _specimenModel switch
+        MechanicalModelMetadataDto? selected = _models.FirstOrDefault(m => m.MechanicalModelName == _specimenModel);
+        if (selected is not null && selected.ConstitutiveParameters.ValueKind != JsonValueKind.Undefined)
         {
-            "Maxwell" => """{"viscosity": 500.0, "stiffness": 100.0}""",
-            "Fung" => """{"elasticStressConstant": 10.0, "elasticPowerConstant": 15.0, "reducedRelaxationFunction": {"relaxationStiffness": 0.1, "fastRelaxationTime": 0.01, "slowRelaxationTime": 100.0}}""",
-            "SimplifiedFung" => """{"elasticStressConstant": 10.0, "elasticPowerConstant": 15.0, "reducedRelaxationFunction": {"independentParameter": 0.5, "iteratorCoefficients": [0.5, -0.1]}}""",
-            _ => """{"youngModulus": 100.0}"""
-        };
+            _specimenParamsJson = FormatJson(selected.ConstitutiveParameters);
+            return;
+        }
+
+        _specimenParamsJson = """{"youngModulus": 100.0}""";
     }
 
     private async Task ExecuteSpecimenAnalysisAsync()

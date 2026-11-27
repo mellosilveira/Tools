@@ -571,9 +571,21 @@ public class WebApiHostAndQuickstartTests
             Assert.False(string.IsNullOrWhiteSpace(model.CalculatorTypeName));
             Assert.NotNull(model.ConstitutiveParameters);
             Assert.NotNull(model.Output);
-            Assert.Contains("properties", model.ConstitutiveParameters.ToJsonString());
-            Assert.Contains("properties", model.Output.ToJsonString());
+
+            string paramsJson = model.ConstitutiveParameters.ToJsonString();
+            string outputJson = model.Output.ToJsonString();
+            Assert.DoesNotContain("\"$schema\"", paramsJson);
+            Assert.DoesNotContain("\"$schema\"", outputJson);
+            Assert.Contains("strain", outputJson, StringComparison.OrdinalIgnoreCase);
         }
+
+        MechanicalModelMetadata fungModel = Assert.Single(payload.Data, m => m.MechanicalModelName == nameof(MechanicalModel.Fung));
+        string fungParamsJson = fungModel.ConstitutiveParameters.ToJsonString();
+        Assert.Contains("elasticStressConstant", fungParamsJson);
+        Assert.Contains("reducedRelaxationFunction", fungParamsJson);
+
+        MechanicalModelMetadata pluginModel = Assert.Single(payload.Data, m => m.MechanicalModelName == "CustomPluginModel");
+        Assert.Contains("youngModulus", pluginModel.ConstitutiveParameters.ToJsonString());
     }
 
     [Fact]

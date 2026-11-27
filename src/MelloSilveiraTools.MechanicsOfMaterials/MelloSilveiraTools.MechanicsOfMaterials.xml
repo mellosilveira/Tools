@@ -1322,7 +1322,7 @@
             <summary>
             Lists every <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> registered in <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>
             (both static and dynamically loaded plugin resolvers) along with its calculator type name
-            and JSON structures for constitutive parameters and output models.
+            and example JSON payloads for constitutive parameters and output models.
             </summary>
             <param name="serviceLocator">Service locator resolving static and dynamic model type resolvers.</param>
         </member>
@@ -1330,7 +1330,7 @@
             <summary>
             Lists every <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> registered in <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>
             (both static and dynamically loaded plugin resolvers) along with its calculator type name
-            and JSON structures for constitutive parameters and output models.
+            and example JSON payloads for constitutive parameters and output models.
             </summary>
             <param name="serviceLocator">Service locator resolving static and dynamic model type resolvers.</param>
         </member>
@@ -1340,22 +1340,22 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata">
             <summary>
             Metadata describing a registered mechanical model, its calculator type,
-            and the JSON structures (schemas) of its constitutive parameters and output models.
+            and representative example JSON payloads for its constitutive parameters and output models.
             </summary>
             <param name="MechanicalModelName">Registered mechanical model name.</param>
             <param name="CalculatorTypeName">Name of the calculator service type.</param>
-            <param name="ConstitutiveParameters">JSON structure (JSON Schema) of the constitutive parameters type.</param>
-            <param name="Output">JSON structure (JSON Schema) of the model output type.</param>
+            <param name="ConstitutiveParameters">Representative example JSON payload for the constitutive parameters type.</param>
+            <param name="Output">Representative example JSON payload for the model output type.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.#ctor(System.String,System.String,System.Text.Json.Nodes.JsonNode,System.Text.Json.Nodes.JsonNode)">
             <summary>
             Metadata describing a registered mechanical model, its calculator type,
-            and the JSON structures (schemas) of its constitutive parameters and output models.
+            and representative example JSON payloads for its constitutive parameters and output models.
             </summary>
             <param name="MechanicalModelName">Registered mechanical model name.</param>
             <param name="CalculatorTypeName">Name of the calculator service type.</param>
-            <param name="ConstitutiveParameters">JSON structure (JSON Schema) of the constitutive parameters type.</param>
-            <param name="Output">JSON structure (JSON Schema) of the model output type.</param>
+            <param name="ConstitutiveParameters">Representative example JSON payload for the constitutive parameters type.</param>
+            <param name="Output">Representative example JSON payload for the model output type.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.MechanicalModelName">
             <summary>Registered mechanical model name.</summary>
@@ -1364,10 +1364,10 @@
             <summary>Name of the calculator service type.</summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.ConstitutiveParameters">
-            <summary>JSON structure (JSON Schema) of the constitutive parameters type.</summary>
+            <summary>Representative example JSON payload for the constitutive parameters type.</summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.Output">
-            <summary>JSON structure (JSON Schema) of the model output type.</summary>
+            <summary>Representative example JSON payload for the model output type.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand">
             <summary>
@@ -3113,19 +3113,28 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions">
             <summary>
-            Centralized JSON serialization and schema-export options for <c>MelloSilveiraTools.MechanicsOfMaterials</c>.
+            Centralized JSON serialization, schema-export, and example-generation options for <c>MelloSilveiraTools.MechanicsOfMaterials</c>.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default">
             <summary>
             Shared web-default JSON serialization options configured with case-insensitive property matching,
-            <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver"/> (for JSON schema export), and <see cref="T:System.Text.Json.Serialization.JsonStringEnumConverter"/>.
+            <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver"/>, and <see cref="T:System.Text.Json.Serialization.JsonStringEnumConverter"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.GetJsonSchemaAsNode(System.Type)">
             <summary>
             Exports the JSON Schema representation of <paramref name="type"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.CreateExampleJsonNode(System.Type)">
+            <summary>
+            Builds a human-readable example JSON payload for <paramref name="type"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
+            Uses realistic constitutive presets for built-in parameter models and falls back to metadata-driven
+            example generation for outputs and dynamically loaded plugin types.
+            </summary>
+            <param name="type">Target constitutive parameter or output model type.</param>
+            <returns>A <see cref="T:System.Text.Json.Nodes.JsonNode"/> containing a representative JSON example.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.SafeDeserialize``1(Microsoft.Extensions.Logging.ILogger,System.Text.Json.JsonElement,System.Type)">
             <summary>

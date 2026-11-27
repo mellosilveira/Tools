@@ -9,7 +9,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get;
 /// <summary>
 /// Lists every <see cref="IMechanicalModelTypeResolver"/> registered in <see cref="ServiceLocator"/>
 /// (both static and dynamically loaded plugin resolvers) along with its calculator type name
-/// and JSON structures for constitutive parameters and output models.
+/// and example JSON payloads for constitutive parameters and output models.
 /// </summary>
 /// <param name="serviceLocator">Service locator resolving static and dynamic model type resolvers.</param>
 public sealed class GetMechanicalModelsCommand(ServiceLocator serviceLocator) : ListedCommandBaseWithoutRequest<MechanicalModelMetadata>
@@ -25,8 +25,8 @@ public sealed class GetMechanicalModelsCommand(ServiceLocator serviceLocator) : 
                 .Select(resolver => new MechanicalModelMetadata(
                     resolver.MechanicalModelName,
                     resolver.Calculator.Name,
-                    MechanicsOfMaterialsJsonOptions.GetJsonSchemaAsNode(resolver.ConstitutiveParameters),
-                    MechanicsOfMaterialsJsonOptions.GetJsonSchemaAsNode(resolver.Output)))
+                    MechanicsOfMaterialsJsonOptions.CreateExampleJsonNode(resolver.ConstitutiveParameters),
+                    MechanicsOfMaterialsJsonOptions.CreateExampleJsonNode(resolver.Output)))
         ];
 
         return Task.FromResult(Result.CreateListedSuccessOk(models));

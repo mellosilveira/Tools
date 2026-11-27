@@ -453,10 +453,10 @@ public sealed record MechanicalModelMetadataDto
     /// <summary>Gets the calculator service type name.</summary>
     public string CalculatorTypeName { get; init; } = string.Empty;
 
-    /// <summary>Gets the JSON Schema of the model's constitutive parameters.</summary>
+    /// <summary>Gets an example JSON payload for the model's constitutive parameters.</summary>
     public JsonElement ConstitutiveParameters { get; init; }
 
-    /// <summary>Gets the JSON Schema of the model's output payload.</summary>
+    /// <summary>Gets an example JSON payload for the model's output.</summary>
     public JsonElement Output { get; init; }
 }
 

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Biomechanics Optimization, Sensitivity Analysis & Mechanics APIs (`MechanicsOfMaterials`, `Optimizations`, `Mathematics`)**:
   - Added single and parallel/sequential batch experimental data processing pipelines (automated phase segmentation, constrained ALGLIB/MathNet constitutive parameter fitting with confidence intervals, and real-time NDJSON progress streaming).
   - Added One-At-A-Time (OAAT) parametric sensitivity sweep pipelines (`ParametricSweepPipeline` and `ExecuteParametricSweepFromExperimentalDataCommand`) with numerical asymptote detection and variable-partitioned CSV export, plus `ExponentialIntegralFunction` and `VandermondeLeastSquares` analytical polynomial fitting.
-  - Added `GetMechanicalModelsCommand` and `ExecuteSpecimenAnalysisCommand` (with REST/Minimal API endpoints) for direct 3D specimen load-sharing analysis and classical fatigue calculations.
+  - Added `GetMechanicalModelsCommand` (returning representative example JSONs for constitutive parameters and outputs across static and plugin models) and `ExecuteSpecimenAnalysisCommand` (with REST/Minimal API endpoints) for direct 3D specimen load-sharing analysis and classical fatigue calculations.
 - **Multi-Provider Storage, Pipeline Telemetry & Host Operations (`Core`, `Database`, `WebApi`)**:
   - Added unified `IFileStorageService` providers (`Local`, `DFS`, `Azure Blob`, `AWS S3`) with streaming CSV/upload helpers and `FileStorageHealthCheck`.
   - Added `IPipelineProgressNotifier` for bounded NDJSON progress streaming, lossless `DataflowFanOut`, and `IEnumerablePipelineStep<TIn, TOut>`.
