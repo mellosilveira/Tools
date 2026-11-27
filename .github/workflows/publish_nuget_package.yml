@@ -3,6 +3,7 @@
 name: Build and publish .NET nuget packages
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 

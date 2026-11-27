@@ -2,7 +2,7 @@
 
 > **Master Publication Document** — Consolidates the dual publication strategy for `MelloSilveiraTools` + PPEMM/UFCIRJ Master's Thesis: (1) software paper submission to *Journal of Open Source Software* (**JOSS**) / *SoftwareX*, and (2) complete 4-stage systematic journal selection for the comparative soft-tissue knee-ligament biomechanics paper.
 >
-> *Last consolidated: 2026-11-26*
+> *Last consolidated: 2026-11-27*
 
 ---
 
@@ -58,14 +58,14 @@ The engineering and scientific depth achieved supports **two complementary, syne
    * `GET /api/v1/pipelines/{pipelineId}/progress` (NDJSON `application/x-ndjson` streaming)
    * `GET /api/v1/storage-entry-metadata` and `/{id}/download`, plus CRUDs and `MechanicsOfMaterials`/`Plugins`.
 2. [x] **Web Frontend (`src/MelloSilveiraTools.WebUi`) & `src/MelloSilveiraTools.Launcher`:** Blazor WebAssembly + Apache ECharts workbench with 1-click sample selection (`LCA_02_07_21_L38_D11`) or CSV upload, deformation phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), Experimental vs. Fung QLV / Simplified Fung / Schapery fit overlays, OAAT sensitivity, Mechanics, Storage, and Plugins tabs.
-3. [ ] **Illustrative Figure in `paper/`:** Add a high-quality figure under `paper/` (TPL Dataflow architecture and/or Experimental vs. Fung QLV vs. Simplified Fung vs. Schapery comparison) and reference it in `paper/paper.md` (e.g., `![...](figure.png)`).
-4. [ ] **Final Test Execution & PDF Verification:** Run full test suites (`UnitTests` + `AcceptanceTests` in `Release`) and trigger `.github/workflows/draft-pdf.yml` to inspect the final `paper.pdf`.
+3. [x] **Illustrative Figures in `paper/`:** Three architecture and pipeline diagrams generated via Draw.io (`paper/figures/fig1_package_architecture.{drawio,svg,png}`, `fig2_experimental_pipeline_dag.{drawio,svg,png}`, `fig3_oaat_sweep_pipeline.{drawio,svg,png}`) and referenced cleanly in `paper/paper.md`.
+4. [x] **Final Test Execution & PDF Verification:** Run full test suites (`UnitTests` + `AcceptanceTests` in `Release`) and trigger `.github/workflows/draft-pdf.yml` to inspect the final `paper.pdf`.
 5. [ ] **Formal Submission:** Submit at [https://joss.theoj.org/papers/new](https://joss.theoj.org/papers/new).
 
 > *(Note: CI build and test automation are already satisfied by `.github/workflows/publish_release_candidate_nuget_package.yml` and `.github/workflows/publish_nuget_package.yml`, without needing an additional `ci.yml`.)*
 
 #### Post-Acceptance (After JOSS Peer Review)
-* [ ] Create the final GitHub release tag (e.g., `v2.0.0`).
+* [ ] Create the final GitHub release tag (e.g., `v2.1.0`).
 * [ ] Archive the repository via [Zenodo](https://zenodo.org/) (or figshare) to mint a permanent **DOI**.
 * [ ] Report release version and DOI in the official JOSS review thread.
 

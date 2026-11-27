@@ -8,7 +8,7 @@ The following original high-detail technical analyses and item-by-item maturity 
 - [`task-2.2-result.json`](./task-2.2-result.json) — Schapery Non-Linear 1D 3-stage hierarchical identification details.
 - [`task-2.7-result.md`](./task-2.7-result.md) — 1D OAAT Sensitivity Analysis Engine architecture (TPL Dataflow topology, compiled Lambda Expression polymorphic adapter, floating-boundary fix, validation results).
 - [`ranked-models-analysis.md`](./ranked-models-analysis.md) — Qualitative ranking of constitutive models for knee ligaments.
-- [`eval-backend-vs-research.md`](./eval-backend-vs-research.md), [`eval-frontend-vs-research.md`](./eval-frontend-vs-research.md), [`eval-research-vs-direction.md`](./eval-research-vs-direction.md), [`evaluate-3d-transition.json`](./evaluate-3d-transition.json) — Granular item-by-item maturity evaluations (levels 1–5).
+- [`eval-backend-vs-research.md`](./eval-backend-vs-research.md), [`eval-frontend-vs-research.md`](./eval-frontend-vs-research.md), [`eval-research-vs-direction.md`](./eval-research-vs-direction.md) — Granular item-by-item maturity evaluations (levels 1–5).
 
 ## Consolidated / Pruned Outputs
 - The 5 raw Evidence Funnel literature JSONs (`401.7 KB`) were deterministically deduplicated (all **301 unique verified DOIs**, search queries, and evidence summaries) into [`../base-literature/evidence-funnel-bibliography.md`](../base-literature/evidence-funnel-bibliography.md).
