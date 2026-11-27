@@ -44,13 +44,13 @@ MelloSilveiraTools (meta) → Aggregates all above packages
 
 | Package | Key Features & Responsibilities | Dependencies |
 |---|---|---|
-| **`MelloSilveiraTools.Core`** | TPL Dataflow & fluent pipeline builders with real-time telemetry, Polly v8 resilience pipelines, in-memory caches, cryptography, file storage providers (`Local`, `AWS S3`, `Azure Blob`, `DFS`), and extension methods. | BCL, `Microsoft.Extensions.*`, `Polly` |
-| **`MelloSilveiraTools.Database`** | High-performance relational database provider for PostgreSQL, Dapper extensions, attribute-driven SQL generation, dynamic filtering clauses, and resilient transaction handling. | `Core`, `Npgsql`, `Dapper` |
-| **`MelloSilveiraTools.WebApi`** | Base controllers (`CustomControllerBase`, `CrudController`), Minimal API mappings (`MapCrud`), NDJSON real-time streaming, JWE bearer authentication, and Swagger configuration. | `Core`, `Database`, `Microsoft.AspNetCore.App` |
-| **`MelloSilveiraTools.Plugins`** | Dynamic plugin loader with collectible `AssemblyLoadContext`, two-level caching, storage-agnostic binary inspection, dynamic DI registration, and background file orchestrator. | `WebApi`, `Core`, `Database` |
-| **`MelloSilveiraTools.Mathematics`** | Symbolic-like function hierarchy (`FunctionFactory`), numerical integration (Simpson's rule), differentiation, root finding (Brent, Bisection), ODE solvers (Newmark, Newmark-$\beta$), 3D vectors, and statistics. | `Core` (zero external dependencies) |
-| **`MelloSilveiraTools.MechanicsOfMaterials`** | Linear and non-linear viscoelastic constitutive models (Fung QLV, Simplified Fung with Prony series, Schapery, Maxwell), classical fatigue criteria (Goodman/Marin), geometric profiles, and 3D ligament load sharing. | `Mathematics` |
-| **`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`** | TPL Dataflow experimental data pipelines: CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), downsampling, constrained curve fitting (embedded ALGLIB L-BFGS & MathNet.Numerics), and parametric sensitivity sweeps. | `MechanicsOfMaterials`, `WebApi`, `MathNet.Numerics` |
+| **`MelloSilveiraTools.Core`** | TPL Dataflow & fluent pipeline builders with real-time telemetry, Polly v8 resilience pipelines, in-memory caches, cryptography, file storage providers (`Local`, `AWS S3`, `Azure Blob`, `DFS`) with native health checks, and extension methods. | BCL, `Microsoft.AspNetCore.App`, `Polly`, `AWSSDK.S3`, `Azure.Storage.Blobs`, `Serilog.*` |
+| **`MelloSilveiraTools.Database`** | High-performance pure-Npgsql relational database provider for PostgreSQL (`NpgsqlSlimDataSourceBuilder`, `NpgsqlBatch` single-round-trip RLS scoping), attribute-driven SQL generation, dynamic filtering clauses, native `PostgresHealthCheck`, and Polly v8 resilience. | `Core`, `Npgsql`, `Serilog.Sinks.Postgresql.Alternative` |
+| **`MelloSilveiraTools.WebApi`** | Base controllers (`CustomControllerBase`, `CrudController`), Minimal API mappings (`MapCrud`, `Auth`, `StorageEntryMetadata`, `Health`), host security/rate-limiting/CORS extensions, aggregated native health checks, NDJSON real-time streaming, JWE bearer authentication, and Swagger configuration. | `Core`, `Database`, `Microsoft.AspNetCore.App`, `Microsoft.AspNetCore.Authentication.JwtBearer`, `Microsoft.IdentityModel.JsonWebTokens`, `Swashbuckle.AspNetCore` |
+| **`MelloSilveiraTools.Plugins`** | Dynamic plugin loader with collectible `PluginLoadContext`, two-level caching, storage-agnostic binary inspection, Model 2 community submissions & superuser moderation, dynamic DI registration, and background file orchestrator. | `WebApi`, `Core`, `Database` |
+| **`MelloSilveiraTools.Mathematics`** | Symbolic-like function hierarchy (`FunctionFactory`), numerical integration (Simpson's rule), differentiation, root finding (Brent, Bisection, StepByStep), ODE solvers (Newmark, Newmark-$\beta$), 3D vectors, and statistics. | `Core` (zero external third-party dependencies) |
+| **`MelloSilveiraTools.MechanicsOfMaterials`** | Linear and non-linear viscoelastic constitutive models (Fung QLV, Simplified Fung with Prony series, Schapery, Maxwell, Modified Superposition Method), classical fatigue criteria (Goodman/Marin), geometric profiles, specimen analysis endpoints/commands, and 3D ligament load sharing. | `Mathematics`, `Database`, `Microsoft.Extensions.DependencyInjection.Abstractions` |
+| **`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`** | TPL Dataflow experimental data pipelines: CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), downsampling, constrained curve fitting (embedded ALGLIB L-BFGS & MathNet.Numerics), OAAT parametric sensitivity sweeps, and HTTP APIs. | `MechanicsOfMaterials`, `Database`, `WebApi`, `MathNet.Numerics` |
 | **`MelloSilveiraTools`** | Meta-package aggregating all packages above into a single reference with unified dependency injection (`AddToolsServices`). | All suite packages |
 
 ---
@@ -84,25 +84,43 @@ dotnet add package MelloSilveiraTools.Database
 
 ---
 
-## 5. Web API Usage (In Development)
+## 5. Web API Usage (`MelloSilveiraTools.WebApi.Host`)
 
-A turnkey, standalone REST and streaming Web API application is currently under development to expose the computational engine as a headless microservice. 
+A turnkey ASP.NET Core Web API host (`src/MelloSilveiraTools.WebApi.Host`) exposes the computational engine via JWE-secured REST endpoints, Swagger UI (`/swagger`), and real-time NDJSON progress streaming.
 
-Planned API endpoints and capabilities:
-- **Asynchronous Processing (`POST /api/v1/experimental-data/process`):** Accepts `stress.csv` and `strain.csv` uploads, returning `202 Accepted` with a deterministic execution identifier.
-- **Batch Processing (`POST /api/v1/experimental-data/process/batch`):** Ingests batches of experimental datasets with configurable sequential or parallel execution.
-- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process-from-experimental-data`):** Triggers sensitivity sweeps across all calibrated constitutive models for an experimental identifier.
-- **Real-Time Progress Streaming (`GET /api/v1/pipeline-runs/{id}/events`):** Emits Server-Sent Events (SSE) and NDJSON streams providing item-level progress counters and DAG step topology updates.
+### Quickstart via Cross-Platform Launcher
+```bash
+dotnet run --project src/MelloSilveiraTools.Launcher/
+```
+The launcher validates Docker / PostgreSQL availability, runs idempotent DbUp migrations (`MelloSilveiraTools.Database.Migrator`), starts `WebApi.Host` at `http://localhost:5080`, and opens the browser automatically.
+
+### Quickstart via Docker Compose
+```bash
+docker compose up --build
+```
+
+### Core Endpoints
+- **Aggregated Health Check (`GET /api/health`):** Executes registered `FileStorageHealthCheck` and `PostgresHealthCheck` probes, returning `HealthCheckResultData` (`200 OK` or `503 Service Unavailable`).
+- **JWE Authentication (`POST /api/v1/auth/register`, `/login`, `/refresh`, `/validate`, `GET /api/v1/auth/me`):** Issues, refreshes, and validates signed and encrypted JWE bearer tokens and inspects active user/superuser sessions.
+- **Bundled Samples (`GET /api/v1/samples`):** Lists pre-loaded knee ligament datasets (`LCA_02_07_21_L38_D11`).
+- **Storage Entries & Artifacts (`POST/GET/PUT/DELETE /api/v1/storage-entry-metadata`, `GET /api/v1/storage-entry-metadata/{id}/download`):** Multipart storage, metadata queries, updates/deletes, and file streaming.
+- **Experimental Data Pipelines (`POST /api/v1/experimental-data/upload`, `/process`, `/process/batch`):** Uploads CSV pairs and executes single or batch experimental segmentation, curve fitting, and simulation, returning `202 Accepted` with the execution identifier.
+- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process`, `/process/experimental-data`):** Triggers OAAT sensitivity sweeps across baseline parameters or calibrated experimental models *(MVC controller also exposes `/process-from-experimental-data`)*.
+- **Mechanics of Materials (`GET /api/v1/mechanics/models`, `POST /api/v1/mechanics/specimen-analysis/execute`, `/fatigue/calculate`, `/fatigue/calculate/endurance-limit`):** Discovers constitutive models and executes deterministic specimen analysis and Goodman/Marin fatigue evaluations.
+- **Dynamic Plugins (`GET /api/v1/plugins`, `/inspect`, `POST/GET/DELETE /api/v1/plugins/submissions`, `POST /upload`):** Public plugin catalog, superuser assembly partition inspection, community submission moderation, and runtime cache/load management.
+- **Real-Time Progress Streaming (`GET /api/v1/pipelines/{pipelineId}/progress`):** Emits `application/x-ndjson` streams providing item-level progress counters and DAG step topology updates.
+- **Persisted Result Queries (`GET /api/v1/curve-fit-outputs`, `/api/v1/mechanical-model-simulations`, `/api/v1/parametric-sweeps`):** Paginated queries and NDJSON streaming for stored computational outputs.
 
 ---
 
-## 6. Frontend Usage (In Development)
+## 6. Frontend Usage (`MelloSilveiraTools.WebUi`)
 
-An accessible, interactive web frontend is currently under active development. Designed with high synergy for the .NET backend, it will provide:
-- **Experimental Curve Visualization:** Interactive plotting of raw experimental stress-strain time histories.
-- **Automated Phase Inspection:** Visual validation of the sliding-window phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`).
-- **Interactive Model Fitting:** Real-time visual comparison between experimental data and calibrated constitutive models (Fung QLV, Simplified Fung, and Schapery) with parameter confidence interval displays.
-- **Parametric Sensitivity Graphs:** Multi-dimensional visualization of One-At-A-Time (OAAT) parametric sweeps.
+An interactive **Blazor WebAssembly (.NET 10)** workbench (`src/MelloSilveiraTools.WebUi`, served directly by `MelloSilveiraTools.WebApi.Host` at `http://localhost:5080` locally or `http://localhost:24263` via Docker Compose) using Canvas-accelerated **Apache ECharts** provides:
+- **JWE Session Management:** User registration, login, JWE token refresh, and live session/role inspection.
+- **Sample & CSV Ingestion:** Instant selection of bundled knee ligament samples or browser CSV pair upload.
+- **Live NDJSON Telemetry:** Step-by-step progress table (`Pending`, `Started`, `Completed`) during pipeline execution.
+- **Experimental Segmentation & Model Fit Overlay:** Interactive zoomable plotting of `Ramp`, `Relaxation`, `Descent`, and `Recovery` phases overlaid with calibrated constitutive model simulations (`Fung`, `SimplifiedFung`, `Schapery`).
+- **Parametric Sensitivity & Workbench Tabs:** Dedicated tabs for Experimental Pipelines, Mechanics of Materials (Specimen Analysis & Fatigue), Storage Entry Metadata management, and Plugin catalog/moderation.
 
 ---
 
@@ -137,21 +155,21 @@ dotnet build MelloSilveiraTools.sln --configuration Release --no-restore
 
 ### 8.1. Unit Tests (Fast, In-Memory — No External Dependencies)
 
-Executes **449 unit tests** covering all analytical solvers, constitutive equations, and pipeline components in ~4 seconds without requiring any database or Docker container:
+Executes the automated in-memory unit test suite covering analytical solvers, constitutive equations, and pipeline components in seconds without requiring any database or Docker container:
 
 ```bash
-dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
+dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build --settings coverlet.runsettings
 ```
 
-### 8.2. Acceptance Tests (Requires Docker)
+### 8.2. Acceptance Tests (End-to-End & PostgreSQL Testcontainers)
 
-Executes **23 end-to-end integration tests** validating real knee ligament tensile test data (ACL, PCL, MCL, LCL) and database persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized PostgreSQL instance.
+Executes the end-to-end acceptance suite validating real knee ligament tensile test data (ACL, PCL, MCL, LCL), HTTP/NDJSON streaming, dynamic plugin lifecycles, and PostgreSQL persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized database instance. PostgreSQL container integration tests marked with `[PostgresIntegrationFact]` automatically report `SKIP` locally when no Docker daemon or `POSTGRES_CONNECTION_STRING` is available, and fail strictly in CI (`CI=true` or `REQUIRE_POSTGRES_TESTS=true`).
 
 > [!IMPORTANT]
-> The **Docker daemon must be running** on the host machine before executing acceptance tests.
+> Keep the **Docker daemon running** on the host machine when executing the full PostgreSQL integration suite, or add `--filter "Category!=Slow"` to skip multi-minute curve-fitting benchmarks.
 
 ```bash
-dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration Release
+dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration Release --no-build --filter "Category!=Slow" --settings coverlet.runsettings
 ```
 
 ---
