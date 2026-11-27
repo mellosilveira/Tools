@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## [3.0.0] - 2026-11-27
 ### Added
 - **Turnkey Quickstart, Web Workbench & Multi-Platform Launcher (`WebApi.Host`, `WebUi`, `Launcher`, `Docker`, `CI`)**:
   - Added the `MelloSilveiraTools.WebApi.Host` API server (REST/Minimal APIs, OpenAPI/Swagger, JWE authentication, bundled ligament sample dataset, and real-time NDJSON streaming) alongside the Blazor WebAssembly `MelloSilveiraTools.WebUi` workbench featuring an overview Home screen, interactive Apache ECharts visualizations, experimental fitting/sweep tools, mechanics/fatigue calculators, storage explorer, and plugin moderation.
@@ -25,7 +25,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Added storage-agnostic collectible assembly loading (`PluginLoadContext`), community submission and superuser moderation workflows (`SubmitPlugin`, `ApprovePluginSubmission`, `RejectPluginSubmission`, `CancelPluginSubmission`, `InspectPlugins`), and strict managed IL-only assembly validation.
 - **JOSS Publication Readiness & Community Governance (`CI`, `Docs`)**:
   - Re-licensed the repository under `GPL-3.0-or-later`, added the JOSS manuscript (`paper/paper.md`, `paper/paper.bib`, `.github/workflows/draft-pdf.yml`), community governance files (`CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, GitHub issue templates), root and per-package `README.md` guides, NuGet package validation (`Directory.Build.targets`), and `coverlet.runsettings` coverage rules.
-
 ### Changed
 - **Native AOT Compatibility & Pure Npgsql Persistence (`Core`, `Database`, `WebApi.Host`)**:
   - Replaced Dapper with pure `Npgsql` (`NpgsqlSlimDataSourceBuilder` and single-round-trip `NpgsqlBatch` queries), added trimming/AOT annotations and compiled-expression fallbacks, and standardized `TimeProvider` injection across services and pipelines.
@@ -33,18 +32,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Standardized `StorageEntryMetadata` and `PluginInfo` models across storage, database, plugin, and WebUi layers, and unified simulation/CSV output writing around `IFileStorageService`.
   - Converted `IValidator<T>` to `ValueTask<Result> ValidateAsync(...)`, standardized `Result` factory methods, enforced explicit `CancellationToken` passing outside request DTOs, and replaced static service helpers with DI-registered singletons.
   - Replaced legacy Morris sensitivity prototypes with the unified OAAT `ParametricSweepPipeline` and converted `PipelineFactory` into an injectable singleton service.
-
 ### Breaking
 - **Core, Storage & Pipeline Contracts (`Core`, `Database`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
   - Replaced `IFileManager`/`FileMetadata` with `IFileStorageService`/`StorageEntryMetadata`, standardized `Result`/`CommandBase` and `ValueTask<Result> IValidator<T>.ValidateAsync`, and removed Dapper (`DynamicParameters`, `DbDataReaderExtensions`).
   - Replaced `IProgress<PipelineProgressEvent>` with DI-injected `IPipelineProgressNotifier`, converted `PipelineFactory` from static to singleton, removed static service helpers from `PluginFileProcessor` and `UserContextMiddleware`, and replaced `CurveFittingController`/`FitCurve` with the unified `ExperimentalData` and `ParametricSweep` pipelines.
-
 ### Fixed
 - **SQL Generation, Numerical Stability & Serialization (`Core`, `Database`, `Mathematics`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
   - Fixed `PostgresSqlProvider` `INSERT`/`TryInsert`/`BulkInsert`/`UPDATE` generated column handling (`id`, `creation_timestamp`) and FK join alias disambiguation.
   - Fixed culture-invariant `Vector3D` parsing/formatting (`CultureInfo.InvariantCulture`), JSON reference cycles and polymorphic JSON serialization/deserialization on `Function` and `PronySeries`, `LogarithmicCurveFitter` zero-based indexing, `ConstantFunction`/`FunctionFactory` edge cases, `ResultExtensions` immutable record chaining, and file-handle scoping in `JsonFilePluginCachePersistence`.
   - Fixed `WriteLineAsNdJsonAsync` NDJSON serialization in `WebApi` to honor configured `JsonSerializerOptions` with string enum conversion, and improved test isolation and reliability across unit and PostgreSQL acceptance suites.
-
 ### Security
 - **PostgreSQL Row-Level Security & Platform Hardening (`Core`, `Database`, `Database.Migrator`, `WebApi`, `Plugins`)**:
   - Enforced per-operation PostgreSQL Row-Level Security (RLS) separating public reference datasets from private authenticated workspaces and superuser moderation, backed by startup non-superuser role validation.
