@@ -66,6 +66,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{79AD22AE-E
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "papers", "papers", "{18E8EE3E-DD6F-47F1-9149-B9A013A63B34}"
+	ProjectSection(SolutionItems) = preProject
+		paper\paper.bib = paper\paper.bib
+		paper\paper.md = paper\paper.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -264,6 +270,7 @@ Global
 		{B13C40E0-B1C7-41CE-B40B-11ACCF25EA45} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{7ED8CE6B-9F17-400F-8806-37E68EE3FFD7} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{11EE7733-16C5-4AB3-9615-D45B0B42B375} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
+		{18E8EE3E-DD6F-47F1-9149-B9A013A63B34} = {79AD22AE-EB54-44D7-A40E-0150B9C0E633}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6138CFB8-82E9-45F6-B28F-BF93F657D839}
