@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
@@ -16,12 +16,12 @@ public class ReadEntityPaged<TEntity, TFilter>(IRepository repository) : PagedCo
     where TFilter : FilterBase, new()
 {
     /// <inheritdoc />
-    protected override async Task<PagedResult<TEntity>> ExecuteCommandAsync(ReadEntityPagedRequest<TFilter> request)
+    protected override async Task<PagedResult<TEntity>> ExecuteCommandAsync(ReadEntityPagedRequest<TFilter> request, CancellationToken cancellationToken = default)
     {
-        long totalCount = await repository.CountAsync<TEntity, TFilter>(request.Filter).ConfigureAwait(false);
+        long totalCount = await repository.CountAsync<TEntity, TFilter>(request.Filter, cancellationToken).ConfigureAwait(false);
         List<TEntity> entities = await repository
-            .GetAsync<TEntity, TFilter>(request.Filter, request.Pagination)
-            .ToListAsync(request.CancellationToken)
+            .GetAsync<TEntity, TFilter>(request.Filter, request.Pagination, cancellationToken)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
         return new PagedResult<TEntity>

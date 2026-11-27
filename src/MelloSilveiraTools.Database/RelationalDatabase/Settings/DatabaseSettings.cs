@@ -1,4 +1,6 @@
-﻿namespace MelloSilveiraTools.Database.RelationalDatabase.Settings;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+
+namespace MelloSilveiraTools.Database.RelationalDatabase.Settings;
 
 /// <summary>
 /// Settings that configure access to the application's relational database.
@@ -13,13 +15,25 @@ public record DatabaseSettings
     /// <summary>
     /// Timeout, in milliseconds, applied to single-row (unit) operations.
     /// </summary>
-    public int UnitOperationTimeoutInMilliseconds { get; init; }
+    public required int UnitOperationTimeoutInMilliseconds { get; init; }
 
     /// <summary>
     /// Timeout, in milliseconds, applied to bulk operations that touch many rows.
     /// </summary>
-    public int BulkOperationTimeoutInMilliseconds { get; init; }
+    public required int BulkOperationTimeoutInMilliseconds { get; init; }
 
-    internal int UnitOperationTimeoutInSeconds => UnitOperationTimeoutInMilliseconds / 1000;
-    internal int BulkOperationTimeoutInSeconds => BulkOperationTimeoutInMilliseconds / 1000;
+    /// <summary>
+    /// Optional resilience pipeline settings applied to database operations.
+    /// </summary>
+    public ResiliencePipelineSettings? ResiliencePipelineSettings { get; init; }
+
+    /// <summary>
+    /// Explicit opt-out allowing startup when the PostgreSQL connection role has <c>SUPERUSER</c>
+    /// or <c>BYPASSRLS</c> privileges. Defaults to <see langword="false"/> so Row-Level Security
+    /// role enforcement is validated eagerly on startup.
+    /// </summary>
+    public bool AllowSuperuserDatabaseConnection { get; init; }
+
+    public int UnitOperationTimeoutInSeconds => UnitOperationTimeoutInMilliseconds / 1000;
+    public int BulkOperationTimeoutInSeconds => BulkOperationTimeoutInMilliseconds / 1000;
 }

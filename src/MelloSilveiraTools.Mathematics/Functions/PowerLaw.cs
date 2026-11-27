@@ -25,34 +25,31 @@ public class PowerLaw : Function
             throw new ArgumentOutOfRangeException(nameof(coefficients), $"'{nameof(PowerLaw)}' must contain exactly 2 coefficients.");
     }
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="PowerLaw"/>.
-    /// </summary>
-    /// <param name="initialVariableValue">Initial value for variable.</param>
-    /// <param name="finalVariableValue">Final value for variable.</param>
-    /// <param name="coefficients">The coefficients.</param>
-    public PowerLaw(
-        double? initialVariableValue,
-        double? finalVariableValue,
-        double[] coefficients)
-        : this(coefficients, initialVariableValue, finalVariableValue)
-    {
-    }
-
     /// <inheritdoc/>
     public override double Calculate(double variableValue) => Coefficients[0] * Math.Pow(variableValue, -Coefficients[1]);
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Creates the analytical derivative of the Power Law function:
+    /// f'(x) = -a_0 * a_1 * x^(-(a_1 + 1)).
+    /// </summary>
+    /// <returns>The analytical derivative function.</returns>
     protected override Function CreateDerivative()
     {
-        double[] derivativeCoefficients = [-Coefficients[0] * Coefficients[1], Coefficients[1] - 1];
+        double[] derivativeCoefficients = [-Coefficients[0] * Coefficients[1], Coefficients[1] + 1];
         return new PowerLaw(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Creates the analytical antiderivative of the Power Law function:
+    /// F(x) = (a_0 / (1 - a_1)) * x^(-(a_1 - 1)) when a_1 != 1, or F(x) = a_0 * ln(x) when a_1 = 1.
+    /// </summary>
+    /// <returns>The analytical integral function.</returns>
     protected override Function CreateIntegral()
     {
-        double[] integralCoefficients = [Coefficients[0] / (Coefficients[1] + 1), Coefficients[1] + 1];
+        if (Math.Abs(Coefficients[1] - 1) <= MathematicConstants.MachineEpsilonFloor)
+            return new LogarithmicFunction([0, Coefficients[0], 1], InitialVariableValue, FinalVariableValue);
+
+        double[] integralCoefficients = [Coefficients[0] / (1 - Coefficients[1]), Coefficients[1] - 1];
         return new PowerLaw(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }

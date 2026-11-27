@@ -26,9 +26,10 @@ public class CustomControllerBase(ILogger logger) : Controller
     /// <param name="operation">Operation that performs the insert (resolved from DI).</param>
     /// <param name="entity">Entity payload received from the request.</param>
     /// <param name="resourceName">Human-readable resource name used to build localized error messages.</param>
-    protected async Task<ActionResult<AddResult>> Add<TEntity>(AddEntity<TEntity> operation, TEntity entity, string resourceName) where TEntity : EntityBase, new()
+    /// <param name="cancellationToken"></param>
+    protected async Task<ActionResult<AddResult>> Add<TEntity>(AddEntity<TEntity> operation, TEntity entity, string resourceName, CancellationToken cancellationToken = default) where TEntity : EntityBase, new()
         => await operation
-            .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
+            .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName }, cancellationToken)
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
 
@@ -39,6 +40,7 @@ public class CustomControllerBase(ILogger logger) : Controller
     /// </summary>
     /// <param name="entities">Asynchronous sequence of items to be streamed.</param>
     /// <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
-    protected Task Stream<T>(IAsyncEnumerable<T> entities, string resourceName)
-        => entities.WriteNdjsonAsync(HttpContext, Logger, resourceName);
+    /// <param name="cancellationToken"></param>
+    protected Task Stream<T>(IAsyncEnumerable<T> entities, string resourceName, CancellationToken cancellationToken = default)
+        => entities.WriteNdjsonAsync(HttpContext, Logger, resourceName, cancellationToken);
 }

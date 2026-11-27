@@ -137,16 +137,31 @@ public interface IDataflowPipelineBuilder<THead, TTail>
         PipelineStepOptions options = default);
 
     /// <summary>
-    /// Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
+    /// Appends a stateful batching step that groups consecutive messages by a key selector into an <see cref="IGrouping{TKey, TTail}"/>.
     /// </summary>
-    /// <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+    /// <typeparam name="TKey">The type of the key used to partition the stream.</typeparam>
+    /// <param name="keySelector">A function to extract the key from each item.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TTail}"/> emitting dynamically grouped arrays.</returns>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> emitting grouped batches as <see cref="IGrouping{TKey, TTail}"/>.</returns>
     /// <remarks>
-    /// Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping.
-    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation. 
+    /// Technical Decision: Consecutive items sharing the same key are accumulated into an <see cref="IGrouping{TKey, TTail}"/>.
+    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
     /// </remarks>
-    IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> groupingCondition, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, IGrouping<TKey, TTail>> AddGroupWhileStep<TKey>(Func<TTail, TKey> keySelector, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a stateful batching step that groups consecutive messages while the condition evaluates true, associating them with a key extracted via <paramref name="keySelector"/> and emitting an <see cref="IGrouping{TKey, TTail}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key associated with the group.</typeparam>
+    /// <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+    /// <param name="keySelector">A function to extract the key from each item.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> emitting grouped batches as <see cref="IGrouping{TKey, TTail}"/>.</returns>
+    /// <remarks>
+    /// Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping with key correlation.
+    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, IGrouping<TKey, TTail>> AddGroupWhileStep<TKey>(Func<TTail, TTail, bool> groupingCondition, Func<TTail, TKey> keySelector, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a collection step that aggregates all remaining pipeline payloads into a single array.
@@ -181,6 +196,15 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// <param name="options">Concurrency and buffer options for this step.</param>
     /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> continuing from the stream items.</returns>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a custom synchronous enumerable streaming step to the pipeline, expanding each input payload into multiple downstream messages.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant output element type yielded in the enumerable sequence.</typeparam>
+    /// <param name="step">The synchronous enumerable pipeline step instance to execute.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> continuing from the individual yielded elements.</returns>
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.
@@ -228,6 +252,19 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Technical Decision: Transforms and routes a payload projection to a side-effect observer without changing the primary pipeline contract.
     /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TOut>(IAsyncPipelineStep<TOut> step, Func<TTail, TOut> mapFunc, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Forks the pipeline into a non-mutating broadcast branch composed of one or more pipeline steps that execute concurrently as a side-effect without altering the primary pipeline payload.
+    /// </summary>
+    /// <typeparam name="TBranchOut">The terminal output type produced by the broadcast branch.</typeparam>
+    /// <param name="branch">Delegate defining the pipeline topology for the broadcast branch.</param>
+    /// <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+    /// <param name="options">Concurrency and buffer options for the broadcast block.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TTail}"/> continuing with the unmodified primary payload.</returns>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastFork<TBranchOut>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TBranchOut>> branch,
+        Func<TTail, TTail>? cloneFunc = null,
+        PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.

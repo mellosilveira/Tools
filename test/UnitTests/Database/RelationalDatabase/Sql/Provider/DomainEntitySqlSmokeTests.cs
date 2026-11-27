@@ -15,7 +15,7 @@ public sealed class DomainEntitySqlSmokeTests
     [Fact]
     public void UserManagedDistrict_SelectSql_ContainsJoinsForBothForeignKeys()
     {
-        var select = _provider.GetSelectSql<UserManagedDistrictEntity>();
+        string select = _provider.GetSelectSql<UserManagedDistrictEntity>();
 
         Assert.Contains("FROM user_managed_district AS usmd", select);
         Assert.Contains("INNER JOIN prajah_user", select);
@@ -25,7 +25,7 @@ public sealed class DomainEntitySqlSmokeTests
     [Fact]
     public void UserManagedDistrict_SelectDistinctSql_ContainsSelectDistinct()
     {
-        var sql = _provider.GetSelectDistinctSql<UserManagedDistrictEntity>();
+        string sql = _provider.GetSelectDistinctSql<UserManagedDistrictEntity>();
 
         Assert.Contains("SELECT DISTINCT", sql);
     }
@@ -33,22 +33,24 @@ public sealed class DomainEntitySqlSmokeTests
     [Fact]
     public void UserManagedDistrict_InsertSql_ContainsForeignKeyColumns()
     {
-        var sql = _provider.GetInsertSql<UserManagedDistrictEntity>();
+        string sql = _provider.GetInsertSql<UserManagedDistrictEntity>();
 
         Assert.Contains("user_id", sql);
         Assert.Contains("district_id", sql);
         Assert.Contains("RETURNING id", sql);
     }
 
-    //[Fact]
-    //public void District_InsertSql_ReturnsOnConflictInsert_BecauseOfUniqueColumns()
-    //{
-    //    // DistrictEntity has several [UniqueColumn] properties — conflict clause uses their actual column names.
-    //    var sql = _provider.GetInsertSql<DistrictEntity>();
+    [Fact]
+    public void District_InsertSql_GeneratesOnConflictForAllUniqueColumns()
+    {
+        string sql = _provider.GetInsertSql<DistrictEntity>();
 
-    //    Assert.Contains("ON CONFLICT (name, city, state_abbreviation, region_abbreviation, country_abbreviation)", sql);
-    //    Assert.Contains("DO UPDATE SET name = EXCLUDED.name", sql);
-    //}
+        Assert.Contains("ON CONFLICT (name, city, state_abbreviation, region_abbreviation, country_abbreviation)", sql);
+        Assert.Contains("DO UPDATE SET", sql);
+        Assert.Contains("state = EXCLUDED.state", sql);
+        Assert.Contains("region = EXCLUDED.region", sql);
+        Assert.Contains("country = EXCLUDED.country", sql);
+    }
 }
 
 // ── Entity definitions (kept here to preserve the original test intent) ────────

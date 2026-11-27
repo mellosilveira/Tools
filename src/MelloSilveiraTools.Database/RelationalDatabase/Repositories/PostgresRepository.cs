@@ -1,7 +1,8 @@
-using Dapper;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
@@ -9,20 +10,33 @@ using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Database.ResiliencePipelines;
 using Npgsql;
 using NpgsqlTypes;
-using System.Data;
-using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 
 /// <summary>
-/// Repository that contains methods to deal with Postgres database.
-/// Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
+/// Pure-Npgsql, Native AOT-compatible repository for PostgreSQL.
+/// Registered as Singleton in DI; borrows pooled connections from the DI-managed singleton
+/// <see cref="NpgsqlDataSource"/> and executes every operation inside a single-round-trip
+/// <see cref="NpgsqlBatch"/> scoped by transaction-local Row-Level Security context. Safe for concurrent use.
 /// </summary>
 /// <remarks>
 /// <para>
-/// All database operations are wrapped by <see cref="PostgresResiliencePipeline"/>, which transparently
-/// retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
+/// Every operation is executed via <see cref="NpgsqlDataSource.CreateBatch"/> with
+/// <c>SELECT set_config('app.current_user_id', @UserId, true)</c> prepended as the first batch command.
+/// Under PostgreSQL's extended query protocol, all commands in an <see cref="NpgsqlBatch"/> run atomically
+/// inside a single implicit transaction block until the trailing <c>Sync</c> message — eliminating explicit
+/// <c>BEGIN</c>/<c>COMMIT</c> network round-trips while guaranteeing that PostgreSQL resets
+/// <c>app.current_user_id</c> automatically before returning the connection to the pool.
+/// </para>
+/// <para>
+/// All non-streaming database operations are wrapped by <see cref="PostgresResiliencePipeline"/>, which transparently
+/// retries transient failures (connection drops, deadlocks, serialization failures, timeouts).
+/// <see cref="NpgsqlParameter"/> collections are constructed once per repository call (avoiding repeated reflection);
+/// the first attempt binds the original instances directly (zero extra allocations), and retries bind detached
+/// <see cref="NpgsqlParameter.Clone"/> copies to prevent parameter-collection ownership conflicts.
 /// </para>
 /// <para>
 /// Per-command timeouts are taken from <see cref="DatabaseSettings"/>:
@@ -31,183 +45,158 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 /// <see cref="DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
 /// (bulk insert, bulk upsert).
 /// </para>
-/// <para>
-/// SQL is generated through the injected <see cref="ISqlProvider"/>; the provider implementation memoizes
-/// SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
-/// lifetime of the application.
-/// </para>
-/// <para>
-/// SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
-/// <see cref="Attributes.ForeignKeyColumnAttribute"/>, using the
-/// join type configured on the attribute and the metadata of the referenced entity type.
-/// </para>
 /// </remarks>
-public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipeline resiliencePipeline, DatabaseSettings databaseSettings) : IRepository
+/// <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+/// <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS batch scoping.</param>
+/// <param name="dataSource">Singleton <see cref="NpgsqlDataSource"/> managed by the DI container.</param>
+/// <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+/// <param name="databaseSettings">Database connection and command timeout settings.</param>
+public class PostgresRepository(
+    ISqlProvider sqlProvider,
+    ICurrentUserProvider currentUserProvider,
+    NpgsqlDataSource dataSource,
+    PostgresResiliencePipeline resiliencePipeline,
+    DatabaseSettings databaseSettings) : IRepository
 {
+    // Index 0 in every scoped NpgsqlBatch is always the RLS context command added by AddUserContext
+    // ("SELECT set_config('app.current_user_id', @UserId, true);"), which occupies BatchCommands[0]
+    // and emits result set 0 (1 row). Index 1 therefore targets the actual repository statement
+    // (for BatchCommands[1].Rows in non-queries and for skipping the set_config result set in readers;
+    // in 3-command bulk UpsertAsync, DELETE emits NoData so result set 1 lands directly on INSERT RETURNING).
+    private const int TargetBatchIndex = 1;
+
     /// <summary>
-    /// Database settings used to configure connections and command timeouts.
+    /// Database settings used to configure command timeouts.
     /// </summary>
     protected DatabaseSettings DatabaseSettings { get; } = databaseSettings;
 
     /// <inheritdoc/>
-    public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default) where TFilter : FilterBase
+    public async Task<long> CountAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        CancellationToken cancellationToken = default)
+        where TFilter : FilterBase
     {
-        (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
+        (string? sqlWhereClause, List<NpgsqlParameter> parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string sql = sqlProvider.GetCountSql<TEntity>().Replace("#WHERE", sqlWhereClause);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return await connection.ExecuteScalarAsync<long>(sql, parameters, cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        return await ExecuteBatchAsync(sql, parameters, null, batch => batch.ExecuteScalarAsync<long>(TargetBatchIndex, cancellationToken)).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> ExistAsync<TEntity>(long id, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(long id, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetExistByPrimaryKeySql<TEntity>();
-
-        DynamicParameters parameters = new();
-        parameters.Add("@Id", id, DbType.Int64);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            long count = await connection.ExecuteScalarAsync<long>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
-            return count > 0;
-        }).ConfigureAwait(false);
+        NpgsqlParameter[] parameters = [new NpgsqlParameter("@Id", NpgsqlDbType.Bigint) { Value = id }];
+        long count = await ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.ExecuteScalarAsync<long>(TargetBatchIndex, cancellationToken)).ConfigureAwait(false);
+        return count > 0;
     }
 
     /// <inheritdoc/>
-    public async Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        CancellationToken cancellationToken = default)
         where TFilter : FilterBase
     {
-        (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
-        string sql = sqlProvider.GetCountSql<TEntity>().Replace("#WHERE", sqlWhereClause);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            long count = await connection.ExecuteScalarAsync<long>(sql, parameters, cancellationToken).ConfigureAwait(false);
-            return count > 0;
-        }).ConfigureAwait(false);
+        long count = await CountAsync<TEntity, TFilter>(filter, cancellationToken).ConfigureAwait(false);
+        return count > 0;
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAllAsync<TEntity>(CancellationToken cancellationToken = default)
-    {
-        string sql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", null);
-
-        await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection);
-            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
+    public Task DeleteAllAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(CancellationToken cancellationToken = default)
+        => ExecuteNonQueryBatchAsync(sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", null), null, null, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task DeleteAsync<TEntity>(long id, CancellationToken cancellationToken = default)
+    public Task DeleteAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(long id, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetDeleteByPrimaryKeySql<TEntity>();
-
-        await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
-
-            command.Parameters.AddWithValue("@Id", NpgsqlDbType.Bigint, id);
-            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        NpgsqlParameter[] parameters = [new NpgsqlParameter("@Id", NpgsqlDbType.Bigint) { Value = id }];
+        return ExecuteNonQueryBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default)
+    public Task DeleteAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        CancellationToken cancellationToken = default)
     {
-        (string? sqlWhereClause, List<NpgsqlParameter>? parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
+        (string? sqlWhereClause, List<NpgsqlParameter> parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string sql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", sqlWhereClause);
-
-        await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection);
-
-            foreach (var parameter in parameters!)
-            {
-                command.Parameters.Add(parameter);
-            }
-
-            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        return ExecuteNonQueryBatchAsync(sql, parameters, null, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<TEntity?> GetFirstOrDefaultAsync<TEntity, TFilter>(TFilter filter, SortOrder sortOrder = SortOrder.Asc, CancellationToken cancellationToken = default)
+    public Task<TEntity?> GetFirstOrDefaultAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        SortOrder sortOrder = SortOrder.Asc,
+        CancellationToken cancellationToken = default)
+        where TEntity : class, new()
         where TFilter : FilterBase
     {
-        (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
+        (string? sqlWhereClause, List<NpgsqlParameter> parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string sql = sqlProvider.GetSelectSql<TEntity>()
             .Replace("#WHERE", sqlWhereClause)
             .Replace("#LIMIT", "LIMIT 1")
             .Replace("#ORDERBY", sortOrder.ToNpgsqlString())
             .Remove("#OFFSET");
 
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return await connection.QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.QueryFirstOrDefaultAsync<TEntity>(TargetBatchIndex, cancellationToken));
     }
 
     /// <inheritdoc/>
-    public async Task<TEntity?> GetAsync<TEntity>(long id, CancellationToken cancellationToken = default)
+    public Task<TEntity?> GetAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(long id, CancellationToken cancellationToken = default) where TEntity : class, new()
     {
         string sql = sqlProvider.GetSelectByPrimaryKeySql<TEntity>();
-
-        DynamicParameters parameters = new();
-        parameters.Add("@Id", id, DbType.Int64);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return await connection.QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        NpgsqlParameter[] parameters = [new NpgsqlParameter("@Id", NpgsqlDbType.Bigint) { Value = id }];
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.QueryFirstOrDefaultAsync<TEntity>(TargetBatchIndex, cancellationToken));
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<TEntity> GetAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        Pagination? pagination = null,
+        CancellationToken cancellationToken = default)
         where TEntity : class, new()
         where TFilter : FilterBase
         => StreamAsync<TEntity, TFilter>(sqlProvider.GetSelectSql<TEntity>(), filter, pagination, cancellationToken);
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<TEntity> GetDistinctAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TFilter filter,
+        Pagination? pagination = null,
+        CancellationToken cancellationToken = default)
         where TEntity : class, new()
         where TFilter : FilterBase
         => StreamAsync<TEntity, TFilter>(sqlProvider.GetSelectDistinctSql<TEntity>(), filter, pagination, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<TEntity?> GetByUniqueColumnAsync<TEntity>(object value, CancellationToken cancellationToken = default)
+    public Task<TEntity?> GetByUniqueColumnAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(object value, CancellationToken cancellationToken = default) where TEntity : class, new()
     {
         string sql = sqlProvider.GetSelectByUniqueColumnSql<TEntity>();
-
-        DynamicParameters parameters = new();
-        parameters.Add("@UniqueColumnValue", value);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return await connection
-                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken)
-                .ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        NpgsqlParameter[] parameters = [BuildUniqueColumnParameter(value)];
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.QueryFirstOrDefaultAsync<TEntity>(TargetBatchIndex, cancellationToken));
     }
 
-    private IAsyncEnumerable<TEntity> StreamAsync<TEntity, TFilter>(string baseSql, TFilter filter, Pagination? pagination, CancellationToken cancellationToken)
+    private IAsyncEnumerable<TEntity> StreamAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        string baseSql,
+        TFilter filter,
+        Pagination? pagination,
+        CancellationToken cancellationToken)
         where TEntity : class, new()
         where TFilter : FilterBase
     {
-        (string? whereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
+        (string? whereClause, List<NpgsqlParameter> parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string sql = baseSql
             .Replace("#WHERE", whereClause)
             .Replace("#ORDERBY", pagination?.SortOrder?.ToNpgsqlString())
@@ -217,175 +206,188 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<long> InsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    public Task<long> InsertAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
-            object? insertedIdentifier = await command
-                .SetCommandParameters(parameters)
-                .ExecuteScalarAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            return Convert.ToInt64(insertedIdentifier);
-        }).ConfigureAwait(false);
+        List<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity, true);
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.ExecuteScalarAsync<long>(TargetBatchIndex, cancellationToken));
     }
 
     /// <inheritdoc/>
-    public async Task<long[]> InsertAsync<TEntity>(TEntity[] entities, CancellationToken cancellationToken = default)
+    public Task<long[]> InsertAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(TEntity[] entities, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
-        IEnumerable<NpgsqlParameter> parameters = entities.BuildParametersFromCollection();
+        List<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entities);
 
-        return await resiliencePipeline.ExecuteAsync(async _ =>
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.BulkOperationTimeoutInSeconds, async batch =>
         {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.BulkOperationTimeoutInSeconds };
-            await using NpgsqlDataReader reader = await command
-                .SetCommandParameters(parameters)
-                .ExecuteReaderAsync(cancellationToken)
-                .ConfigureAwait(false);
-
             long[] ids = new long[entities.Length];
-            int i = 0;
-            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                ids[i++] = reader.GetInt64(0);
+            await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            if (await reader.AdvanceToResultSetAsync(TargetBatchIndex, cancellationToken).ConfigureAwait(false))
+            {
+                int i = 0;
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                    ids[i++] = reader.GetInt64(0);
+            }
 
             return ids;
-        }).ConfigureAwait(false);
+        });
     }
 
     /// <inheritdoc/>
-    public async Task<Result<long>> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    public Task<Result<long>> TryInsertAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetTryInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+        List<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity, true);
 
-        return await resiliencePipeline.ExecuteAsync(async _ =>
+        return ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, async batch =>
         {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
-            await using NpgsqlDataReader reader = await command
-                .SetCommandParameters(parameters)
-                .ExecuteReaderAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            if (!await reader.AdvanceToResultSetAsync(TargetBatchIndex, cancellationToken).ConfigureAwait(false) || !await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 return Result.CreateUnknownError();
 
             long id = reader.GetInt64(0);
             bool inserted = reader.GetBoolean(1);
             return inserted ? Result.CreateSuccessOk(id) : Result.CreateConflict(id);
-        }).ConfigureAwait(false);
+        });
     }
 
     /// <inheritdoc/>
-    public async Task<long> UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
-    {
-        string sql = sqlProvider.GetInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
-            object? upsertedId = await command
-                .SetCommandParameters(parameters)
-                .ExecuteScalarAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            return Convert.ToInt64(upsertedId!);
-        }).ConfigureAwait(false);
-    }
+    public Task<long> UpsertAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+        => InsertAsync(entity, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entities, TFilter filter, CancellationToken cancellationToken = default)
+    public async Task<long[]> UpsertAsync<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TFilter>(
+        TEntity[] entities,
+        TFilter filter,
+        CancellationToken cancellationToken = default)
     {
         (string? sqlWhereClause, List<NpgsqlParameter> deleteParameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string deleteSql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", sqlWhereClause);
-
-        IEnumerable<NpgsqlParameter> insertParameters = entities.BuildParametersFromCollection();
         string insertSql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
+        List<NpgsqlParameter> insertParameters = ApplyCurrentUserIdParameters(entities);
 
-        string sql = BuildUpsertSql(deleteSql, insertSql);
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
+        return await resiliencePipeline.ExecuteWithRetryFlagAsync(async isRetry =>
         {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.BulkOperationTimeoutInSeconds };
-            await using NpgsqlDataReader reader = await command
-                .SetCommandParameters(deleteParameters)
-                .SetCommandParameters(insertParameters)
-                .ExecuteReaderAsync(cancellationToken)
-                .ConfigureAwait(false);
+            await using NpgsqlBatch batch = dataSource
+                .CreateBatch(DatabaseSettings.BulkOperationTimeoutInSeconds)
+                .AddUserContext(currentUserProvider.GetCurrentUserId())
+                .AddCommand(deleteSql, deleteParameters, isRetry)
+                .AddCommand(insertSql, insertParameters, isRetry);
 
             List<long> ids = [];
-            do
+            await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            if (await reader.AdvanceToResultSetAsync(TargetBatchIndex, cancellationToken).ConfigureAwait(false))
             {
-                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                    ids.Add(reader.GetInt64(0));
-            } while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+                do
+                {
+                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                        ids.Add(reader.GetInt64(0));
+                } while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+            }
 
             return ids.ToArray();
         }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> TryUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<bool> TryUpdateAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetUpdateByPrimaryKeySql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters();
-
-        return await resiliencePipeline.ExecuteAsync(async _ =>
-        {
-            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
-            int affectedRows = await command
-                .SetCommandParameters(parameters)
-                .ExecuteNonQueryAsync(cancellationToken)
-                .ConfigureAwait(false);
-            return affectedRows > 0;
-        }).ConfigureAwait(false);
+        List<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity);
+        ulong affectedRows = await ExecuteBatchAsync(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, batch => batch.ExecuteNonQueryRowsAsync(TargetBatchIndex, cancellationToken)).ConfigureAwait(false);
+        return affectedRows > 0;
     }
 
     /// <summary>
-    /// Streams rows returned by <paramref name="sql"/> and materializes each of them into a <typeparamref name="TEntity"/>.
+    /// Streams rows returned by <paramref name="sql"/> inside a single-round-trip RLS-scoped <see cref="NpgsqlBatch"/>
+    /// and materializes each of them into a <typeparamref name="TEntity"/>.
     /// </summary>
+    /// <typeparam name="TEntity">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
     /// <param name="sql">SQL statement to execute.</param>
     /// <param name="parameters">Parameters to bind to the statement, if any.</param>
     /// <param name="cancellationToken">Token used to cancel the streaming operation.</param>
-    protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    protected async IAsyncEnumerable<TEntity> GetAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(
+        string sql,
+        IEnumerable<NpgsqlParameter>? parameters,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
         where TEntity : class, new()
     {
-        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, cancellationToken).ConfigureAwait(false);
-        while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
-        {
-            if (!await dataReader.IsDBNullAsync(0, cancellationToken).ConfigureAwait(false))
-                yield return dataReader.ConvertTo<TEntity>();
-        }
-    }
-
-    private static string BuildUpsertSql(string deleteSql, string insertSql)
-    {
-        using SpanStringBuilder ssb = new();
-        ssb.Append(deleteSql).AppendLine(';').AppendLine(insertSql);
-        return ssb.ToString();
+        await using NpgsqlBatch batch = CreateScopedBatch(sql, parameters);
+        await foreach (TEntity entity in batch.StreamAsync<TEntity>(TargetBatchIndex, cancellationToken).ConfigureAwait(false))
+            yield return entity;
     }
 
     /// <summary>
-    /// Creates and opens a new Npgsql connection using the configured connection string.
+    /// Creates an <see cref="NpgsqlBatch"/> from the DI-managed <see cref="NpgsqlDataSource"/> prepended with
+    /// transaction-local RLS context (<c>SELECT set_config('app.current_user_id', @UserId, true)</c>) followed by
+    /// <paramref name="sql"/>, executing both atomically in a single network round-trip.
     /// </summary>
-    /// <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
-    /// <returns>An opened <see cref="NpgsqlConnection"/>.</returns>
-    protected async Task<NpgsqlConnection> GetNewOpenedConnectionAsync(CancellationToken cancellationToken = default)
+    /// <param name="sql">Target PostgreSQL statement to append after the RLS context command.</param>
+    /// <param name="parameters">Optional parameters to bind to <paramref name="sql"/>.</param>
+    /// <param name="commandTimeoutSeconds">Optional per-command timeout in seconds.</param>
+    /// <param name="cloneParameters">
+    /// When <see langword="true"/>, binds detached <see cref="NpgsqlParameter.Clone"/> copies so Polly retries
+    /// reuse pre-built parameters without repeated reflection or parameter-collection ownership conflicts.
+    /// </param>
+    /// <returns>A configured <see cref="NpgsqlBatch"/> ready for execution.</returns>
+    protected NpgsqlBatch CreateScopedBatch(string sql, IEnumerable<NpgsqlParameter>? parameters = null, int? commandTimeoutSeconds = null, bool cloneParameters = false) => dataSource
+        .CreateBatch(commandTimeoutSeconds)
+        .AddUserContext(currentUserProvider.GetCurrentUserId())
+        .AddCommand(sql, parameters, cloneParameters);
+
+    private async Task<T> ExecuteBatchAsync<T>(
+        string sql,
+        IEnumerable<NpgsqlParameter>? parameters,
+        int? commandTimeoutSeconds,
+        Func<NpgsqlBatch, Task<T>> operation) => await resiliencePipeline.ExecuteWithRetryFlagAsync(async isRetry =>
+        {
+            await using NpgsqlBatch batch = CreateScopedBatch(sql, parameters, commandTimeoutSeconds, isRetry);
+            return await operation(batch).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+    private async Task ExecuteNonQueryBatchAsync(
+        string sql,
+        IEnumerable<NpgsqlParameter>? parameters,
+        int? commandTimeoutSeconds,
+        CancellationToken cancellationToken) => await resiliencePipeline.ExecuteWithRetryFlagAsync(async isRetry =>
+        {
+            await using NpgsqlBatch batch = CreateScopedBatch(sql, parameters, commandTimeoutSeconds, isRetry);
+            await batch.ExecuteNonQueryRowsAsync(TargetBatchIndex, cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+    private static NpgsqlParameter BuildUniqueColumnParameter(object value) => value is Enum enumValue
+        ? new NpgsqlParameter("@UniqueColumnValue", NpgsqlDbType.Integer) { Value = Convert.ToInt32(enumValue, CultureInfo.InvariantCulture) }
+        : new NpgsqlParameter("@UniqueColumnValue", value.GetType().GetDbTypeFromPropertyType()) { Value = value };
+
+    private List<NpgsqlParameter> ApplyCurrentUserIdParameters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(TEntity[] entities)
+        => ApplyCurrentUserIdParameters(entities.BuildParametersFromCollection(), typeof(UserScopedEntityBase).IsAssignableFrom(typeof(TEntity)));
+
+    private List<NpgsqlParameter> ApplyCurrentUserIdParameters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TEntity>(TEntity entity, bool useDeclaredProperties = false)
+        => ApplyCurrentUserIdParameters(entity.BuildParameters(useDeclaredProperties), typeof(UserScopedEntityBase).IsAssignableFrom(typeof(TEntity)));
+
+    private List<NpgsqlParameter> ApplyCurrentUserIdParameters(IEnumerable<NpgsqlParameter> parameters, bool isUserScoped)
     {
-        NpgsqlConnection connection = new(DatabaseSettings.ConnectionString);
-        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-        return connection;
+        List<NpgsqlParameter> resolved = parameters as List<NpgsqlParameter> ?? [.. parameters];
+        if (!isUserScoped || currentUserProvider.IsSuperuser())
+            return resolved;
+
+        object enforcedUserId = currentUserProvider.GetCurrentUserId() is long userId ? userId : DBNull.Value;
+        foreach (NpgsqlParameter parameter in resolved)
+        {
+            if (parameter.ParameterName.Equals(nameof(UserScopedEntityBase.UserId), StringComparison.Ordinal)
+                || parameter.ParameterName.StartsWith($"{nameof(UserScopedEntityBase.UserId)}_", StringComparison.Ordinal))
+            {
+                parameter.Value = enforcedUserId;
+            }
+        }
+
+        return resolved;
     }
 }

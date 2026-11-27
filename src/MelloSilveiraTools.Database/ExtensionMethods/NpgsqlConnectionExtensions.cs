@@ -1,100 +1,124 @@
-﻿using Dapper;
-using MelloSilveiraTools.Database.ExtensionMethods;
 using Npgsql;
 using System.Data;
-using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
 
 /// <summary>
-/// Contains extension methods for <see cref="NpgsqlConnection"/>.
+/// Contains pure-Npgsql, Native AOT-compatible query and scalar execution extensions for <see cref="NpgsqlConnection"/>.
 /// </summary>
 public static class NpgsqlConnectionExtensions
 {
     /// <summary>
     /// Contains extension methods for <see cref="NpgsqlConnection"/> instances.
     /// </summary>
-    /// <param name="connection">Connection to query on.</param>
+    /// <param name="connection">Opened PostgreSQL connection to execute statements on.</param>
     extension(NpgsqlConnection connection)
     {
         /// <summary>
-        /// Executes a query, returning the data typed as <typeparamref name="T"/>.
+        /// Executes a parameterized SQL query and materializes the first row as <typeparamref name="T"/>,
+        /// or returns <see langword="null"/> when no rows match.
         /// </summary>
-        /// <typeparam name="T">Type of results to return.</typeparam>
-        /// <param name="sql">Text query to be executed.</param>
-        /// <param name="parameters">The parameters for this command.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>
-        /// A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
-        /// otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
-        /// </returns>
-        public Task<T?> QueryFirstOrDefaultAsync<T>(string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
-            => connection.QueryFirstOrDefaultAsync<T>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+        /// <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+        /// <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+        /// <param name="parameters">Optional <see cref="NpgsqlParameter"/> collection to bind to the command.</param>
+        /// <param name="commandTimeout">Optional command timeout in seconds.</param>
+        /// <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous query.</param>
+        /// <returns>The first mapped entity, or <see langword="null"/> if no rows are returned.</returns>
+        public async Task<T?> QueryFirstOrDefaultAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+            string sql,
+            IEnumerable<NpgsqlParameter>? parameters = null,
+            int? commandTimeout = null,
+            NpgsqlTransaction? transaction = null,
+            CancellationToken cancellationToken = default)
+            where T : class, new()
+        {
+            await using NpgsqlCommand command = CreateCommand(connection, sql, parameters, commandTimeout, transaction);
+            await using NpgsqlDataReader reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, cancellationToken).ConfigureAwait(false);
+            return await reader.ReadFirstOrDefaultAsync<T>(0, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <summary>
-        /// Executes a query, returning the data typed as <typeparamref name="T"/>.
+        /// Executes a parameterized SQL query and materializes every returned row into a list of <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">Type of results to return.</typeparam>
-        /// <param name="sql">Text query to be executed.</param>
-        /// <param name="parameters">The parameters for this command.</param>
-        /// <param name="commandTimeout">Number of seconds before command execution timeout.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>
-        /// A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
-        /// otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
-        /// </returns>
-        public Task<T?> QueryFirstOrDefaultAsync<T>(string sql, DynamicParameters? parameters, int commandTimeout, CancellationToken cancellationToken)
-            => connection.QueryFirstOrDefaultAsync<T>(new CommandDefinition(sql, parameters, commandTimeout: commandTimeout, cancellationToken: cancellationToken));
+        /// <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+        /// <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+        /// <param name="parameters">Optional <see cref="NpgsqlParameter"/> collection to bind to the command.</param>
+        /// <param name="commandTimeout">Optional command timeout in seconds.</param>
+        /// <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous query.</param>
+        /// <returns>A list containing all mapped entities.</returns>
+        public async Task<List<T>> QueryAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+            string sql,
+            IEnumerable<NpgsqlParameter>? parameters = null,
+            int? commandTimeout = null,
+            NpgsqlTransaction? transaction = null,
+            CancellationToken cancellationToken = default)
+            where T : class, new()
+        {
+            List<T> items = [];
+            await foreach (T item in connection.StreamAsync<T>(sql, parameters, commandTimeout, transaction, cancellationToken).ConfigureAwait(false))
+                items.Add(item);
+
+            return items;
+        }
 
         /// <summary>
-        /// Execute a query asynchronously using Task.
+        /// Streams rows returned by a parameterized SQL query and materializes each row as <typeparamref name="T"/>,
+        /// deterministically disposing both the <see cref="NpgsqlCommand"/> and <see cref="NpgsqlDataReader"/>.
         /// </summary>
-        /// <typeparam name="T">Type of results to return.</typeparam>
-        /// <param name="sql">Text query to be executed.</param>
-        /// <param name="parameters">The parameters for this command.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>
-        /// A sequence of data of <typeparamref name="T"/>; if a basic type (int, string, etc) is queried then the data from the first column is assumed, otherwise an instance is
-        /// created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
-        /// </returns>
-        public Task<IEnumerable<T>> QueryAsync<T>(string sql, DynamicParameters parameters, CancellationToken cancellationToken)
-            => connection.QueryAsync<T>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+        /// <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+        /// <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+        /// <param name="parameters">Optional <see cref="NpgsqlParameter"/> collection to bind to the command.</param>
+        /// <param name="commandTimeout">Optional command timeout in seconds.</param>
+        /// <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous stream.</param>
+        /// <returns>An asynchronous stream of mapped entities.</returns>
+        public async IAsyncEnumerable<T> StreamAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+            string sql,
+            IEnumerable<NpgsqlParameter>? parameters = null,
+            int? commandTimeout = null,
+            NpgsqlTransaction? transaction = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+            where T : class, new()
+        {
+            await using NpgsqlCommand command = CreateCommand(connection, sql, parameters, commandTimeout, transaction);
+            await using NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            await foreach (T item in reader.StreamAsync<T>(0, cancellationToken).ConfigureAwait(false))
+                yield return item;
+        }
 
         /// <summary>
-        /// Execute parameterized SQL that selects a single value.
+        /// Executes a parameterized SQL query and converts the first column of the first row to <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">The type to return.</typeparam>
-        /// <param name="sql">The SQL to execute.</param>
-        /// <param name="parameters">The parameters to use for this command.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
-        public Task<T?> ExecuteScalarAsync<T>(string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
-            => connection.ExecuteScalarAsync<T>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+        /// <typeparam name="T">Expected scalar return type.</typeparam>
+        /// <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+        /// <param name="parameters">Optional <see cref="NpgsqlParameter"/> collection to bind to the command.</param>
+        /// <param name="commandTimeout">Optional command timeout in seconds.</param>
+        /// <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous command.</param>
+        /// <returns>The converted scalar value, or <c>default</c> when the query returns no rows or SQL <c>NULL</c>.</returns>
+        public async Task<T?> ExecuteScalarAsync<T>(
+            string sql,
+            IEnumerable<NpgsqlParameter>? parameters = null,
+            int? commandTimeout = null,
+            NpgsqlTransaction? transaction = null,
+            CancellationToken cancellationToken = default)
+        {
+            await using NpgsqlCommand command = CreateCommand(connection, sql, parameters, commandTimeout, transaction);
+            object? rawValue = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+            return NpgsqlDataReaderExtensions.ConvertScalar<T>(rawValue);
+        }
+    }
 
-        /// <summary>
-        /// Execute parameterized SQL that selects a single value.
-        /// </summary>
-        /// <typeparam name="T">The type to return.</typeparam>
-        /// <param name="sql">The SQL to execute.</param>
-        /// <param name="parameters">The parameters to use for this command.</param>
-        /// <param name="commandTimeout">Number of seconds before command execution timeout.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
-        public Task<T?> ExecuteScalarAsync<T>(string sql, DynamicParameters? parameters, int commandTimeout, CancellationToken cancellationToken)
-            => connection.ExecuteScalarAsync<T>(new CommandDefinition(sql, parameters, commandTimeout: commandTimeout, cancellationToken: cancellationToken));
+    private static NpgsqlCommand CreateCommand(NpgsqlConnection connection, string sql, IEnumerable<NpgsqlParameter>? parameters, int? commandTimeout, NpgsqlTransaction? transaction)
+    {
+        NpgsqlCommand command = new(sql, connection, transaction);
+        if (commandTimeout.HasValue)
+            command.CommandTimeout = commandTimeout.Value;
 
-        /// <summary>
-        /// Execute parameterized SQL and return an <see cref="IDataReader"/>.
-        /// </summary>
-        /// <param name="sql">The SQL to execute.</param>
-        /// <param name="parameters">The parameters to use for this command.</param>
-        /// <param name="cancellationToken">Cancellation token for this command.</param>
-        /// <returns>An <see cref="IDataReader"/> that can be used to iterate over the results of the SQL query.</returns>
-        /// <remarks>
-        /// This is typically used when the results of a query are not processed by Dapper, for example, used to fill a <see cref="DataTable"/>
-        /// or <see cref="T:DataSet"/>.
-        /// </remarks>
-        public Task<DbDataReader> ExecuteReaderAsync(string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
-            => connection.ExecuteReaderAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+        return command.SetCommandParameters(parameters);
     }
 }

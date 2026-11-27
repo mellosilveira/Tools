@@ -23,6 +23,7 @@ public static class TypeExtensions
         /// </exception>
         public NpgsqlDbType GetDbTypeFromPropertyType()
         {
+            if (type.IsEnum || (Nullable.GetUnderlyingType(type)?.IsEnum == true)) return NpgsqlDbType.Integer;
             if (type == typeof(string)) return NpgsqlDbType.Text;
             if (type == typeof(bool) || type == typeof(bool?)) return NpgsqlDbType.Boolean;
             if (type == typeof(short) || type == typeof(short?)) return NpgsqlDbType.Smallint;

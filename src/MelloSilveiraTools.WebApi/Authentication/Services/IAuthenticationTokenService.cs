@@ -1,7 +1,8 @@
 namespace MelloSilveiraTools.WebApi.Authentication.Services;
 
 /// <summary>
-/// Service that handles an authentication token.
+/// Service that handles an authentication token carrying only user identity (<c>sub</c>),
+/// keeping authorization privileges (such as superuser status) strictly server- and database-backed.
 /// </summary>
 public interface IAuthenticationTokenService
 {
@@ -34,4 +35,12 @@ public interface IAuthenticationTokenService
     /// This method does not throw on validation failure: any validation error is captured and the method returns <c>false</c>.
     /// </remarks>
     Task<bool> IsValidAsync(string token);
+
+    /// <summary>
+    /// Validates and decrypts the supplied token and returns its subject (<c>sub</c>) claim,
+    /// or <see langword="null"/> if the token is invalid, expired, or has no subject.
+    /// </summary>
+    /// <param name="token">The encrypted JWE token to validate.</param>
+    /// <returns>The subject identifier if valid; otherwise <see langword="null"/>.</returns>
+    Task<string?> GetValidatedSubjectAsync(string token);
 }

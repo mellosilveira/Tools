@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 
@@ -15,9 +15,9 @@ public class AddEntity<TEntity>(IRepository repository)
     where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override async Task<AddResult> ExecuteCommandAsync(AddEntityRequest<TEntity> request)
+    protected override async Task<AddResult> ExecuteCommandAsync(AddEntityRequest<TEntity> request, CancellationToken cancellationToken = default)
     {
-        long id = await repository.InsertAsync(request.Entity).ConfigureAwait(false);
+        long id = await repository.InsertAsync(request.Entity, cancellationToken).ConfigureAwait(false);
         return AddResult.CreateSuccessCreated(id);
     }
 }

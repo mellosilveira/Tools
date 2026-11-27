@@ -1,12 +1,26 @@
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
+using Azure.Storage.Blobs;
 using MelloSilveiraTools.Core.Caching;
+using MelloSilveiraTools.Core.Files.HealthChecks;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Files.Providers.AwsS3;
+using MelloSilveiraTools.Core.Files.Providers.BlobStorage;
+using MelloSilveiraTools.Core.Files.Providers.Dfs;
+using MelloSilveiraTools.Core.Files.Providers.Local;
 using MelloSilveiraTools.Core.Logging;
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Services.Email;
 using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
@@ -17,46 +31,134 @@ namespace MelloSilveiraTools.Core;
 /// </summary>
 public static class CoreDependencyInjection
 {
+    extension(IHealthChecksBuilder healthChecksBuilder)
+    {
+        /// <summary>
+        /// Registers the native ASP.NET Core <see cref="FileStorageHealthCheck"/> validating every
+        /// <see cref="IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+        /// </summary>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="FileStorageHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+        /// <returns>The <see cref="IHealthChecksBuilder"/> to allow chaining additional health checks.</returns>
+        public IHealthChecksBuilder AddFileStorageHealthCheck(string name = FileStorageHealthCheck.DefaultName, IEnumerable<string>? tags = null)
+            => healthChecksBuilder.AddCheck<FileStorageHealthCheck>(name, failureStatus: HealthStatus.Unhealthy, tags: tags ?? ["storage", "ready"]);
+    }
+
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
+        /// Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
+        /// When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
+        /// When file or database sink settings are provided, Serilog is configured accordingly.
         /// </summary>
+        /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
         /// <param name="encryptionSettings">Settings used by the encryption service.</param>
-        /// <param name="smtpResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
-        /// <param name="loggerSettings">Settings used by logger service.</param>
-        /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+        /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
+        /// <param name="loggerSettings">Settings used by the logging service.</param>
+        /// <param name="pipelineProgressNotifierSettings">Mandatory configuration settings when real-time pipeline notifications are enabled.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
+            ResiliencePipelineSettings defaultResiliencePipelineSettings,
             EncryptionSettings? encryptionSettings = null,
-            ResiliencePipelineSettings? smtpResiliencePipelineSettings = null,
             EmailSettings? emailSettings = null,
+            FileStorageSettings? fileStorageSettings = null,
             LoggerSettings? loggerSettings = null,
-            bool useDefaultLogger = true)
+            PipelineProgressNotifierSettings? pipelineProgressNotifierSettings = null)
         {
+            if (pipelineProgressNotifierSettings is not null)
+            {
+                services
+                    .AddSingleton(pipelineProgressNotifierSettings)
+                    .AddSingleton<ChannelPipelineProgressNotifier>()
+                    .AddSingleton<IPipelineProgressNotifier>(provider => provider.GetRequiredService<ChannelPipelineProgressNotifier>());
+            }
+            else
+            {
+                services.AddSingleton<IPipelineProgressNotifier>(NullPipelineProgressNotifier.Instance);
+            }
+
             if (encryptionSettings is not null)
             {
                 services
                     .AddSingleton(encryptionSettings)
-                    .AddScoped<IEncryptionService, EncryptionService>();
+                    .AddSingleton<IEncryptionService, EncryptionService>();
             }
 
-            if (smtpResiliencePipelineSettings is not null && emailSettings is not null)
+            if (emailSettings is not null)
             {
                 services
                     .AddSingleton(emailSettings)
-                    .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger<SmtpResiliencePipeline>>(), smtpResiliencePipelineSettings))
+                    .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger<SmtpResiliencePipeline>>(), emailSettings.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
                     .AddScoped<IEmailService, SmtpEmailService>();
             }
 
-            if (useDefaultLogger)
+            LocalFileStorageSettings? effectiveLocalSettings = fileStorageSettings?.Local;
+            if (effectiveLocalSettings is null)
             {
-                services.AddCoreLogging(LoggerConfigurationExtensions.Create(), loggerSettings ?? new LoggerSettings());
+                string tempBaseDirectory = Path.Combine(Path.GetTempPath(), "storage");
+                Directory.CreateDirectory(tempBaseDirectory);
+                effectiveLocalSettings = new LocalFileStorageSettings { BaseDirectory = tempBaseDirectory };
+            }
+
+            if (fileStorageSettings is not null)
+            {
+                services
+                    .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(fileStorageSettings.DefaultStorageProvider))
+                    .AddKeyedSingleton<IFileStorageService>(
+                        StorageProvider.Local,
+                        (provider, _) => new LocalFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), effectiveLocalSettings));
+
+                if (fileStorageSettings.BlobStorage is not null)
+                {
+                    services
+                        .AddSingleton(provider => new BlobStorageResiliencePipeline(provider.GetRequiredService<ILogger<BlobStorageResiliencePipeline>>(), fileStorageSettings.BlobStorage.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
+                        .AddKeyedSingleton<IFileStorageService>(
+                            StorageProvider.BlobStorage,
+                            (provider, _) => new BlobStorageFileStorageService(
+                                provider.GetRequiredService<ILogger<BlobStorageFileStorageService>>(),
+                                provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
+                                provider.GetRequiredService<TimeProvider>(),
+                                CreateBlobContainerClient(fileStorageSettings.BlobStorage),
+                                fileStorageSettings.BlobStorage,
+                                provider.GetRequiredService<BlobStorageResiliencePipeline>()));
+                }
+
+                if (fileStorageSettings.Dfs is not null)
+                {
+                    ValidateDfsStorageSettings(fileStorageSettings.Dfs);
+                    services.AddKeyedSingleton<IFileStorageService>(
+                        StorageProvider.Dfs,
+                        (provider, _) => new DfsFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Dfs));
+                }
+
+                if (fileStorageSettings.AwsS3 is not null)
+                {
+                    services
+                        .AddSingleton(provider => new AwsS3ResiliencePipeline(provider.GetRequiredService<ILogger<AwsS3ResiliencePipeline>>(), fileStorageSettings.AwsS3.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
+                        .AddKeyedSingleton<IFileStorageService>(
+                            StorageProvider.AwsS3,
+                            (provider, _) => new AwsS3FileStorageService(
+                                provider.GetRequiredService<ILogger<AwsS3FileStorageService>>(),
+                                provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
+                                CreateClient(fileStorageSettings.AwsS3),
+                                provider.GetRequiredService<TimeProvider>(),
+                                fileStorageSettings.AwsS3,
+                                provider.GetRequiredService<AwsS3ResiliencePipeline>()));
+                }
+            }
+            else
+            {
+                services
+                    .AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), effectiveLocalSettings))
+                    .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
             }
 
             return services
-                .AddSingleton<IFileManager, FileManager>()
+                .AddCoreLogging(loggerSettings)
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<ICurrentUserProvider, CurrentUserProvider>()
+                .AddSingleton<PipelineFactory>()
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
@@ -65,20 +167,125 @@ public static class CoreDependencyInjection
                 .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         }
 
-        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings)
+        /// <summary>
+        /// Registers the native ASP.NET Core <see cref="FileStorageHealthCheck"/> validating every
+        /// <see cref="IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+        /// </summary>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="FileStorageHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+        /// <returns>The <see cref="IServiceCollection"/> to allow chaining additional services.</returns>
+        public IServiceCollection AddFileStorageHealthCheck(string name = FileStorageHealthCheck.DefaultName, IEnumerable<string>? tags = null)
         {
-            var logger = loggerConfiguration
-                .WriteToLocalFile(loggerSettings)
-                .CreateLogger();
+            services
+                .AddHealthChecks()
+                .AddFileStorageHealthCheck(name, tags);
 
-            return services
-                .AddSingleton(loggerSettings)
-                .AddLogging(loggingBuilder =>
+            return services;
+        }
+
+        /// <summary>
+        /// Registers logging services in the DI container using default base configuration and aggregated logger settings.
+        /// </summary>
+        /// <param name="loggerSettings">The aggregated logger settings.</param>
+        /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        public IServiceCollection AddCoreLogging(LoggerSettings? loggerSettings)
+        {
+            if (loggerSettings is null)
+                return services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+
+            LoggerConfiguration loggerConfiguration = LoggerConfigurationExtensions.Create();
+
+            if (loggerSettings.File is not null)
+                loggerConfiguration.WriteToLocalFile(loggerSettings.File);
+
+            if (loggerSettings.Database is not null)
+                loggerConfiguration.WriteToPostgres(loggerSettings.Database);
+
+            return services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(loggerConfiguration.CreateLogger(), dispose: true);
+            });
+        }
+
+        private static IAmazonS3 CreateClient(AwsS3StorageSettings settings)
+        {
+            AmazonS3Config config = new() { MaxErrorRetry = 0 };
+
+            if (!string.IsNullOrWhiteSpace(settings.Region))
+                config.RegionEndpoint = RegionEndpoint.GetBySystemName(settings.Region);
+
+            if (!string.IsNullOrWhiteSpace(settings.ServiceUrl))
+            {
+                config.ServiceURL = settings.ServiceUrl;
+                config.ForcePathStyle = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.AccessKey) && !string.IsNullOrWhiteSpace(settings.SecretKey))
+            {
+                BasicAWSCredentials credentials = new(settings.AccessKey, settings.SecretKey);
+                return new AmazonS3Client(credentials, config);
+            }
+
+            return new AmazonS3Client(config);
+        }
+
+        private static BlobContainerClient CreateBlobContainerClient(BlobStorageSettings settings)
+        {
+            if (!string.IsNullOrWhiteSpace(settings.ServiceUrl))
+            {
+                Uri serviceUri = new(settings.ServiceUrl);
+                BlobServiceClient serviceClient = new(serviceUri);
+                return serviceClient.GetBlobContainerClient(settings.ContainerName);
+            }
+
+            return new BlobContainerClient(settings.ConnectionString, settings.ContainerName);
+        }
+
+        private static void ValidateDfsStorageSettings(DfsStorageSettings settings)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentException.ThrowIfNullOrWhiteSpace(settings.BaseDirectory);
+
+            if (!string.IsNullOrWhiteSpace(settings.HealthMarkerFileName))
+            {
+                string markerName = settings.HealthMarkerFileName;
+                if (markerName.Contains('/')
+                    || markerName.Contains('\\')
+                    || markerName.Contains("..", StringComparison.Ordinal))
                 {
-                    // Remove default console noise.
-                    loggingBuilder.ClearProviders();
-                    loggingBuilder.AddSerilog(logger, dispose: true);
-                });
+                    throw new ArgumentException("DFS HealthMarkerFileName must be a simple file name directly under BaseDirectory without path separators or traversal segments.", nameof(settings));
+                }
+            }
+
+            string baseDirectory = settings.BaseDirectory.Trim();
+
+            if (!OperatingSystem.IsWindows())
+                ValidateNonWindowsDfsPath(baseDirectory);
+        }
+
+        private static void ValidateNonWindowsDfsPath(string path)
+        {
+            if (path.StartsWith(@"\\", StringComparison.Ordinal))
+            {
+                string platformName = OperatingSystem.IsLinux()
+                    ? "Linux"
+                    : OperatingSystem.IsMacOS() ? "macOS" : "Unix-like";
+
+                string exampleMount = OperatingSystem.IsMacOS() ? "/Volumes/dfs" : "/mnt/dfs";
+
+                throw new PlatformNotSupportedException(
+                    $"Windows UNC network share path '{path}' cannot be accessed directly on {platformName}. " +
+                    $"In {platformName} and containerized environments, mount the network share to a local directory (e.g., '{exampleMount}') " +
+                    "and configure BaseDirectory with the mount point path.");
+            }
+
+            if (path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':')
+            {
+                throw new PlatformNotSupportedException(
+                    $"Windows drive path '{path}' is not valid on non-Windows operating systems. " +
+                    "Configure BaseDirectory with the local directory or mount point path (e.g., '/mnt/dfs' or './data/dfs').");
+            }
         }
     }
 }

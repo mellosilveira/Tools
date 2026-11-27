@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 /// </summary>
 public class DatabasePluginCachePersistence(IRepository repository) : IPluginCachePersistence
 {
-    private static readonly JsonSerializerOptions JsonOptions = new();
+    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new TypeJsonConverter() } };
 
     /// <inheritdoc/>
     public async Task SaveAsync(IAsyncEnumerable<PluginCacheEntry> entries, CancellationToken cancellationToken = default)

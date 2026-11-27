@@ -22,8 +22,16 @@ public class PluginValidator<TRequest> : IValidator<TRequest> where TRequest : P
     /// Validates the specified plugin request, ensuring that the version string conforms to <see cref="PluginVersion"/> semantics if present.
     /// </summary>
     /// <param name="value">The plugin request instance to validate.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A successful <see cref="Result"/> when the version is omitted, empty, or valid; otherwise, a 400 Bad Request <see cref="Result"/>.</returns>
-    public Result Validate(TRequest value) => string.IsNullOrWhiteSpace(value.Version) || PluginVersion.TryParse(value.Version, out _)
-        ? Result.CreateSuccessOk()
-        : Result.CreateBadRequest("Invalid plugin version.");
+    public ValueTask<Result> ValidateAsync(TRequest value, CancellationToken cancellationToken = default)
+    {
+        Result result = value is null
+            ? Result.CreateBadRequest("Plugin request cannot be null.")
+            : string.IsNullOrWhiteSpace(value.Version) || PluginVersion.TryParse(value.Version, out _)
+                ? Result.CreateSuccessOk()
+                : Result.CreateBadRequest("Invalid plugin version.");
+
+        return ValueTask.FromResult(result);
+    }
 }

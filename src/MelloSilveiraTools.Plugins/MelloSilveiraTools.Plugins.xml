@@ -7,53 +7,71 @@
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.ExecuteCommandAsync">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins">
             <summary>
-            Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
+            Operation that retrieves sanitized public summaries of registered runtime plugins from memory cache.
+            Safe for anonymous and authenticated callers; never exposes internal storage paths or loads assemblies from disk.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest})">
             <summary>
-            Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
+            Operation that retrieves sanitized public summaries of registered runtime plugins from memory cache.
+            Safe for anonymous and authenticated callers; never exposes internal storage paths or loads assemblies from disk.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest">
@@ -66,17 +84,59 @@
             When set, restricts the result to plugins that are fully loaded (<c>true</c>) or not fully loaded (<c>false</c>).
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPlugins">
+            <summary>
+            Superuser diagnostic command that scans the main plugin storage partitions (<c>loaded</c>, <c>incoming</c>,
+            <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>) and returns physical
+            <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>, static PE/architecture validation results,
+            and runtime type registration status for active partitions.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
+            </summary>
+            <param name="pluginService">Plugin orchestration service used to inspect storage partitions and runtime registration state.</param>
+            <param name="validator">Validator ensuring any supplied semantic version filter is well-formed.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPlugins.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPluginsRequest})">
+            <summary>
+            Superuser diagnostic command that scans the main plugin storage partitions (<c>loaded</c>, <c>incoming</c>,
+            <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>) and returns physical
+            <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>, static PE/architecture validation results,
+            and runtime type registration status for active partitions.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
+            </summary>
+            <param name="pluginService">Plugin orchestration service used to inspect storage partitions and runtime registration state.</param>
+            <param name="validator">Validator ensuring any supplied semantic version filter is well-formed.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPluginsRequest,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPluginsRequest">
+            <summary>
+            Request used to filter plugin binaries inspected by the superuser <c>InspectPlugins</c> operation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPluginsRequest.Partition">
+            <summary>
+            Optional canonical storage partition filter (<c>loaded</c>, <c>incoming</c>, <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>).
+            When omitted, all main plugin partitions are inspected.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for plugin requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest">
@@ -97,14 +157,20 @@
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for reload requests.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest})">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
             </summary>
+            <param name="pluginService">Plugin management service.</param>
+            <param name="validator">Validator for reload requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest">
@@ -117,63 +183,409 @@
             When <c>true</c>, plugins are reloaded even if they are already up to date.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.ApprovePluginSubmission">
             <summary>
-            Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
+            Superuser moderation command that approves a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> community plugin submission:
+            resolves its linked <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> (<c>storage_entry_metadata</c>), verifies author ownership,
+            re-validates the stored binary's SHA-256 digest (anti-TOCTOU), promotes the assembly from <c>pending/</c> to
+            <c>incoming/</c>, promotes <c>storage_entry_metadata.user_id</c> to <see langword="null"/> (public read/download, superuser-only
+            edit/delete), marks the submission <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Approved"/>, and loads the plugin immediately.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service verifying binary existence.</param>
+            <param name="currentUserProvider">Current user provider used to record the reviewing superuser ID (<c>SuperuserOnly</c> policy is enforced at the HTTP authorization boundary and PostgreSQL RLS).</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> state.</param>
+            <param name="pluginService">Plugin runtime service used to load the approved plugin immediately.</param>
+            <param name="timeProvider">Time provider used to stamp approval timestamps.</param>
+            <param name="fileProcessor">File processor handling SHA-256 verification and partition promotion.</param>
+            <param name="submissionPersistence">Service coordinating plugin submission queries and persistence.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.ApprovePluginSubmission.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Submissions.ApprovePluginSubmission},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Core.Security.ICurrentUserProvider,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence)">
+            <summary>
+            Superuser moderation command that approves a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> community plugin submission:
+            resolves its linked <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> (<c>storage_entry_metadata</c>), verifies author ownership,
+            re-validates the stored binary's SHA-256 digest (anti-TOCTOU), promotes the assembly from <c>pending/</c> to
+            <c>incoming/</c>, promotes <c>storage_entry_metadata.user_id</c> to <see langword="null"/> (public read/download, superuser-only
+            edit/delete), marks the submission <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Approved"/>, and loads the plugin immediately.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service verifying binary existence.</param>
+            <param name="currentUserProvider">Current user provider used to record the reviewing superuser ID (<c>SuperuserOnly</c> policy is enforced at the HTTP authorization boundary and PostgreSQL RLS).</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> state.</param>
+            <param name="pluginService">Plugin runtime service used to load the approved plugin immediately.</param>
+            <param name="timeProvider">Time provider used to stamp approval timestamps.</param>
+            <param name="fileProcessor">File processor handling SHA-256 verification and partition promotion.</param>
+            <param name="submissionPersistence">Service coordinating plugin submission queries and persistence.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.ApprovePluginSubmission.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmission">
+            <summary>
+            Cancels and deletes a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> plugin submission along with its linked
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> (<c>storage_entry_metadata</c>) record and binary in <c>pending/</c>.
+            Allowed exclusively for the submission's original author (while still pending) or a superuser.
+            Approved plugins can never be deleted by regular authors.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service deleting the pending binary.</param>
+            <param name="currentUserProvider">Mandatory current user provider enforcing author or superuser authorization.</param>
+            <param name="repository">Repository deleting the <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> and <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmission.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmission},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Core.Security.ICurrentUserProvider,MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Cancels and deletes a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> plugin submission along with its linked
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> (<c>storage_entry_metadata</c>) record and binary in <c>pending/</c>.
+            Allowed exclusively for the submission's original author (while still pending) or a superuser.
+            Approved plugins can never be deleted by regular authors.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service deleting the pending binary.</param>
+            <param name="currentUserProvider">Mandatory current user provider enforcing author or superuser authorization.</param>
+            <param name="repository">Repository deleting the <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> and <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmission.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmissionRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmissionRequest">
+            <summary>
+            Request payload for canceling a pending plugin submission.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmissionRequest.Id">
+            <summary>Identifier of the pending plugin submission to cancel.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissions">
             <summary>
-            Returns the plugins currently known to the host, optionally filtered by name, version and load state.
+            Retrieves plugin submissions visible to the current authenticated caller.
+            Authentication is enforced at the HTTP authorization boundary (<c>[Authorize]</c> / <c>.RequireAuthorization()</c>),
+            and PostgreSQL Row-Level Security guarantees that regular users only see approved plugins and their own submissions,
+            while superusers see the complete moderation queue.
+            </summary>
+            <param name="repository">Repository querying <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissions.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Retrieves plugin submissions visible to the current authenticated caller.
+            Authentication is enforced at the HTTP authorization boundary (<c>[Authorize]</c> / <c>.RequireAuthorization()</c>),
+            and PostgreSQL Row-Level Security guarantees that regular users only see approved plugins and their own submissions,
+            while superusers see the complete moderation queue.
+            </summary>
+            <param name="repository">Repository querying <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissions.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissionsRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissionsRequest">
+            <summary>
+            Query criteria for listing plugin submissions.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissionsRequest.PluginName">
+            <summary>Optional plugin name filter.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissionsRequest.Status">
+            <summary>Optional moderation status filter.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.RejectPluginSubmission">
+            <summary>
+            Superuser moderation command that rejects a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> community plugin submission,
+            relocating its binary from <c>pending/</c> to <c>rejected/</c>, updating the linked <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>,
+            and recording audit metadata.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service verifying binary existence.</param>
+            <param name="currentUserProvider">Current user provider used to record the reviewing superuser ID (<c>SuperuserOnly</c> policy is enforced at the HTTP authorization boundary and PostgreSQL RLS).</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> state.</param>
+            <param name="timeProvider">Time provider used to stamp review timestamps.</param>
+            <param name="fileProcessor">File processor handling movement into <c>rejected/</c>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.RejectPluginSubmission.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Submissions.RejectPluginSubmission},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Core.Security.ICurrentUserProvider,MelloSilveiraTools.Database.Repositories.IRepository,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor)">
+            <summary>
+            Superuser moderation command that rejects a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> community plugin submission,
+            relocating its binary from <c>pending/</c> to <c>rejected/</c>, updating the linked <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>,
+            and recording audit metadata.
+            </summary>
+            <param name="logger">Logger instance for audit tracing.</param>
+            <param name="fileStorageService">Storage service verifying binary existence.</param>
+            <param name="currentUserProvider">Current user provider used to record the reviewing superuser ID (<c>SuperuserOnly</c> policy is enforced at the HTTP authorization boundary and PostgreSQL RLS).</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> state.</param>
+            <param name="timeProvider">Time provider used to stamp review timestamps.</param>
+            <param name="fileProcessor">File processor handling movement into <c>rejected/</c>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.RejectPluginSubmission.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionBody">
+            <summary>
+            Body payload accepted by approve/reject endpoints when the submission ID is supplied in the route.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionBody.ReviewNotes">
+            <summary>Optional reviewer notes explaining the approval or rejection decision.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionRequest">
+            <summary>
+            Request payload for superuser approval or rejection of a pending plugin submission.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionRequest.Id">
+            <summary>Identifier of the target plugin submission.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionRequest.ReviewNotes">
+            <summary>Optional reviewer notes explaining the approval or rejection decision.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin">
+            <summary>
+            Community plugin submission command for authenticated users: enforces per-plugin author ownership
+            (preventing version hijacking) and pending quota limits, writes the validated assembly into the
+            isolated <c>pending/</c> partition, persists a private <c>storage_entry_metadata</c> record
+            (<c>UserId = author</c>), and creates a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> submission awaiting
+            superuser moderation. Authentication is enforced at the HTTP authorization boundary (<c>[Authorize]</c>).
+            </summary>
+            <param name="logger">Logger instance for tracing and diagnostics.</param>
+            <param name="currentUserProvider">Current user provider identifying the submitting author.</param>
+            <param name="repository">Repository persisting metadata and submission records.</param>
+            <param name="timeProvider">Time provider used to stamp submission creation timestamps.</param>
+            <param name="fileProcessor">Plugin file processor parsing assembly filenames.</param>
+            <param name="submissionPersistence">Service handling plugin identity validation, binary streaming, and submission persistence.</param>
+            <param name="validator">Validator ensuring size limits, naming conventions, and managed IL-only PE compatibility.</param>
+            <param name="settings">Plugin settings defining per-user pending submission quotas.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin},MelloSilveiraTools.Core.Security.ICurrentUserProvider,MelloSilveiraTools.Database.Repositories.IRepository,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence,MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+            <summary>
+            Community plugin submission command for authenticated users: enforces per-plugin author ownership
+            (preventing version hijacking) and pending quota limits, writes the validated assembly into the
+            isolated <c>pending/</c> partition, persists a private <c>storage_entry_metadata</c> record
+            (<c>UserId = author</c>), and creates a <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending"/> submission awaiting
+            superuser moderation. Authentication is enforced at the HTTP authorization boundary (<c>[Authorize]</c>).
+            </summary>
+            <param name="logger">Logger instance for tracing and diagnostics.</param>
+            <param name="currentUserProvider">Current user provider identifying the submitting author.</param>
+            <param name="repository">Repository persisting metadata and submission records.</param>
+            <param name="timeProvider">Time provider used to stamp submission creation timestamps.</param>
+            <param name="fileProcessor">Plugin file processor parsing assembly filenames.</param>
+            <param name="submissionPersistence">Service handling plugin identity validation, binary streaming, and submission persistence.</param>
+            <param name="validator">Validator ensuring size limits, naming conventions, and managed IL-only PE compatibility.</param>
+            <param name="settings">Plugin settings defining per-user pending submission quotas.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence">
+            <summary>
+            Thread-safe DI service coordinating plugin submission lookup, binary streaming with SHA-256 hashing,
+            metadata/submission persistence, and best-effort rollback across storage and relational persistence.
+            </summary>
+            <param name="logger">Logger instance for persistence and rollback diagnostics.</param>
+            <param name="fileStorageService">Storage service handling binary streaming, hashing, and rollback cleanup.</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> records.</param>
+            <param name="settings">Plugin settings providing the root storage directory.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+            <summary>
+            Thread-safe DI service coordinating plugin submission lookup, binary streaming with SHA-256 hashing,
+            metadata/submission persistence, and best-effort rollback across storage and relational persistence.
+            </summary>
+            <param name="logger">Logger instance for persistence and rollback diagnostics.</param>
+            <param name="fileStorageService">Storage service handling binary streaming, hashing, and rollback cleanup.</param>
+            <param name="repository">Repository persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> records.</param>
+            <param name="settings">Plugin settings providing the root storage directory.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence.FindByPluginNameAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves all persisted plugin submissions matching <paramref name="pluginName"/> (case-insensitive).
+            </summary>
+            <param name="pluginName">Logical plugin name without version suffix.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous query.</param>
+            <returns>A list of matching <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> records.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence.WriteAndPersistAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion,System.String,System.Nullable{System.Int64},System.Func{System.Int64,System.String,MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity},System.DateTimeOffset,System.Threading.CancellationToken)">
+            <summary>
+            Streams <paramref name="file"/> to the target storage <paramref name="partition"/>, computes its SHA-256 hash,
+            persists the linked <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> records,
+            and rolls back storage/database artifacts on partial failure.
+            </summary>
+            <param name="file">Uploaded plugin assembly file.</param>
+            <param name="safeFileName">Sanitized filename matching the required versioned DLL pattern.</param>
+            <param name="pluginName">Parsed logical plugin name.</param>
+            <param name="pluginVersion">Parsed semantic plugin version.</param>
+            <param name="partition">Target storage partition (e.g., <c>pending</c> or <c>incoming</c>).</param>
+            <param name="storageOwnerUserId">Owner user ID for the persisted storage metadata, or <see langword="null"/> for public binaries.</param>
+            <param name="submissionFactory">Factory producing the <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> from the persisted file ID and SHA-256 hash.</param>
+            <param name="creationTimestamp">UTC timestamp stamped on the returned submission entity.</param>
+            <param name="cancellationToken">Token used to cancel storage or database I/O.</param>
+            <returns>The persisted <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> with generated ID and the total written byte count.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin">
+            <summary>
+            Superuser direct plugin publishing command: writes a validated assembly straight into <c>incoming/</c>,
+            persists a public read-only <c>storage_entry_metadata</c> record (<c>UserId = null</c> so everyone
+            can read/download while only superusers can edit/delete under RLS), and creates an auto-approved
+            <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> linked by FK.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
+            </summary>
+            <param name="logger">Logger instance for tracing and diagnostics.</param>
+            <param name="currentUserProvider">Current user provider used to stamp author and reviewer identity.</param>
+            <param name="timeProvider">Time provider used to stamp approval timestamps.</param>
+            <param name="fileProcessor">Plugin file processor parsing assembly filenames.</param>
+            <param name="submissionPersistence">Service handling plugin identity validation, binary streaming, and submission persistence.</param>
+            <param name="validator">Validator ensuring size limits, naming conventions, and managed IL-only PE compatibility.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin},MelloSilveiraTools.Core.Security.ICurrentUserProvider,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence,MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator)">
+            <summary>
+            Superuser direct plugin publishing command: writes a validated assembly straight into <c>incoming/</c>,
+            persists a public read-only <c>storage_entry_metadata</c> record (<c>UserId = null</c> so everyone
+            can read/download while only superusers can edit/delete under RLS), and creates an auto-approved
+            <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> linked by FK.
+            Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
+            </summary>
+            <param name="logger">Logger instance for tracing and diagnostics.</param>
+            <param name="currentUserProvider">Current user provider used to stamp author and reviewer identity.</param>
+            <param name="timeProvider">Time provider used to stamp approval timestamps.</param>
+            <param name="fileProcessor">Plugin file processor parsing assembly filenames.</param>
+            <param name="submissionPersistence">Service handling plugin identity validation, binary streaming, and submission persistence.</param>
+            <param name="validator">Validator ensuring size limits, naming conventions, and managed IL-only PE compatibility.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest">
+            <summary>
+            Request containing a plugin assembly file to be uploaded to storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest.File">
+            <summary>
+            The plugin assembly file (.dll) complying with naming pattern {name}.v{major}.{minor}.{patch}.dll.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController">
+            <summary>
+            Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, community submission,
+            moderation, loading, reloading, and cache management) with explicit endpoint authorization attributes.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Returns sanitized summaries of registered runtime plugins from memory cache.
             </summary>
             <param name="command">Command that resolves the matching plugins.</param>
             <param name="request">Filter criteria applied to the plugin lookup.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Inspect(MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.InspectPluginsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Inspects plugin binaries across the main storage partitions (<c>loaded</c>, <c>incoming</c>, <c>pending</c>,
+            <c>archive</c>, <c>quarantine</c>, <c>rejected</c>), returning physical <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>,
+            static PE/architecture validation status, and runtime type registration details (superuser only).
+            </summary>
+            <param name="command">Command performing storage partition inspection and assembly validation.</param>
+            <param name="request">Optional name, version, load-state, and partition filters.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.GetSubmissions(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissions,MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get.GetPluginSubmissionsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Lists plugin submissions visible to the current authenticated user (or all submissions for superusers).
+            </summary>
+            <param name="command">Command querying visible submissions.</param>
+            <param name="request">Optional plugin name and status filter.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.CancelSubmission(MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel.CancelPluginSubmission,System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Cancels and deletes a pending plugin submission (author or superuser only).
+            </summary>
+            <param name="command">Command canceling the submission.</param>
+            <param name="id">Submission identifier.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ApproveSubmission(MelloSilveiraTools.Plugins.Application.Commands.Submissions.ApprovePluginSubmission,System.Int64,MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionBody,System.Threading.CancellationToken)">
+            <summary>
+            Approves a pending plugin submission after SHA-256 verification, promotes it to <c>incoming/</c>, and loads it immediately.
+            </summary>
+            <param name="command">Command performing approval and runtime loading.</param>
+            <param name="id">Submission identifier.</param>
+            <param name="body">Optional reviewer notes.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RejectSubmission(MelloSilveiraTools.Plugins.Application.Commands.Submissions.RejectPluginSubmission,System.Int64,MelloSilveiraTools.Plugins.Application.Commands.Submissions.Review.ReviewPluginSubmissionBody,System.Threading.CancellationToken)">
+            <summary>
+            Rejects a pending plugin submission and relocates its binary to the <c>rejected/</c> partition.
+            </summary>
+            <param name="command">Command performing rejection.</param>
+            <param name="id">Submission identifier.</param>
+            <param name="body">Optional reviewer notes.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Loads the plugins that match the supplied name and/or version.
             </summary>
             <param name="command">Command that performs the plugin load.</param>
             <param name="request">Filter identifying the plugins to load.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,System.Threading.CancellationToken)">
             <summary>
             Loads every plugin known to the host.
             </summary>
             <param name="command">Command that performs the plugin load.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
             </summary>
             <param name="command">Command that performs the plugin reload.</param>
             <param name="request">Filter identifying the plugins to reload.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,System.Threading.CancellationToken)">
             <summary>
             Reloads every plugin known to the host.
             </summary>
             <param name="command">Command that performs the plugin reload.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache,System.Threading.CancellationToken)">
             <summary>
             Clears the plugin cache.
             </summary>
             <param name="command">Command that clears the plugin cache.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="command">Command that persists the plugin cache.</param>
             <param name="request">Filter identifying the plugins to persist.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="command">Command that restores the plugin cache.</param>
             <param name="request">Filter identifying the plugins to restore.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Submit(MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Submits a community plugin assembly into the isolated <c>pending/</c> partition awaiting superuser moderation.
+            </summary>
+            <param name="command">Command that validates ownership/quotas, hashes, and stages the plugin submission.</param>
+            <param name="file">The plugin assembly file (.dll).</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Upload(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Publishes a plugin assembly directly into <c>incoming/</c> with auto-approval (superuser only).
+            </summary>
+            <param name="command">Command that validates, hashes, and publishes the plugin directly.</param>
+            <param name="file">The plugin assembly file (.dll).</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints">
             <summary>
@@ -181,13 +593,30 @@
             Hosts that don't wire <c>app.MapControllers()</c> can reach the plugin runtime through this extension instead.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String,System.Boolean,System.String)">
             <summary>
-            Maps every plugin-management endpoint (list, load, reload, cache lifecycle) under <paramref name="pattern"/>.
+            Maps every plugin-management and community-submission endpoint under <paramref name="pattern"/>.
+            <list type="bullet">
+            <item><description><c>GET /</c> stays open to all users and reads sanitized <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/> summaries from in-memory cache only.</description></item>
+            <item><description><c>POST /submissions</c>, <c>GET /submissions</c>, and <c>DELETE /submissions/{id}</c> serve authenticated community uploads and self-service cancellation (protected by <paramref name="requireAuthForSubmissions"/>).</description></item>
+            <item><description><c>GET /inspect</c>, <c>POST /upload</c>, <c>POST /submissions/{id}/approve</c>, <c>/reject</c>, <c>/load*</c>, <c>/reload*</c>, and <c>/cache*</c> are restricted via <paramref name="managementAuthorizationPolicy"/>.</description></item>
+            </list>
             </summary>
             <param name="builder">Endpoint route builder used to register the endpoints.</param>
             <param name="pattern">Route prefix; defaults to <c>"/api/v1/plugins"</c>.</param>
-            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
+            <param name="managementAuthorizationPolicy">
+            ASP.NET Core authorization policy name applied to superuser direct upload, moderation, and runtime-mutating endpoints.
+            Defaults to <see cref="F:MelloSilveiraTools.WebApi.Authentication.AuthorizationPolicies.SuperuserOnly"/> (fail-closed); pass <see langword="null"/> only in isolated non-auth tests.
+            </param>
+            <param name="requireAuthForSubmissions">
+            When <see langword="true"/> (default, fail-closed), requires an authenticated user on <c>POST /submissions</c>,
+            <c>GET /submissions</c>, and <c>DELETE /submissions/{id}</c> before entering the endpoint handler.
+            </param>
+            <param name="uploadRateLimitPolicy">
+            Optional ASP.NET Core rate-limiter policy name (e.g. <see cref="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.PluginUpload"/>)
+            applied to <c>POST /submissions</c> and <c>POST /upload</c>.
+            </param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain additional metadata.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator">
             <summary>
@@ -202,12 +631,36 @@
             </summary>
             <typeparam name="TRequest">The type of plugin request to validate, derived from <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest"/>.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator`1.Validate(`0)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator`1.ValidateAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Validates the specified plugin request, ensuring that the version string conforms to <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion"/> semantics if present.
             </summary>
             <param name="value">The plugin request instance to validate.</param>
+            <param name="cancellationToken">Cancellation token.</param>
             <returns>A successful <see cref="T:MelloSilveiraTools.Core.Models.Result"/> when the version is omitted, empty, or valid; otherwise, a 400 Bad Request <see cref="T:MelloSilveiraTools.Core.Models.Result"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator">
+            <summary>
+            Shared validator for <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest"/> (used by both <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin"/> and
+            <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin"/>), enforcing file size limits, naming conventions,
+            IL-only managed .NET assembly and host architecture compatibility, and active storage/database version conflict checks.
+            </summary>
+            <param name="fileProcessor">File processor checking whether the target assembly already exists in active storage partitions.</param>
+            <param name="submissionPersistence">Persistence service checking whether the plugin version has already been submitted.</param>
+            <param name="settings">Plugin settings supplying <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.MaxPluginSizeBytes"/> and <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.AllowUnmanagedDlls"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Application.Commands.Upload.PluginSubmissionPersistence,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+            <summary>
+            Shared validator for <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest"/> (used by both <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin"/> and
+            <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Submissions.SubmitPlugin"/>), enforcing file size limits, naming conventions,
+            IL-only managed .NET assembly and host architecture compatibility, and active storage/database version conflict checks.
+            </summary>
+            <param name="fileProcessor">File processor checking whether the target assembly already exists in active storage partitions.</param>
+            <param name="submissionPersistence">Persistence service checking whether the plugin version has already been submitted.</param>
+            <param name="settings">Plugin settings supplying <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.MaxPluginSizeBytes"/> and <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.AllowUnmanagedDlls"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator.ValidateAsync(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPluginRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.PluginsDependencyInjection">
             <summary>
@@ -216,11 +669,20 @@
         </member>
         <member name="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
-            Registers plugin infrastructure, caching, providers, and plugin operations.
+            Registers plugin infrastructure, caching, providers, community submission/moderation commands, and plugin operations.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <param name="pluginSettings">Settings that describe plugin folders, limits, and behavior.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServicesAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,System.Threading.CancellationToken)">
+            <summary>
+            Registers plugin management services into <paramref name="services"/> and asynchronously eagerly loads discovered plugins at startup.
             </summary>
             <param name="services">Service collection that receives the registrations.</param>
             <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
-            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A task representing the registration and startup loading operation.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.IPlugin">
             <summary>
@@ -287,19 +749,121 @@
             Adds the set of types eligible for processing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Type[],System.Runtime.Loader.AssemblyLoadContext)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.#ctor">
+            <summary>
+            Parameterless constructor required for deserialization.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Type[],System.Runtime.Loader.AssemblyLoadContext,System.String)">
             <summary>
             Initializes a new <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> by wrapping a <paramref name="discovered"/> entry
             with the set of <paramref name="processableTypes"/> found in the loaded assembly.
             </summary>
+            <param name="discovered">Discovered plugin metadata.</param>
+            <param name="processableTypes">Types discovered in the assembly matching type processors.</param>
+            <param name="pluginContext">The assembly load context hosting the plugin.</param>
+            <param name="shadowCopyDirectory">Optional path to the temporary shadow copy directory on disk.</param>
         </member>
         <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.ProcessableTypes">
             <summary>Types found in the assembly that implement the plugin interface.</summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.UnloadAssembly">
             <summary>
-            This must be called only when application update the plugin.
+            Unloads the assembly load context and attempts cleanup of temporary shadow copy artifacts.
+            This must be called only when the application updates or decommissions the plugin.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo">
+            <summary>
+            Unified plugin representation shared across public catalog discovery (<c>GET /api/v1/plugins</c>),
+            community submission and moderation workflows (<c>/submissions</c>, <c>/upload</c>),
+            and superuser storage inspection (<c>GET /api/v1/plugins/inspect</c>).
+            Context-specific properties are omitted from JSON when <see langword="null"/> so public discovery
+            never leaks internal server storage paths (<see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.File"/>) or moderation internals.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.Name">
+            <summary>Logical plugin name without version suffix (or filename stem when an inspected filename is invalid).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.Version">
+            <summary>Parsed semantic version of the plugin, or <see langword="null"/> when an inspected filename does not match the versioned naming pattern.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.IsFullyLoaded">
+            <summary>Indicates whether every processable type in the plugin has been registered in runtime DI.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.FullyLoadedAt">
+            <summary>UTC timestamp captured when runtime registration completed, if loaded.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.TypesLoadedStatus">
+            <summary>Map of discovered processable type full names to their runtime DI registration status.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.Partition">
+            <summary>Canonical plugin storage partition where the inspected file resides (e.g., <c>loaded</c>, <c>incoming</c>, <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.File">
+            <summary>Physical storage metadata (<see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>) for the inspected plugin binary.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.IsValidAssembly">
+            <summary>Indicates whether the inspected file passed naming, managed PE/CLI metadata, IL-only policy, and host architecture validation.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.ValidationError">
+            <summary>Detailed validation or load error message when <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.IsValidAssembly"/> is <see langword="false"/>.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.EntityId">
+            <summary>Unique submission database identifier.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.UserEntityId">
+            <summary>Author user identifier, or <see langword="null"/> for system-owned plugins.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.StorageEntryMetadataEntityId">
+            <summary>Foreign key identifier of the corresponding <c>storage_entry_metadata</c> record.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.Sha256Hash">
+            <summary>Lowercase hex SHA-256 digest of the uploaded plugin binary.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.Status">
+            <summary>Current moderation lifecycle status.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.CreationTimestamp">
+            <summary>UTC timestamp when the submission record was created.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.ReviewedByUserEntityId">
+            <summary>Identifier of the superuser who approved or rejected the submission, if reviewed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.ReviewedAt">
+            <summary>UTC timestamp when the submission was reviewed, if reviewed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.ReviewNotes">
+            <summary>Optional reviewer audit notes recorded on approval or rejection.</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.FromRegistered(MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin)">
+            <summary>
+            Creates a sanitized public runtime summary from a cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin"/>.
+            Intentionally omits <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.File"/> and all internal storage paths.
+            </summary>
+            <param name="registered">Cached registered plugin state.</param>
+            <returns>A sanitized <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/> for public catalog discovery.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.FromSubmissionEntity(MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity)">
+            <summary>
+            Projects a <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> database record into a unified <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/>.
+            </summary>
+            <param name="entity">Database submission record.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/> populated with submission and moderation metadata.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo.FromInspection(System.String,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata,System.Boolean,System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin)">
+            <summary>
+            Creates a superuser storage inspection snapshot from raw <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>,
+            static PE/architecture validation results, and optional runtime registration state.
+            </summary>
+            <param name="partition">Canonical plugin storage partition.</param>
+            <param name="name">Logical plugin name (or filename stem when malformed).</param>
+            <param name="version">Parsed semantic version, if valid.</param>
+            <param name="file">Physical storage metadata of the plugin binary.</param>
+            <param name="isValidAssembly">Whether filename, PE/CLI metadata, IL-only policy, and architecture checks passed.</param>
+            <param name="validationError">Validation or load error message when invalid.</param>
+            <param name="registered">Optional runtime registration state for active partitions.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/> populated with storage and runtime diagnostic metadata.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext">
             <summary>
@@ -342,6 +906,24 @@
             <summary>
             Creates a context that targets the dynamic service provider for runtime plugin registration.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus">
+            <summary>
+            Moderation lifecycle state for a community or system plugin submission.
+            Numeric values are persisted in PostgreSQL (<c>plugin_submissions.status</c>) and enforced by RLS policies.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Pending">
+            <summary>Submitted by an authenticated user to <c>pending/</c>; awaiting superuser review.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Approved">
+            <summary>Approved by a superuser (or uploaded directly by a superuser); promoted to <c>incoming/</c> and loaded.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Rejected">
+            <summary>Rejected by a superuser during review and moved to <c>rejected/</c>.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginSubmissionStatus.Revoked">
+            <summary>Previously approved plugin subsequently revoked by a superuser.</summary>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion">
             <summary>
@@ -398,10 +980,27 @@
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion.ToString">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersionJsonConverter">
+            <summary>
+            JSON converter for <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion"/> supporting both string (e.g. <c>"v1.0.0"</c>)
+            and structured JSON object serialization and deserialization.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersionJsonConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersionJsonConverter.Write(System.Text.Json.Utf8JsonWriter,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin">
             <summary>
             A <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> whose processable types have been registered in the DI container.
             Tracks which types have been loaded and whether the plugin is fully registered.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.#ctor">
+            <summary>
+            Parameterless constructor required for deserialization.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin)">
@@ -424,10 +1023,12 @@
             Timestamp captured when the plugin transitioned to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.IsFullyLoaded"/>; <see langword="null"/> while still in progress.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.MarkTypeLoaded(System.Type)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.MarkTypeLoaded(System.Type,System.DateTimeOffset)">
             <summary>
             Marks the given <paramref name="type"/> as registered and updates <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.FullyLoadedAt"/> once all types are done.
             </summary>
+            <param name="type">The type that was registered.</param>
+            <param name="fullyLoadedAt">The timestamp recorded if this registration completes the plugin load.</param>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence">
             <summary>
@@ -470,19 +1071,21 @@
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence">
             <summary>
-            Persists plugin cache to a JSON file in the plugins directory.
+            Persists plugin cache to a JSON file using the configured storage service.
             Each entry is stored with a type discriminator so the correct
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> subtype is restored.
             </summary>
-            <param name="settings">Plugin settings providing the directory in which the <c>plugin-cache.json</c> file is created and read.</param>
+            <param name="fileStorageService">The file storage service used to read and write the cache file.</param>
+            <param name="settings">Plugin settings providing the directory or context in which the <c>plugin-cache.json</c> file is created and read.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence.#ctor(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
-            Persists plugin cache to a JSON file in the plugins directory.
+            Persists plugin cache to a JSON file using the configured storage service.
             Each entry is stored with a type discriminator so the correct
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> subtype is restored.
             </summary>
-            <param name="settings">Plugin settings providing the directory in which the <c>plugin-cache.json</c> file is created and read.</param>
+            <param name="fileStorageService">The file storage service used to read and write the cache file.</param>
+            <param name="settings">Plugin settings providing the directory or context in which the <c>plugin-cache.json</c> file is created and read.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence.SaveAsync(System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry},System.Threading.CancellationToken)">
             <inheritdoc/>
@@ -562,37 +1165,133 @@
         <member name="F:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheTargets.Database">
             <summary>Database-backed persistence (<see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence"/>).</summary>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity">
+            <summary>
+            Database entity representing a submitted plugin assembly referencing its file record in
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> (<c>storage_entry_metadata</c>), with SHA-256 integrity,
+            per-plugin author ownership, and moderation metadata.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.StorageEntryMetadataId">
+            <summary>Foreign key referencing <c>storage_entry_metadata.id</c> (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.PluginName">
+            <summary>Logical plugin name parsed from <c>{name}.v{major}.{minor}.{patch}.dll</c>.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.PluginVersion">
+            <summary>Semantic version string (e.g. <c>v1.0.0</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.Sha256Hash">
+            <summary>Lowercase hex-encoded SHA-256 digest of the uploaded assembly binary.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.Status">
+            <summary>Current moderation lifecycle status.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.ReviewedByUserId">
+            <summary>Identifier of the superuser who approved or rejected the submission, if reviewed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.ReviewedAt">
+            <summary>UTC timestamp when a superuser reviewed the submission, if reviewed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity.ReviewNotes">
+            <summary>Optional reviewer notes explaining approval or rejection.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionFilter">
+            <summary>
+            Filter for querying <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionEntity"/> rows via <c>IRepository</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionFilter.UserId">
+            <summary>Optional exact author user ID filter.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionFilter.PluginName">
+            <summary>Optional case-insensitive plugin name filter.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionFilter.PluginVersion">
+            <summary>Optional exact semantic version filter (e.g. <c>v1.0.0</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginSubmissionFilter.Status">
+            <summary>Optional exact moderation status filter.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.TypeJsonConverter">
+            <summary>
+            Custom <see cref="T:System.Text.Json.Serialization.JsonConverter`1"/> enabling serialization and deserialization
+            of <see cref="T:System.Type"/> instances and dictionary keys using assembly-qualified names.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.TypeJsonConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.TypeJsonConverter.Write(System.Text.Json.Utf8JsonWriter,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.TypeJsonConverter.ReadAsPropertyName(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.TypeJsonConverter.WriteAsPropertyName(System.Text.Json.Utf8JsonWriter,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor">
             <summary>
             The system responsible for dynamically loading external modules ("plugins") into our application.
-            It acts like a gatekeeper that unzips or inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
+            Uses shadow copying, static PE/CLI metadata inspection, and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/> to isolate dependencies,
+            enforce IL-only managed constraints by default, and prevent operating system file locking.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
+            <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
+            <param name="fileProcessor">File processor used for storage and shadow copy operations.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+            <param name="settings">Plugin settings controlling security options such as native DLL loading.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},MelloSilveiraTools.Plugins.Infrastructure.PluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             The system responsible for dynamically loading external modules ("plugins") into our application.
-            It acts like a gatekeeper that unzips or inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
+            Uses shadow copying, static PE/CLI metadata inspection, and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/> to isolate dependencies,
+            enforce IL-only managed constraints by default, and prevent operating system file locking.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
+            <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
+            <param name="fileProcessor">File processor used for storage and shadow copy operations.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+            <param name="settings">Plugin settings controlling security options such as native DLL loading.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.Load(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.LoadAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
             <summary>
-            Loads the assembly described by <paramref name="discovered"/> and returns the set of processable types it contains.
+            Asynchronously loads the assembly described by <paramref name="discovered"/>, validating its PE/CLI metadata and architecture headers,
+            shadow-copying it to eliminate persistent OS file locks, and returning the set of processable types it contains.
             </summary>
+            <param name="discovered">Discovered plugin metadata holding the assembly location.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A loaded plugin representation holding the collectible assembly load context and discovered processable types.</returns>
+            <exception cref="T:System.BadImageFormatException">
+            Thrown when the binary does not contain valid managed .NET metadata, violates IL-only policy, or has an incompatible architecture.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.ValidateAssemblyArchitecture(System.Reflection.PortableExecutable.PEReader,System.String,System.Boolean)">
+            <summary>
+            Validates the portable executable (PE) and CLI metadata headers using <see cref="T:System.Reflection.PortableExecutable.PEReader"/> without executing any code
+            to ensure the assembly is a valid managed .NET assembly compatible with the host process architecture.
+            </summary>
+            <param name="peReader">The portable executable reader inspecting the assembly.</param>
+            <param name="assemblyName">The name of the assembly for error reporting.</param>
+            <param name="allowUnmanagedDlls">When <see langword="false"/>, rejects mixed-mode (non-IL-only) assemblies.</param>
+            <exception cref="T:System.BadImageFormatException">Thrown when the assembly is invalid, mixed-mode while disallowed, or architecture-incompatible.</exception>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.GetInfo(MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin)">
             <summary>
             Returns a <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin"/> instance for <paramref name="loaded"/>, creating a cache entry when missing.
             </summary>
+            <param name="loaded">The loaded plugin instance.</param>
+            <returns>A registered plugin metadata entry.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.ProcessTypes(MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext)">
             <summary>
             Runs each processable type of <paramref name="loaded"/> through its matching <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor"/>
             using the provided <paramref name="context"/> and records the progress in cache.
             </summary>
+            <param name="loaded">The loaded plugin instance.</param>
+            <param name="context">The registration context for startup or runtime DI.</param>
+            <returns>The registered plugin metadata entry.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache">
             <summary>
@@ -619,6 +1318,15 @@
             <summary>
             Returns the cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.GetOrAddAsync(System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion,System.Func{System.Threading.Tasks.Task{MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin}})">
+            <summary>
+            Asynchronously returns the cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
+            </summary>
+            <param name="name">Plugin name.</param>
+            <param name="version">Plugin version.</param>
+            <param name="factory">Asynchronous factory that loads the plugin when absent from cache.</param>
+            <returns>The loaded plugin instance.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.GetOrAdd(System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion,System.Func{MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin})">
             <summary>
@@ -666,82 +1374,226 @@
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor">
             <summary>
-            File-system level operations on plugin DLLs: scanning the plugins directory,
-            moving DLLs between the main and loaded subfolders, and parsing filenames into
-            <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
+            Plugin-specific storage operations on DLL assemblies: scanning plugin lifecycle partitions,
+            validating managed .NET metadata and host architecture compatibility, local shadow copying for
+            <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/>, coordinating plugin partition transitions
+            (incoming, loaded, archive, quarantine, pending, rejected), and caching parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances.
+            Generic file/directory manipulation delegates to <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
             </summary>
             <param name="logger">The logger instance for diagnostics and tracing.</param>
+            <param name="fileStorageService">Storage abstraction service used for file discovery, streaming, hashing, and generic file movements.</param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
-            <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
+            <param name="settings">Plugin settings providing the directory and unmanaged assembly policy.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor},MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
-            File-system level operations on plugin DLLs: scanning the plugins directory,
-            moving DLLs between the main and loaded subfolders, and parsing filenames into
-            <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
+            Plugin-specific storage operations on DLL assemblies: scanning plugin lifecycle partitions,
+            validating managed .NET metadata and host architecture compatibility, local shadow copying for
+            <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/>, coordinating plugin partition transitions
+            (incoming, loaded, archive, quarantine, pending, rejected), and caching parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances.
+            Generic file/directory manipulation delegates to <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
             </summary>
             <param name="logger">The logger instance for diagnostics and tracing.</param>
+            <param name="fileStorageService">Storage abstraction service used for file discovery, streaming, hashing, and generic file movements.</param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
-            <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
+            <param name="settings">Plugin settings providing the directory and unmanaged assembly policy.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.Scan(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ListPartitionFilesAsync(System.String,System.Threading.CancellationToken)">
             <summary>
-            Scans the main plugins directory for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
+            Asynchronously lists raw <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/> entries in the specified plugin <paramref name="partition"/>
+            without mutating or quarantining any files.
             </summary>
-            <param name="pluginName">Optional plugin name prefix used to filter the matching files.</param>
-            <param name="version">Optional plugin version used to filter the matching files.</param>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the configured plugins directory does not exist.</exception>
-            <exception cref="T:System.UnauthorizedAccessException">Thrown when the caller does not have permission to read the plugins directory.</exception>
-            <exception cref="T:System.IO.IOException">Thrown when an I/O error occurs while enumerating files in the plugins directory.</exception>
-            <exception cref="T:System.InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
+            <param name="partition">Canonical partition name from <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions"/>.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of storage entries residing in <paramref name="partition"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ScanLoaded(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ValidateAssemblyReadOnlyAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
-            Scans the <c>loaded/</c> subfolder for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
+            Performs read-only static PE/CLI metadata, IL-only policy, and host architecture validation on the file at
+            <paramref name="location"/> without executing code or moving the file to quarantine.
             </summary>
-            <param name="pluginName">Optional plugin name prefix used to filter the matching files.</param>
-            <param name="version">Optional plugin version used to filter the matching files.</param>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the <c>loaded/</c> subfolder does not exist.</exception>
-            <exception cref="T:System.UnauthorizedAccessException">Thrown when the caller does not have permission to read the <c>loaded/</c> subfolder.</exception>
-            <exception cref="T:System.IO.IOException">Thrown when an I/O error occurs while enumerating files in the <c>loaded/</c> subfolder.</exception>
-            <exception cref="T:System.InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
+            <param name="location">Canonical storage location of the candidate assembly.</param>
+            <param name="fileName">Filename used in diagnostic messages.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="null"/> when valid; otherwise a human-readable validation failure reason.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToMainFolder(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
-            <summary>Moves a plugin DLL back from the loaded/ subfolder to the main plugins directory.</summary>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ScanAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously scans the incoming storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters,
+            verifying that each candidate is a valid managed .NET assembly compatible with the host process architecture, and isolating non-conforming or incompatible binaries to quarantine.
+            </summary>
+            <param name="pluginName">Optional plugin name prefix used to filter matching files.</param>
+            <param name="version">Optional plugin version used to filter matching files.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of discovered valid plugin instances.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ScanLoadedAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously scans the loaded storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
+            </summary>
+            <param name="pluginName">Optional plugin name prefix used to filter matching files.</param>
+            <param name="version">Optional plugin version used to filter matching files.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of discovered valid plugin instances residing in the loaded partition.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.CreateShadowCopyAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
+            <summary>
+            Creates a temporary shadow copy of the plugin assembly (and optional companion <c>.deps.json</c> file) in a dedicated temporary
+            shadow directory on the local disk. This prevents persistent OS file locks on the primary file in storage partitions.
+            </summary>
+            <param name="plugin">The discovered plugin to shadow copy.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A tuple containing the absolute local path to the shadow copy assembly and the shadow directory path.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.CleanShadowCopies">
+            <summary>
+            Purges all temporary shadow copy directories and files created by this <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor"/> instance
+            without deleting active shadow copies owned by sibling hosts or concurrent test fixtures.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToLoadedFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously moves a plugin DLL from the incoming partition to the loaded partition.
+            If an assembly with the same name already exists in the loaded partition, backs it up with an <c>.old</c> suffix.
+            </summary>
             <param name="plugin">The plugin whose DLL should be moved.</param>
-            <exception cref="T:System.IO.IOException">Thrown when the destination file already exists or another I/O error occurs during the move.</exception>
-            <exception cref="T:System.UnauthorizedAccessException">Thrown when the caller does not have permission to move the file.</exception>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
+            <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToLoadedFolder(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
-            <summary>Moves a plugin DLL from the plugins directory to the loaded/ subfolder.</summary>
-            <param name="plugin">The plugin whose DLL should be moved.</param>
-            <exception cref="T:System.IO.IOException">Thrown when the destination file already exists or another I/O error occurs during the move.</exception>
-            <exception cref="T:System.UnauthorizedAccessException">Thrown when the caller does not have permission to move the file.</exception>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ReplaceInLoadedFolder(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
-            <summary>Replaces an existing DLL in the loaded/ subfolder with one from the plugins directory.</summary>
-            <param name="plugin">The plugin whose DLL should be moved into the <c>loaded/</c> subfolder, replacing any existing file with the same name.</param>
-            <exception cref="T:System.IO.IOException">Thrown when an I/O error occurs while deleting the existing destination file or moving the new one.</exception>
-            <exception cref="T:System.UnauthorizedAccessException">Thrown when the caller does not have permission to delete or move the file.</exception>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ExistsInLoadedFolder(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
-            <summary>Checks whether a DLL with the same name and version exists in the loaded/ subfolder.</summary>
-            <param name="plugin">The plugin whose presence in the <c>loaded/</c> subfolder is being checked.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.Parse(System.String)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToMainFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
             <summary>
-            Parses a DLL file path into a <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/>.
-            Expected pattern: {name}.v{major}.{minor}.{patch}.dll.
+            Asynchronously moves a plugin DLL back from the loaded partition to the incoming partition.
             </summary>
-            <param name="dllFilePath">Full path to the DLL file whose filename should be parsed.</param>
-            <exception cref="T:System.InvalidOperationException">Thrown when the filename does not match the expected plugin filename pattern.</exception>
+            <param name="plugin">The plugin whose DLL should be moved.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> pointing to the relocated assembly in the incoming partition.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ReplaceInLoadedFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously replaces an existing DLL in the loaded partition with one from the incoming partition.
+            </summary>
+            <param name="plugin">The plugin whose DLL should be moved into the loaded partition.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ExistsInLoadedFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously checks whether a DLL with the same name and version exists in the loaded partition.
+            </summary>
+            <param name="plugin">The plugin whose presence in the loaded partition is being checked.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value indicating whether the plugin file exists in the loaded partition.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToArchiveFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously moves an obsolete plugin DLL from the loaded partition to the archive partition.
+            </summary>
+            <param name="plugin">The plugin whose DLL should be archived.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.TryParsePluginFileName(System.String,System.String@,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion@)">
+            <summary>
+            Attempts to parse a plugin assembly file name conforming to <c>{name}.v{major}.{minor}.{patch}.dll</c>.
+            </summary>
+            <param name="fileName">File name to parse (without directory components).</param>
+            <param name="pluginName">When valid, receives the logical plugin name.</param>
+            <param name="version">When valid, receives the parsed semantic version.</param>
+            <returns><see langword="true"/> when <paramref name="fileName"/> matches the required pattern; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ExistsInActivePartitionsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Checks whether a plugin assembly with <paramref name="fileName"/> already exists in any active
+            lifecycle partition (<c>pending/</c>, <c>incoming/</c>, or <c>loaded/</c>).
+            </summary>
+            <param name="fileName">Sanitized assembly file name.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> if a binary with the same name/version already exists; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MovePendingToIncomingAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Promotes an approved community plugin assembly from <c>pending/</c> into <c>incoming/</c>.
+            </summary>
+            <param name="pendingLocation">Current location of the binary in the <c>pending/</c> partition.</param>
+            <param name="fileName">Sanitized assembly file name.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The resolved storage location inside <c>incoming/</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MovePendingToRejectedAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Moves a rejected community plugin assembly from <c>pending/</c> into <c>rejected/</c>.
+            </summary>
+            <param name="pendingLocation">Current location of the binary in the <c>pending/</c> partition.</param>
+            <param name="fileName">Sanitized assembly file name.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The resolved storage location inside <c>rejected/</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.IsArchitectureCompatible(System.Reflection.PortableExecutable.PEReader,System.String@)">
+            <summary>
+            Validates that the portable executable (PE) reader represents a valid managed .NET assembly
+            compatible with the host operating system, process architecture, and configured <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.AllowUnmanagedDlls"/> policy.
+            </summary>
+            <param name="peReader">The portable executable reader inspecting the candidate assembly.</param>
+            <param name="failureReason">When incompatible, outputs a description of why the assembly was rejected.</param>
+            <returns><c>true</c> if the assembly is compatible with the host architecture; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext">
+            <summary>
+            An isolated <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> that uses an <see cref="T:System.Runtime.Loader.AssemblyDependencyResolver"/>
+            to resolve managed assembly dependencies and, only when explicitly enabled via <paramref name="allowUnmanagedDlls"/>,
+            unmanaged native libraries according to the Runtime Identifier (RID).
+            </summary>
+            <param name="name">The descriptive name of the load context.</param>
+            <param name="pluginPath">The physical file path to the plugin assembly on disk (typically a shadow-copied assembly).</param>
+            <param name="isCollectible">Whether the context can be unloaded from memory dynamically.</param>
+            <param name="allowUnmanagedDlls">
+            When <see langword="false"/> (default), blocks resolution of unmanaged native libraries as a defense-in-depth guardrail.
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext.#ctor(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            An isolated <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> that uses an <see cref="T:System.Runtime.Loader.AssemblyDependencyResolver"/>
+            to resolve managed assembly dependencies and, only when explicitly enabled via <paramref name="allowUnmanagedDlls"/>,
+            unmanaged native libraries according to the Runtime Identifier (RID).
+            </summary>
+            <param name="name">The descriptive name of the load context.</param>
+            <param name="pluginPath">The physical file path to the plugin assembly on disk (typically a shadow-copied assembly).</param>
+            <param name="isCollectible">Whether the context can be unloaded from memory dynamically.</param>
+            <param name="allowUnmanagedDlls">
+            When <see langword="false"/> (default), blocks resolution of unmanaged native libraries as a defense-in-depth guardrail.
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/> class with a generated name derived from the assembly file name.
+            </summary>
+            <param name="pluginPath">The physical file path to the plugin assembly on disk (typically a shadow-copied assembly).</param>
+            <param name="isCollectible">Whether the context can be unloaded from memory dynamically.</param>
+            <param name="allowUnmanagedDlls">
+            When <see langword="false"/> (default), blocks resolution of unmanaged native libraries.
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext.Load(System.Reflection.AssemblyName)">
+            <summary>
+            Resolves managed assembly dependencies using the plugin's dependency specification.
+            Returns <c>null</c> if the assembly is not part of the plugin dependencies, allowing fallback to the default load context.
+            </summary>
+            <param name="assemblyName">The assembly identity to resolve.</param>
+            <returns>The resolved assembly, or <c>null</c> if fallback to the default context is required.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext.LoadUnmanagedDll(System.String)">
+            <summary>
+            Resolves unmanaged (native) libraries according to the host process Runtime Identifier (RID)
+            only when <c>allowUnmanagedDlls</c> is enabled; otherwise returns <see cref="F:System.IntPtr.Zero"/>.
+            </summary>
+            <param name="unmanagedDllName">The name of the unmanaged native library (e.g. <c>myNativeLib.dll</c> or <c>libmyNativeLib.so</c>).</param>
+            <returns>A pointer to the loaded native library, or <see cref="F:System.IntPtr.Zero"/> if blocked or unresolved.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings">
             <summary>
             Configuration settings for the plugin system.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.StorageProvider">
+            <summary>
+            Storage provider used for discovering, loading, persisting, and archiving plugin files.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.Directory">
@@ -752,14 +1604,13 @@
         <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PollInterval">
             <summary>
             Interval between plugin-folder inspections performed by the orchestrator background service.
-            Defaults to 30 seconds.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention">
             <summary>
             Grace period that the version immediately below the newly-loaded one is kept in cache after a
             higher version is promoted. Once this period elapses, the previous version is also evicted
-            on the next orchestrator pass. Defaults to 24 hours.
+            on the next orchestrator pass.
             </summary>
             <remarks>
             Example: while versions <c>1.0</c>, <c>1.1</c> and <c>1.2</c> are loaded and <c>1.3</c> is
@@ -775,69 +1626,147 @@
             </summary>
             <remarks>
             Must match a key registered with <c>AddKeyedSingleton&lt;IPluginCachePersistence&gt;(key, ...)</c>.
-            Defaults to <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheTargets.File"/>.
             </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.MaxPluginSizeBytes">
+            <summary>
+            Maximum allowed size in bytes for uploaded plugin assemblies.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.MaxPendingSubmissionsPerUser">
+            <summary>
+            Optional maximum number of simultaneous <c>Pending</c> community plugin submissions allowed per non-superuser account.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.AllowUnmanagedDlls">
+            <summary>
+            Optional flag enabling unmanaged (native) library resolution inside <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/>
+            and mixed-mode (non-IL-only) plugin binaries.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions">
+            <summary>
+            Defines canonical partition names for plugin storage lifecycle states.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Pending">
+            <summary>
+            Isolated review partition where authenticated community plugin submissions await superuser approval.
+            Never scanned or loaded automatically by the background orchestrator.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Rejected">
+            <summary>
+            Partition retaining community plugin submissions rejected by a superuser during moderation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Incoming">
+            <summary>
+            Staging partition where approved plugin assemblies arrive awaiting runtime discovery and loading.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Loaded">
+            <summary>
+            Partition containing validated, promoted, and actively loaded plugin assemblies.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Archive">
+            <summary>
+            Partition containing deprecated older versions of plugin assemblies retained for historical purposes.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Quarantine">
+            <summary>
+            Partition isolating invalid, corrupted, or non-managed binaries that failed validation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Cache">
+            <summary>
+            Partition containing application-level cache persistence files (e.g. <c>plugin-cache.json</c>).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.Shadow">
+            <summary>
+            Partition containing shadow copies of loaded assemblies to prevent persistent OS file locks.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Plugins.Infrastructure.PluginStoragePartitions.MainPartitions">
+            <summary>
+            Ordered set of main plugin lifecycle partitions scanned during superuser storage inspection:
+            <c>loaded</c>, <c>incoming</c>, <c>pending</c>, <c>archive</c>, <c>quarantine</c>, and <c>rejected</c>.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService">
             <summary>
             High-level orchestrator for plugin discovery, loading, reload, and cache management.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
-             <summary>
-             Discovers plugins and registers their services at application startup, using the root service collection.
-             </summary>
-             <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
-             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
-             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-             <example>
-             <code>
-             // In Program.cs / Startup.cs:
-             services
-                 .AddToolsServices(configuration)
-                 .AddPluginServices(configuration);
-            
-             WebApplication app = builder.Build();
-             app.Services.GetRequiredService&lt;IPluginService&gt;().LoadPluginsOnStartup();
-             </code>
-             </example>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <summary>
-            Discovers plugins and registers their services at runtime through the dynamic service provider.
+            Asynchronously discovers plugins in storage and registers their services at application startup, using the root service collection.
+            </summary>
+            <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A task representing the asynchronous startup load operation.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntimeAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously discovers plugins in storage and registers their services at runtime through the dynamic service provider.
             </summary>
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A task representing the asynchronous runtime load operation.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <summary>
-            Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
+            Asynchronously reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
             </summary>
             <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A task representing the asynchronous startup reload operation.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnRuntime(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnRuntimeAsync(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <summary>
-            Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at runtime.
+            Asynchronously reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at runtime.
             </summary>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A task representing the asynchronous runtime reload operation.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.GetPluginsAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously streams registered runtime plugins currently held in the in-memory cache that match the provided filters.
+            </summary>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of registered plugins from memory cache.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.InspectPluginsAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously inspects plugin binaries across the main plugin storage partitions
+            (<c>loaded</c>, <c>incoming</c>, <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>)
+            for superuser validation, returning physical <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/>,
+            static PE/architecture validation status, and runtime type registration details for active partitions.
+            </summary>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+            <param name="partition">Optional canonical storage partition filter. When empty, all main partitions are scanned.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginInfo"/> diagnostic entries.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ClearAsync">
             <summary>
             Clears the plugin cache entirely.
             </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.GetPlugins(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
-            <summary>
-            Lists plugins available on disk that match the provided filters, returning registry information for each one.
-            </summary>
-            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
-            <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-            <returns>The registered plugins discovered on disk.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.PersistCacheAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <summary>
@@ -858,14 +1787,14 @@
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService">
             <summary>
             Periodically inspects the plugin folder, loads newer plugin versions through
-            <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})"/> and evicts obsolete
+            <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntimeAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/> and evicts obsolete
             cached versions according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService},Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService},Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Periodically inspects the plugin folder, loads newer plugin versions through
-            <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})"/> and evicts obsolete
+            <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntimeAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/> and evicts obsolete
             cached versions according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention"/>.
             </summary>
         </member>
@@ -877,12 +1806,13 @@
             Extension methods that streamline plugin processing pipelines on top of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginServiceExtensions.LoadAssembly(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginServiceExtensions.LoadAssemblyAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,System.Threading.CancellationToken)">
             <summary>
-            Loads the assembly of a discovered plugin using the provided processor.
+            Asynchronously loads the assembly of a discovered plugin using the provided processor.
             </summary>
-            <param name="discovered">Plugin found on disk by the file processor.</param>
+            <param name="discovered">Plugin found in storage by the file processor.</param>
             <param name="assemblyProcessor">Processor responsible for loading plugin assemblies.</param>
+            <param name="cancellationToken">Cancellation token.</param>
             <returns>The loaded plugin, with its assembly available for inspection.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginServiceExtensions.RegisterTypes(MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext)">
@@ -894,43 +1824,38 @@
             <param name="context">Registration context that determines how services are wired up.</param>
             <returns>The plugin after its types have been processed and registered.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginServiceExtensions.GetRegistry(MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor)">
-            <summary>
-            Retrieves registry information for a loaded plugin without registering its services.
-            </summary>
-            <param name="loaded">Plugin whose assembly has been loaded.</param>
-            <param name="assemblyProcessor">Processor responsible for extracting plugin metadata.</param>
-            <returns>The registry information for the plugin.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService">
             <inheritdoc cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>
-            <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
-            <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
-            <param name="cache">Cache that keeps track of plugin registration state.</param>
             <param name="persistence">Persistence used to save and restore the plugin cache.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
+            <param name="fileProcessor">Processor that scans storage for plugin assemblies.</param>
+            <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
+            <param name="cache">Cache that keeps track of plugin registration state.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache)">
             <inheritdoc cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>
-            <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
-            <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
-            <param name="cache">Cache that keeps track of plugin registration state.</param>
             <param name="persistence">Persistence used to save and restore the plugin cache.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
+            <param name="fileProcessor">Processor that scans storage for plugin assemblies.</param>
+            <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
+            <param name="cache">Cache that keeps track of plugin registration state.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnRuntimeAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnRuntime(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnRuntimeAsync(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.GetPlugins(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.GetPluginsAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.InspectPluginsAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ClearAsync">
@@ -941,19 +1866,6 @@
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.RestoreCacheAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPlugins(MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
-            <summary>
-            Iterates over the plugins matched by the supplied filter that are currently in the loaded folder,
-            moves each one back to the main plugin folder, and — when <paramref name="forceLoad"/> is
-            <see langword="true"/> — evicts only that specific (name, version) entry from the cache and
-            reloads it through the registration pipeline.
-            </summary>
-            <remarks>
-            Earlier revisions of this method evicted the cache using the original <c>name</c>/<c>version</c>
-            filter on every iteration, which meant a wildcard reload erased the entire cache repeatedly. The
-            per-iteration eviction now targets only the discovered plugin currently being reloaded.
-            </remarks>
         </member>
     </members>
 </doc>

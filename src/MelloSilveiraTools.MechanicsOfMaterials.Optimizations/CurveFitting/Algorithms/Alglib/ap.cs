@@ -1,3 +1,4 @@
+#nullable disable
 /**************************************************************************
 ALGLIB 4.08.0 (source code generated 2026-06-08)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
@@ -228,7 +229,7 @@ public partial class alglib
             complex result;
             double e;
             double f;
-            if (System.Math.Abs(rhs.y) < System.Math.Abs(rhs.x))
+            if (Math.Abs(rhs.y) < Math.Abs(rhs.x))
             {
                 e = rhs.y / rhs.x;
                 f = rhs.x + rhs.y * e;
@@ -294,7 +295,7 @@ public partial class alglib
     public static void AE_CRITICAL_ASSERT(bool x)
     {
         if (!x)
-            System.Environment.FailFast("ALGLIB: critical error");
+            Environment.FailFast("ALGLIB: critical error");
     }
 
     /********************************************************************
@@ -303,7 +304,7 @@ public partial class alglib
     public static void AE_CRITICAL_ASSERT(bool x, string msg)
     {
         if (!x)
-            System.Environment.FailFast("ALGLIB: critical error with message '" + msg + "'");
+            Environment.FailFast("ALGLIB: critical error with message '" + msg + "'");
     }
 
     /********************************************************************
@@ -489,7 +490,7 @@ public partial class alglib
     ************************************************************************/
     public static int get_effective_workers(int nworkers)
     {
-        int ncores = System.Environment.ProcessorCount;
+        int ncores = Environment.ProcessorCount;
         if (nworkers >= 1)
             return nworkers > ncores ? ncores : nworkers;
         return ncores + nworkers >= 1 ? ncores + nworkers : 1;
@@ -741,20 +742,20 @@ public partial class alglib
                 if (rcomm2_handler == null || dst.requesttype == 0 || dst.requesttype > _ALGLIB_MAX_RCOMMV2_REQUEST)
                     return false;
                 int worker_idx = 0;
-                if (alglib.smp.tsk_current_worker != null)
-                    worker_idx = alglib.smp.tsk_current_worker.worker_idx - 1;
-                int prev_worker_idx = alglib._cbck_worker_idx;
-                alglib._cbck_worker_idx = worker_idx;
+                if (smp.tsk_current_worker != null)
+                    worker_idx = smp.tsk_current_worker.worker_idx - 1;
+                int prev_worker_idx = _cbck_worker_idx;
+                _cbck_worker_idx = worker_idx;
                 try
                 {
                     rcomm2_handler(dst, handler_p0, handler_p1, handler_p2, handler_p3, _params);
                 }
                 catch
                 {
-                    alglib._cbck_worker_idx = prev_worker_idx;
+                    _cbck_worker_idx = prev_worker_idx;
                     throw;
                 }
-                alglib._cbck_worker_idx = prev_worker_idx;
+                _cbck_worker_idx = prev_worker_idx;
                 return true;
             }
         };
@@ -770,34 +771,34 @@ public partial class alglib
                 {
                     double s = 1.0;
                     for (int k = 0; k < state.queryvars; k++)
-                        s += state.querydata[qidx * state.queryvars + k] * (1 + k + System.Math.Sin(1 + k));
+                        s += state.querydata[qidx * state.queryvars + k] * (1 + k + Math.Sin(1 + k));
                     state.replyfi[qidx] = s * s;
                     for (int k = 0; k < state.queryvars; k++)
-                        state.replydj[qidx * state.queryvars + k] = 2 * s * (1 + k + System.Math.Sin(1 + k));
+                        state.replydj[qidx * state.queryvars + k] = 2 * s * (1 + k + Math.Sin(1 + k));
                 }
                 return;
             }
-            ap.assert(false, "_rcomm_debugslantedsumhandlerdense: unsupported request");
+            assert(false, "_rcomm_debugslantedsumhandlerdense: unsupported request");
         }
 
         public static void _rcomm_debugslantedsumhandlersparse(ap.rcommstate state, object p0, object p1, object p2, object p3, alglib.xparams _params)
         {
             if (state.requesttype == 1)
             {
-                alglib.sparse.sparsecreatecrsemptybuf(state.queryvars, state.replysj, _params);
+                sparse.sparsecreatecrsemptybuf(state.queryvars, state.replysj, _params);
                 for (int qidx = 0; qidx < state.querysize; qidx++)
                 {
                     double s = 1.0;
                     for (int k = 0; k < state.queryvars; k++)
-                        s += state.querydata[qidx * state.queryvars + k] * (1 + k + System.Math.Sin(1 + k));
+                        s += state.querydata[qidx * state.queryvars + k] * (1 + k + Math.Sin(1 + k));
                     state.replyfi[qidx] = s * s;
-                    alglib.sparse.sparseappendemptyrow(state.replysj, _params);
+                    sparse.sparseappendemptyrow(state.replysj, _params);
                     for (int k = 0; k < state.queryvars; k++)
-                        alglib.sparse.sparseappendelement(state.replysj, k, 2 * s * (1 + k + System.Math.Sin(1 + k)), _params);
+                        sparse.sparseappendelement(state.replysj, k, 2 * s * (1 + k + Math.Sin(1 + k)), _params);
                 }
                 return;
             }
-            ap.assert(false, "_rcomm_debugslantedsumhandlersparse: unsupported request");
+            assert(false, "_rcomm_debugslantedsumhandlersparse: unsupported request");
         }
 
 #if !ALGLIB_CORE_ONLY
@@ -909,7 +910,7 @@ public partial class alglib
 
                         /* perform serial execution */
                         alglib.sparsematrix swrapper = new(state.replysj);
-                        alglib.sparse.sparsecreatecrsemptybuf(state.queryvars, state.replysj, _params);
+                        sparse.sparsecreatecrsemptybuf(state.queryvars, state.replysj, _params);
                         for (int qidx = 0; qidx < state.querysize; qidx++)
                             process_v2request_1(this, qidx, callbacks, buffers, swrapper);
                         state.requesttype = 0;
@@ -1049,7 +1050,7 @@ public partial class alglib
                 tmpG = new double[rq.rcommv2.queryvars];
                 tmpJ = new double[rq.rcommv2.queryfuncs, rq.rcommv2.queryvars];
                 if (is_sparse)
-                    alglib.sparsecreatecrsempty(rq.rcommv2.queryvars, out tmpS);
+                    sparsecreatecrsempty(rq.rcommv2.queryvars, out tmpS);
             }
 
             //
@@ -1138,7 +1139,7 @@ public partial class alglib
         public static int VolatileRead(ref int x)
         {
 #if NET5_0_OR_GREATER
-            return System.Threading.Volatile.Read(ref x);
+            return Volatile.Read(ref x);
 #else
             return System.Threading.Thread.VolatileRead(ref x);
 #endif
@@ -1146,7 +1147,7 @@ public partial class alglib
         public static void VolatileWrite(ref int a, int v)
         {
 #if NET5_0_OR_GREATER
-            System.Threading.Volatile.Write(ref a, v);
+            Volatile.Write(ref a, v);
 #else
             System.Threading.Thread.VolatileWrite(ref a, v);
 #endif
@@ -1334,7 +1335,7 @@ public partial class alglib
             trace_tags = "," + tags.ToLower() + ",";
             trace_filename = filename;
             trace("####################################################################################################\n");
-            trace("# TRACING ENABLED: " + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\n");
+            trace("# TRACING ENABLED: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\n");
             trace("# TRACE TAGS:      '" + tags + "'\n");
             trace("####################################################################################################\n");
         }
@@ -1369,7 +1370,7 @@ public partial class alglib
                 return;
             if (trace_mode == TRACE_MODE.FILE)
             {
-                System.IO.File.AppendAllText(trace_filename, s);
+                File.AppendAllText(trace_filename, s);
                 return;
             }
         }
@@ -1451,7 +1452,7 @@ public partial class alglib
                 int i;
 
                 /* integrity checks */
-                ap.assert(cnt <= new_capacity, "objarray._set_capacity: new capacity is less than present size");
+                assert(cnt <= new_capacity, "objarray._set_capacity: new capacity is less than present size");
 
                 /* quick exit */
                 if (cnt == new_capacity)
@@ -1480,7 +1481,7 @@ public partial class alglib
             ************************************************************************/
             public void set_fixed_capacity(int new_capacity)
             {
-                ap.assert(cnt <= new_capacity, "objarray.set_fixed_capacity: new capacity is less than present size");
+                assert(cnt <= new_capacity, "objarray.set_fixed_capacity: new capacity is less than present size");
                 _set_capacity(new_capacity);
                 fixed_capacity = true;
             }
@@ -1507,7 +1508,7 @@ public partial class alglib
             public void get<T>(int idx, ref T ptr) where T : alglib.apobject
             {
                 if (idx < 0 || idx >= cnt)
-                    ap.assert(false, "ObjArray: out of bounds read access was performed");
+                    assert(false, "ObjArray: out of bounds read access was performed");
                 ptr = (T)arr[idx];
             }
 
@@ -1526,7 +1527,7 @@ public partial class alglib
             public void extract_transfer<T>(int idx, ref T ptr) where T : alglib.apobject
             {
                 if (idx < 0 || idx >= cnt)
-                    ap.assert(false, "ObjArray: out of bounds read access was performed");
+                    assert(false, "ObjArray: out of bounds read access was performed");
                 ptr = (T)arr[idx];
                 arr[idx] = null;
             }
@@ -1545,7 +1546,7 @@ public partial class alglib
             public void pop_transfer<T>(ref T ptr) where T : alglib.apobject
             {
                 if (cnt == 0)
-                    ap.assert(false, "ObjArray: pop_transfer() on empty array");
+                    assert(false, "ObjArray: pop_transfer() on empty array");
                 ptr = (T)arr[cnt - 1];
                 arr[cnt - 1] = null;
                 cnt = cnt - 1;
@@ -1564,9 +1565,9 @@ public partial class alglib
             public void swap(int i, int j)
             {
                 if (i < 0 || i >= cnt)
-                    ap.assert(false, "ObjArray: out of bounds read access was performed");
+                    assert(false, "ObjArray: out of bounds read access was performed");
                 if (j < 0 || j >= cnt)
-                    ap.assert(false, "ObjArray: out of bounds read access was performed");
+                    assert(false, "ObjArray: out of bounds read access was performed");
                 apobject t = arr[i];
                 arr[i] = arr[j];
                 arr[j] = t;
@@ -1594,7 +1595,7 @@ public partial class alglib
                 int result;
 
                 /* initial integrity checks */
-                ap.assert(!fixed_capacity || cnt < capacity, "objarray.append: unable to append, all capacity is used up");
+                assert(!fixed_capacity || cnt < capacity, "objarray.append: unable to append, all capacity is used up");
 
                 /* get primary lock */
                 smp.ae_acquire_lock(array_lock);
@@ -1614,7 +1615,7 @@ public partial class alglib
                     arr[cnt] = ptr;
 
                     /* issue memory fence (necessary for correct ae_obj_array_get_length) and increase array size */
-                    System.Threading.Thread.MemoryBarrier();
+                    Thread.MemoryBarrier();
                     result = cnt;
                     cnt = result + 1;
                 }
@@ -1648,7 +1649,7 @@ public partial class alglib
             {
                 /* initial integrity checks */
                 if (idx < 0 || idx >= cnt)
-                    ap.assert(false, "objarray.rewrite: out of bounds idx");
+                    assert(false, "objarray.rewrite: out of bounds idx");
                 arr[idx] = ptr;
             }
         }
@@ -1973,7 +1974,7 @@ public partial class alglib
     public class math
     {
         //public static System.Random RndObject = new System.Random(System.DateTime.Now.Millisecond);
-        public static System.Random rndobject = new(System.DateTime.Now.Millisecond + 1000 * System.DateTime.Now.Second + 60 * 1000 * System.DateTime.Now.Minute);
+        public static System.Random rndobject = new(DateTime.Now.Millisecond + 1000 * DateTime.Now.Second + 60 * 1000 * DateTime.Now.Minute);
 
         public const double machineepsilon = 5E-16;
         public const double maxrealnumber = 1E300;
@@ -1981,12 +1982,12 @@ public partial class alglib
 
         public static ulong bitwise_real_to_uint64(double v)
         {
-            return unchecked((ulong)System.BitConverter.DoubleToInt64Bits(v));
+            return unchecked((ulong)BitConverter.DoubleToInt64Bits(v));
         }
 
         public static double bitwise_uint64_to_real(ulong v)
         {
-            return System.BitConverter.Int64BitsToDouble(unchecked((long)v));
+            return BitConverter.Int64BitsToDouble(unchecked((long)v));
         }
 
         public static bool isfinite(double d)
@@ -2017,8 +2018,8 @@ public partial class alglib
             double yabs;
             double v;
 
-            xabs = System.Math.Abs(z.x);
-            yabs = System.Math.Abs(z.y);
+            xabs = Math.Abs(z.x);
+            yabs = Math.Abs(z.y);
             w = xabs > yabs ? xabs : yabs;
             v = xabs < yabs ? xabs : yabs;
             if (v == 0)
@@ -2026,7 +2027,7 @@ public partial class alglib
             else
             {
                 double t = v / w;
-                return w * System.Math.Sqrt(1 + t * t);
+                return w * Math.Sqrt(1 + t * t);
             }
         }
         public static complex conj(complex z)
@@ -2108,13 +2109,13 @@ public partial class alglib
         // * append trailing '\n' and '\0' characters
         // Return if file contains only spaces/newlines.
         //
-        byte b_space = System.Convert.ToByte(' ');
-        byte b_tab = System.Convert.ToByte('\t');
-        byte b_lf = System.Convert.ToByte('\n');
-        byte b_cr = System.Convert.ToByte('\r');
-        byte b_comma = System.Convert.ToByte(',');
-        byte b_fullstop = System.Convert.ToByte('.');
-        byte[] v0 = System.IO.File.ReadAllBytes(filename);
+        byte b_space = Convert.ToByte(' ');
+        byte b_tab = Convert.ToByte('\t');
+        byte b_lf = Convert.ToByte('\n');
+        byte b_cr = Convert.ToByte('\r');
+        byte b_comma = Convert.ToByte(',');
+        byte b_fullstop = Convert.ToByte('.');
+        byte[] v0 = File.ReadAllBytes(filename);
         if (v0.Length == 0)
             return;
         byte[] v1 = new byte[v0.Length + 2];
@@ -2198,7 +2199,7 @@ public partial class alglib
         int row1 = rows_count;
         System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture(""); // invariant culture
         matrix = new double[row1 - row0, cols_count];
-        alglib.AE_CRITICAL_ASSERT(culture.NumberFormat.NumberDecimalSeparator == ".");
+        AE_CRITICAL_ASSERT(culture.NumberFormat.NumberDecimalSeparator == ".");
         for (int ridx = row0; ridx < row1; ridx++)
             for (int cidx = 0; cidx < cols_count; cidx++)
             {
@@ -2782,7 +2783,7 @@ public partial class alglib
         private static void int2str(int v, char[] buf, ref int offs)
         {
             int i;
-            byte[] _bytes = System.BitConverter.GetBytes((int)v);
+            byte[] _bytes = BitConverter.GetBytes((int)v);
             byte[] bytes = new byte[9];
             int[] sixbits = new int[12];
             byte c;
@@ -2793,8 +2794,8 @@ public partial class alglib
             // we set 9th byte to zero in order to simplify 
             // conversion to six-bit representation
             //
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
             c = v < 0 ? (byte)0xFF : (byte)0x00;
             for (i = 0; i < sizeof(int); i++)
                 bytes[i] = _bytes[i];
@@ -2872,9 +2873,9 @@ public partial class alglib
                     throw new alglib.alglibexception(emsg3264);
             for (i = 0; i < sizeof(int); i++)
                 _bytes[i] = bytes[i];
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
-            return System.BitConverter.ToInt32(_bytes, 0);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
+            return BitConverter.ToInt32(_bytes, 0);
         }
 
 
@@ -2954,9 +2955,9 @@ public partial class alglib
             // 4. convert to six-bit representation
             //    (last 12th element of sixbits is always zero, we do not output it)
             //
-            byte[] _bytes = System.BitConverter.GetBytes((double)v);
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
+            byte[] _bytes = BitConverter.GetBytes((double)v);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
             for (i = 0; i < sizeof(double); i++)
                 bytes[i] = _bytes[i];
             for (i = sizeof(double); i < 9; i++)
@@ -2994,9 +2995,9 @@ public partial class alglib
             // 4. convert to six-bit representation
             //    (last 12th element of sixbits is always zero, we do not output it)
             //
-            byte[] _bytes = System.BitConverter.GetBytes((ulong)v);
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
+            byte[] _bytes = BitConverter.GetBytes((ulong)v);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
             for (i = 0; i < sizeof(ulong); i++)
                 bytes[i] = _bytes[i];
             for (i = sizeof(ulong); i < 9; i++)
@@ -3089,9 +3090,9 @@ public partial class alglib
             foursixbits2threebytes(sixbits, 8, bytes, 6);
             for (i = 0; i < sizeof(double); i++)
                 _bytes[i] = bytes[i];
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
-            return System.BitConverter.ToDouble(_bytes, 0);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
+            return BitConverter.ToDouble(_bytes, 0);
         }
 
         /************************************************************************
@@ -3148,9 +3149,9 @@ public partial class alglib
             foursixbits2threebytes(sixbits, 8, bytes, 6);
             for (i = 0; i < sizeof(ulong); i++)
                 _bytes[i] = bytes[i];
-            if (!System.BitConverter.IsLittleEndian)
-                System.Array.Reverse(_bytes);
-            return System.BitConverter.ToUInt64(_bytes, 0);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(_bytes);
+            return BitConverter.ToUInt64(_bytes, 0);
         }
     }
 
@@ -3326,7 +3327,7 @@ public partial class alglib
             alglib.apobject new_obj;
 
             /* assert that pool was seeded */
-            alglib.ap.assert(pool.seed_object != null, "ALGLIB: shared pool is not seeded, PoolRetrieve() failed");
+            ap.assert(pool.seed_object != null, "ALGLIB: shared pool is not seeded, PoolRetrieve() failed");
 
             /* acquire lock */
             ae_acquire_lock(pool.pool_lock);
@@ -3386,10 +3387,10 @@ public partial class alglib
             sharedpoolentry new_entry;
 
             /* assert that pool was seeded */
-            alglib.ap.assert(pool.seed_object != null, "ALGLIB: shared pool is not seeded, PoolRecycle() failed");
+            ap.assert(pool.seed_object != null, "ALGLIB: shared pool is not seeded, PoolRecycle() failed");
 
             /* assert that pointer non-null */
-            alglib.ap.assert(obj != null, "ALGLIB: obj in ae_shared_pool_recycle() is NULL");
+            ap.assert(obj != null, "ALGLIB: obj in ae_shared_pool_recycle() is NULL");
 
             /* acquire lock */
             ae_acquire_lock(pool.pool_lock);
@@ -3553,7 +3554,7 @@ public partial class alglib
         *************************************************************************/
         public static int maxconcurrency(alglib.xparams _params)
         {
-            return System.Environment.ProcessorCount;
+            return Environment.ProcessorCount;
         }
     }
 #endif
@@ -5330,7 +5331,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[i] = System.Math.Max(x[i], y[i]);
+                x[i] = Math.Max(x[i], y[i]);
             }
         }
 
@@ -5370,7 +5371,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[rowidx, i] = System.Math.Max(x[rowidx, i], y[i]);
+                x[rowidx, i] = Math.Max(x[rowidx, i], y[i]);
             }
         }
 
@@ -5410,7 +5411,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                y[i] = System.Math.Max(y[i], x[rowidx, i]);
+                y[i] = Math.Max(y[i], x[rowidx, i]);
             }
         }
 
@@ -5449,7 +5450,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[i] = System.Math.Min(x[i], y[i]);
+                x[i] = Math.Min(x[i], y[i]);
             }
         }
 
@@ -5489,7 +5490,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[rowidx, i] = System.Math.Min(x[rowidx, i], y[i]);
+                x[rowidx, i] = Math.Min(x[rowidx, i], y[i]);
             }
         }
 
@@ -5529,7 +5530,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                y[i] = System.Math.Min(y[i], x[rowidx, i]);
+                y[i] = Math.Min(y[i], x[rowidx, i]);
             }
         }
 
@@ -5734,7 +5735,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[i] = System.Math.Sqrt(x[i]);
+                x[i] = Math.Sqrt(x[i]);
             }
         }
 
@@ -5773,7 +5774,7 @@ public partial class alglib
 
             for (i = 0; i <= n - 1; i++)
             {
-                x[rowidx, i] = System.Math.Sqrt(x[rowidx, i]);
+                x[rowidx, i] = Math.Sqrt(x[rowidx, i]);
             }
         }
 
@@ -5881,7 +5882,7 @@ public partial class alglib
             result = 0;
             for (i = 0; i <= n - 1; i++)
             {
-                v = System.Math.Abs(x[i]);
+                v = Math.Abs(x[i]);
                 if (v > result)
                 {
                     result = v;
@@ -5956,7 +5957,7 @@ public partial class alglib
             result = 0;
             for (i = 0; i <= n - 1; i++)
             {
-                v = System.Math.Abs(x[rowidx, i]);
+                v = Math.Abs(x[rowidx, i]);
                 if (v > result)
                 {
                     result = v;
@@ -7260,7 +7261,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "rTRSVX: unexpected operation type");
+            ap.assert(false, "rTRSVX: unexpected operation type");
         }
 
 
@@ -9090,11 +9091,11 @@ public partial class alglib
     }
     public static void setnworkers(int nworkers)
     {
-        alglib.smp.cores_to_use = nworkers;
+        smp.cores_to_use = nworkers;
     }
     public static int getnworkers()
     {
-        return alglib.smp.cores_to_use;
+        return smp.cores_to_use;
     }
     public static int getcorestouse()
     {
@@ -9227,7 +9228,7 @@ public partial class alglib
         ************************************************************************/
         public static void ae_yield()
         {
-            System.Threading.Thread.Sleep(0);
+            Thread.Sleep(0);
         }
 
         /************************************************************************
@@ -9249,7 +9250,7 @@ public partial class alglib
             int cnt = 0;
             for (; ; )
             {
-                if (System.Threading.Interlocked.CompareExchange(ref obj.is_locked, 1, 0) == 0)
+                if (Interlocked.CompareExchange(ref obj.is_locked, 1, 0) == 0)
                     return;
                 ae_spin_wait(AE_LOCK_CYCLES);
                 cnt++;
@@ -9264,7 +9265,7 @@ public partial class alglib
         ************************************************************************/
         public static void ae_release_lock(ae_lock obj)
         {
-            System.Threading.Interlocked.Exchange(ref obj.is_locked, 0);
+            Interlocked.Exchange(ref obj.is_locked, 0);
         }
 
 
@@ -9302,7 +9303,7 @@ public partial class alglib
             if (request.rcommv2.querydim > 0)
                 for (int i = 0; i < request.rcommv2.querydim; i++)
                     buffers.tmpC[i] = request.rcommv2.querydata[query_data_offs + request.rcommv2.queryvars + i];
-            alglib.sparsecreatecrsemptybuf(request.rcommv2.queryvars, buffers.tmpS, alglib.xdefault);
+            sparsecreatecrsemptybuf(request.rcommv2.queryvars, buffers.tmpS, xdefault);
 
             //
             // Callback
@@ -9312,7 +9313,7 @@ public partial class alglib
                 callbacks.sjac(buffers.tmpX, buffers.tmpF, buffers.tmpS, request.obj);
                 for (int ridx = 0; ridx < request.rcommv2.queryfuncs; ridx++)
                     request.rcommv2.replyfi[reply_fi_offs + ridx] = buffers.tmpF[ridx];
-                alglib.sparseappendmatrix(dst_jacobian, buffers.tmpS);
+                sparseappendmatrix(dst_jacobian, buffers.tmpS);
                 return;
             }
             if (callbacks.sjac_p != null)
@@ -9320,10 +9321,10 @@ public partial class alglib
                 callbacks.sjac_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, buffers.tmpS, request.obj);
                 for (int ridx = 0; ridx < request.rcommv2.queryfuncs; ridx++)
                     request.rcommv2.replyfi[reply_fi_offs + ridx] = buffers.tmpF[ridx];
-                alglib.sparseappendmatrix(dst_jacobian, buffers.tmpS);
+                sparseappendmatrix(dst_jacobian, buffers.tmpS);
                 return;
             }
-            alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+            assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
         }
 
 #if _ALGLIB_HPC
@@ -9396,7 +9397,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+            assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
         }
 
 #if _ALGLIB_HPC
@@ -9473,7 +9474,7 @@ public partial class alglib
                         callbacks.fvec_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, request.obj);
                     }
                     else
-                        alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+                        assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
                     buffers.tmpX[var_idx] = xprev;
                     for (int t = 0; t < m; t++)
                         request.rcommv2.replydj[reply_dj_offs + t * n + var_idx] += coeff * buffers.tmpF[t];
@@ -9526,7 +9527,7 @@ public partial class alglib
                     callbacks.fvec_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, request.obj);
                 }
                 else
-                    alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+                    assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
                 for (int t = 0; t < m; t++)
                     request.rcommv2.replyfi[reply_fi_offs + t] = buffers.tmpF[t];
             }
@@ -9650,7 +9651,7 @@ public partial class alglib
                             callbacks.fvec_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, request.obj);
                         }
                         else
-                            alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+                            assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
                         buffers.tmpX[var_idx] = xprev;
                         for (int t = 0; t < m; t++)
                             request.rcommv2.replydj[reply_dj_offs + t * n + var_idx] += buffers.tmpF[t];
@@ -9693,7 +9694,7 @@ public partial class alglib
                             callbacks.fvec_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, request.obj);
                         }
                         else
-                            alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+                            assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
                         buffers.tmpX[var_idx] = xprev;
                         for (int t = 0; t < m; t++)
                             request.rcommv2.replydj[reply_dj_offs + t * n + var_idx] -= buffers.tmpF[t];
@@ -9761,7 +9762,7 @@ public partial class alglib
                     callbacks.fvec_p(buffers.tmpX, buffers.tmpC, buffers.tmpF, request.obj);
                 }
                 else
-                    alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+                    assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
                 for (int t = 0; t < m; t++)
                     request.rcommv2.replyfi[reply_fi_offs + t] = buffers.tmpF[t];
             }
@@ -9880,7 +9881,7 @@ public partial class alglib
                     request.rcommv2.replyfi[reply_fi_offs + ridx] = buffers.tmpF[ridx];
                 return;
             }
-            alglib.ap.assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
+            assert(false, "ALGLIB: integrity check in '" + request.subpackage + "' subpackage failed; no callback for optimizer request");
         }
 #endif
     }

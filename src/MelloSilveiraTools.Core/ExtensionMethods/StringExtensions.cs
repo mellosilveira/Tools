@@ -48,7 +48,7 @@ public static class StringExtensions
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            var snakeCase = new StringBuilder();
+            StringBuilder snakeCase = new();
             snakeCase.Append(char.ToLowerInvariant(input[0]));
             for (int i = 1; i < input.Length; ++i)
             {

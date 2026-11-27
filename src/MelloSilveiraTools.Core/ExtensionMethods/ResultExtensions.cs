@@ -26,8 +26,8 @@ public static class ResultExtensions
         /// </summary>
         public T AddError(string errorMessage, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.Messages.Add(errorMessage);
-            return result with { StatusCode = statusCode, Success = false };
+            List<string> updatedMessages = [.. result.Messages, errorMessage];
+            return result with { Messages = updatedMessages, StatusCode = statusCode, Success = false };
         }
 
         /// <summary>
@@ -92,13 +92,12 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfNegativeOrZero(List<double> parameters, string message, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrEmpty(parameters, message, statusCode);
-            if (!result.Success)
-                return result;
+            if (parameters.IsNullOrEmpty())
+                return result.AddError(message, statusCode);
 
             foreach (double parameter in parameters)
             {
-                result.AddErrorIfNegativeOrZero(parameter, message, statusCode);
+                result = result.AddErrorIfNegativeOrZero(parameter, message, statusCode);
             }
 
             return result;
@@ -115,7 +114,7 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfFileNotExist(string fullFileName, string message, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrWhiteSpace(fullFileName, message, statusCode);
+            result = result.AddErrorIfNullOrWhiteSpace(fullFileName, message, statusCode);
             if (!result.Success)
                 return result;
 
@@ -137,7 +136,7 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfDirectoryNotExist(string fullDirectoryName, string parameterName, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrEmpty(fullDirectoryName, parameterName, statusCode);
+            result = result.AddErrorIfNullOrWhiteSpace(fullDirectoryName, $"Directory parameter '{parameterName}' cannot be null or whitespace.", statusCode);
             if (!result.Success)
                 return result;
 
@@ -179,7 +178,7 @@ public static class ResultExtensions
         /// <returns>A <see cref="JsonResult"/> that serializes the operation result with the result status code.</returns>
         public async Task<JsonResult> BuildHttpResponseAsync()
         {
-            var result = await resultTask.ConfigureAwait(false);
+            TResult result = await resultTask.ConfigureAwait(false);
             return result.BuildHttpResponse();
         }
 
@@ -190,7 +189,7 @@ public static class ResultExtensions
         /// <returns>An <see cref="IResult"/> that serializes operation result as JSON with the result status code.</returns>
         public async Task<IResult> ToHttpResultAsync()
         {
-            var result = await resultTask.ConfigureAwait(false);
+            TResult result = await resultTask.ConfigureAwait(false);
             return result.ToHttpResult();
         }
     }

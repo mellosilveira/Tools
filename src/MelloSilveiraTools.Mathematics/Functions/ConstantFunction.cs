@@ -20,7 +20,7 @@ public sealed class ConstantFunction(
 
     /// <inheritdoc/>
     /// <remarks>Derivative of a constant function is always zero.</remarks>
-    protected override Function CreateDerivative() => new ConstantFunction(InitialVariableValue, FinalVariableValue);
+    protected override Function CreateDerivative() => new ConstantFunction(0, InitialVariableValue, FinalVariableValue);
 
     /// <inheritdoc/>
     protected override Function CreateIntegral() => coefficient == 0

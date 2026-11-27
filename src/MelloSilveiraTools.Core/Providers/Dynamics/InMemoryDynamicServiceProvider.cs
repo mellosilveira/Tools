@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.Core.Providers.Dynamics;
 public class InMemoryDynamicServiceProvider(IServiceProvider serviceProvider) : IDynamicServiceProvider
 {
     private readonly ConcurrentDictionary<Type, Lazy<object>> _serviceInstances = [];
-    private readonly ConcurrentDictionary<string, object> _keyedInstances = [];
+    private readonly ConcurrentDictionary<object, object> _keyedInstances = [];
 
     /// <inheritdoc/>
     public void Add(Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, params object[] parameters)
@@ -21,11 +21,22 @@ public class InMemoryDynamicServiceProvider(IServiceProvider serviceProvider) : 
     }
 
     /// <inheritdoc/>
-    public void AddKeyed(string key, object instance) => _keyedInstances[key] = instance;
+    public void AddKeyed(object key, object instance) => _keyedInstances[key] = instance;
 
     /// <inheritdoc/>
     public object? GetService(Type serviceType) => _serviceInstances.TryGetValue(serviceType, out Lazy<object>? lazy) ? lazy.Value : null;
 
     /// <inheritdoc/>
-    public T? GetKeyedService<T>(string key) where T : class => _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
+    public T? GetService<T>() where T : class => (T?)GetService(typeof(T));
+
+    /// <inheritdoc/>
+    public T? GetKeyedService<T>(object key) where T : class => _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
+
+    /// <inheritdoc/>
+    public IEnumerable<T> GetAllServices<T>() where T : class => _serviceInstances
+        .Where(pair => typeof(T).IsAssignableFrom(pair.Key))
+        .Select(pair => pair.Value.Value)
+        .OfType<T>()
+        .Concat(_keyedInstances.Values.OfType<T>())
+        .Distinct();
 }

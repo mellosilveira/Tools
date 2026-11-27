@@ -1,0 +1,52 @@
+<div class="card">
+    <h2>Real-Time Pipeline Progress (NDJSON Stream)</h2>
+    @if (Events.Count == 0)
+    {
+        <p style="color: var(--muted); font-size: 0.9rem;">No pipeline telemetry received yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>State</th>
+                    <th>Items (Processed / Received)</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (PipelineProgressEventDto item in LatestByStep)
+                {
+                    <tr>
+                        <td>@item.StepName</td>
+                        <td>
+                            <span class="badge @GetStateClass(item.State)">@item.State</span>
+                        </td>
+                        <td>@item.ProcessedItems / @item.ReceivedItems</td>
+                        <td>@item.ProgressPercentage.ToString("F1")%</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    /// <summary>Gets or sets the list of NDJSON pipeline progress events received so far.</summary>
+    [Parameter]
+    public List<PipelineProgressEventDto> Events { get; set; } = [];
+
+    private List<PipelineProgressEventDto> LatestByStep => Events
+        .GroupBy(e => e.StepName)
+        .Select(g => g.Last())
+        .ToList();
+
+    private static string GetStateClass(string state) => state switch
+    {
+        "Completed" => "badge-ok",
+        "Started" => "badge-info",
+        "Faulted" or "Failed" => "badge-warn",
+        _ => "badge-info"
+    };
+}

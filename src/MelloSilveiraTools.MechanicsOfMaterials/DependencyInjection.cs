@@ -1,5 +1,4 @@
-using MelloSilveiraTools.Core.Providers;
-using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Caching;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
@@ -15,6 +14,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Visco
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
@@ -54,8 +55,6 @@ public static class DependencyInjection
                 .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
                 .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
                 // Register service dependencies.
-                .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>()
-                .AddSingleton<ServiceLocator>()
                 .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>()
                 .AddSingleton<IMechanicalModelCalculatorFactory, MechanicalModelCalculatorFactory>()
                 // Register mechanical-model type resolvers.
@@ -64,7 +63,11 @@ public static class DependencyInjection
                 .AddKeyedSingleton<IMechanicalModelTypeResolver, FungModelTypeResolver>(nameof(MechanicalModel.Fung))
                 .AddKeyedSingleton<IMechanicalModelTypeResolver, SimplifiedFungModelTypeResolver>(nameof(MechanicalModel.SimplifiedFung))
                 .AddKeyedSingleton<IMechanicalModelTypeResolver, SchaperyModelTypeResolver>(nameof(MechanicalModel.Schapery))
-                .AddKeyedSingleton<IMechanicalModelTypeResolver, ModifiedSuperpositionMethodTypeResolver>(nameof(MechanicalModel.ModifiedSuperpositionMethod));
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, ModifiedSuperpositionMethodTypeResolver>(nameof(MechanicalModel.ModifiedSuperpositionMethod))
+                // Register application commands.
+                .AddSingleton<IValidator<ExecuteSpecimenAnalysisRequest>, ExecuteSpecimenAnalysisValidator>()
+                .AddSingleton<GetMechanicalModelsCommand>()
+                .AddSingleton<ExecuteSpecimenAnalysisCommand>();
         }
 
         public IServiceCollection AddMechanicalModels() => services

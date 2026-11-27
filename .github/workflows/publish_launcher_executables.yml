@@ -1,0 +1,254 @@
+# This workflow builds self-contained single-file executables of MelloSilveiraTools.Launcher
+# for Windows (x64, arm64), macOS (x64, arm64), and Linux (x64, arm64), versioned from
+# Directory.Build.props, ensuring at most one published executable bundle per version
+# (both final releases and release candidates) and attaching them to GitHub Releases.
+
+name: Build and publish Launcher executables
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+    paths:
+      - 'Directory.Build.props'
+      - 'src/MelloSilveiraTools.Launcher/**'
+      - 'src/MelloSilveiraTools.Database.Migrator/**'
+      - '.github/workflows/publish_launcher_executables.yml'
+  pull_request:
+    paths:
+      - 'Directory.Build.props'
+      - 'src/MelloSilveiraTools.Launcher/**'
+      - 'src/MelloSilveiraTools.Database.Migrator/**'
+      - '.github/workflows/publish_launcher_executables.yml'
+
+concurrency:
+  group: launcher-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  CONFIGURATION: Release
+  DOTNET_VERSION: 10.x
+  LAUNCHER_PROJECT: src/MelloSilveiraTools.Launcher/MelloSilveiraTools.Launcher.csproj
+
+jobs:
+  resolve-version:
+    name: Resolve Version & Publication Gate
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release_tag: ${{ steps.version.outputs.release_tag }}
+      is_rc: ${{ steps.version.outputs.is_rc }}
+      should_publish: ${{ steps.version.outputs.should_publish }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read VersionPrefix and enforce single publish per version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(grep -oPm1 "(?<=<VersionPrefix>)[^<]+" Directory.Build.props | tr -d '\r' | xargs)
+          if [[ -z "$version" ]]; then
+            echo "::error::Could not extract <VersionPrefix> from Directory.Build.props."
+            exit 1
+          fi
+
+          release_tag="v${version#v}"
+          is_rc="false"
+          if [[ "$version" == *-* || "$version" == *rc* ]]; then
+            is_rc="true"
+          fi
+
+          echo "Detected VersionPrefix: $version (tag=$release_tag, is_rc=$is_rc)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+          echo "is_rc=$is_rc" >> "$GITHUB_OUTPUT"
+
+          # Determine if this trigger is eligible to publish to GitHub Releases:
+          # - Final versions publish only on non-PR refs (main push, tag v*, published release, manual dispatch).
+          # - RC versions publish on PRs (same-repo), develop/main push, tag v*, published release, or manual dispatch.
+          eligible="false"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            if [[ "$is_rc" == "true" && "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]]; then
+              eligible="true"
+            fi
+          else
+            eligible="true"
+          fi
+
+          if [[ "$eligible" != "true" ]]; then
+            echo "Trigger '${{ github.event_name }}' is verification-only for version '$version' (final release requires merge/tag/dispatch). Skipping GitHub Release publish."
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Guarantee at most one executable bundle per version: skip if GitHub Release for this tag
+          # already contains MelloSilveiraTools.Launcher-${version}-* assets.
+          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' 2>/dev/null || true)
+          if echo "$existing_assets" | grep -qF "MelloSilveiraTools.Launcher-${version}-"; then
+            echo "Executables for version '$version' ($release_tag) are already published on GitHub Releases. Skipping duplicate publish."
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "No existing Launcher executables found for '$version' ($release_tag). Publication approved."
+          echo "should_publish=true" >> "$GITHUB_OUTPUT"
+
+  publish-launcher:
+    name: Publish Launcher (${{ matrix.rid }})
+    needs: resolve-version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+            archive_ext: zip
+            binary_name: MelloSilveiraTools.Launcher.exe
+            can_execute_smoke: true
+          - rid: win-arm64
+            os: windows-latest
+            archive_ext: zip
+            binary_name: MelloSilveiraTools.Launcher.exe
+            can_execute_smoke: false
+          - rid: osx-x64
+            os: macos-latest
+            archive_ext: tar.gz
+            binary_name: MelloSilveiraTools.Launcher
+            can_execute_smoke: false
+          - rid: osx-arm64
+            os: macos-latest
+            archive_ext: tar.gz
+            binary_name: MelloSilveiraTools.Launcher
+            can_execute_smoke: true
+          - rid: linux-x64
+            os: ubuntu-latest
+            archive_ext: tar.gz
+            binary_name: MelloSilveiraTools.Launcher
+            can_execute_smoke: true
+          - rid: linux-arm64
+            os: ubuntu-latest
+            archive_ext: tar.gz
+            binary_name: MelloSilveiraTools.Launcher
+            can_execute_smoke: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish self-contained single-file executable (${{ matrix.rid }})
+        run: >
+          dotnet publish "${{ env.LAUNCHER_PROJECT }}"
+          --configuration ${{ env.CONFIGURATION }}
+          --runtime ${{ matrix.rid }}
+          --self-contained true
+          -p:Version=${{ needs.resolve-version.outputs.version }}
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:GeneratePackageOnBuild=false
+          -p:DebugType=none
+          -p:DebugSymbols=false
+          --output "build/launcher/${{ matrix.rid }}"
+
+      - name: Smoke-test native Launcher executable (--help)
+        if: matrix.can_execute_smoke
+        shell: bash
+        run: |
+          chmod +x "build/launcher/${{ matrix.rid }}/${{ matrix.binary_name }}" || true
+          "build/launcher/${{ matrix.rid }}/${{ matrix.binary_name }}" --help
+
+      - name: Package Windows archive (${{ matrix.rid }})
+        if: matrix.archive_ext == 'zip'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build/launcher-dist | Out-Null
+          $archivePath = "build/launcher-dist/MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-${{ matrix.rid }}.zip"
+          Compress-Archive -Path "build/launcher/${{ matrix.rid }}/${{ matrix.binary_name }}" -DestinationPath $archivePath -Force
+
+      - name: Package Unix archive (${{ matrix.rid }})
+        if: matrix.archive_ext == 'tar.gz'
+        shell: bash
+        run: |
+          mkdir -p build/launcher-dist
+          chmod +x "build/launcher/${{ matrix.rid }}/${{ matrix.binary_name }}"
+          tar -czf "build/launcher-dist/MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-${{ matrix.rid }}.tar.gz" -C "build/launcher/${{ matrix.rid }}" "${{ matrix.binary_name }}"
+
+      - name: Upload Launcher artifact (${{ matrix.rid }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-${{ needs.resolve-version.outputs.version }}-${{ matrix.rid }}
+          path: build/launcher-dist/MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-${{ matrix.rid }}.${{ matrix.archive_ext }}
+
+  release-launcher:
+    name: Bundle Checksums & Publish to GitHub Releases
+    needs: [resolve-version, publish-launcher]
+    runs-on: ubuntu-latest
+    if: needs.resolve-version.outputs.should_publish == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all Launcher archives
+        uses: actions/download-artifact@v4
+        with:
+          pattern: launcher-${{ needs.resolve-version.outputs.version }}-*
+          path: build/launcher-release
+          merge-multiple: true
+
+      - name: Generate SHA-256 checksums
+        shell: bash
+        run: |
+          cd build/launcher-release
+          sha256sum "MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-"* > "MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-SHA256SUMS.txt"
+          cat "MelloSilveiraTools.Launcher-${{ needs.resolve-version.outputs.version }}-SHA256SUMS.txt"
+
+      - name: Upload combined release bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-${{ needs.resolve-version.outputs.version }}-all-platforms
+          path: build/launcher-release/
+
+      - name: Guard against concurrent duplicate release assets
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.resolve-version.outputs.version }}"
+          release_tag="${{ needs.resolve-version.outputs.release_tag }}"
+          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' 2>/dev/null || true)
+          if echo "$existing_assets" | grep -qF "MelloSilveiraTools.Launcher-${version}-"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish executables to GitHub Release (RC or Final)
+        if: steps.guard.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.resolve-version.outputs.release_tag }}
+          target_commitish: ${{ github.event.pull_request.head.sha || github.sha }}
+          name: Release ${{ needs.resolve-version.outputs.release_tag }}
+          prerelease: ${{ needs.resolve-version.outputs.is_rc == 'true' }}
+          files: build/launcher-release/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

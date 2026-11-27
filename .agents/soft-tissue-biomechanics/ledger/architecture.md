@@ -1,106 +1,47 @@
-# Planning: Biomechanics Research Agents Ecosystem
-*Living document - last revision: 2026-10-07*
+# Biomechanics Research Agents Architecture
+*Last revision: 2026-11-19 (v7.0 — High-Performance & Low-Cost Hybrid)*
 
-> [!IMPORTANT]
-> This document is the source of truth for the agent ecosystem. Every architectural decision, interface contract, and operation rule is registered here. Always update it when a skill is modified.
+## 1. Core Principles
+- **Scope:** Uniaxial stress-relaxation modeling of isolated porcine knee ligaments (PPEMM/UFCIRJ Master's Thesis, Advisor: Prof. Dr. Paulo Pedro Kenedi) + `MelloSilveiraTools` (.NET 10 / JOSS). *Long-term post-thesis vision:* expand architecture to other soft tissues (e.g., spine) after mastering knee ligaments.
+- **Thermodynamic Context:** Assays are isothermal (negligible temperature variation); invoke thermodynamic potentials (e.g., Helmholtz free energy in Schapery) strictly where required by constitutive formulations.
+- **Data Triad:** (1) Real experimental data, (2) 1D scalar C# engine (`MelloSilveiraTools`, reusable scientific core + research orchestration in `SoftTissue`), (3) 3D tensorial FEA (**FEBio**).
+- **Zero Unnecessary Hops:** Simple tasks (1–3 files, quick builds, single ledger entries) execute directly after mandatory `prompt-optimizer-gatekeeper` alignment — no multi-hop subagent ceremony or `Pre-Execution QA Gate`.
+- **Pass-by-Reference & Zero Filler:** Subagents write deliverables directly to target files and return a compact summary (≤ 150 tokens), eliminating JSON-only bloat and manual `telemetry.jsonl`.
+- **Numerical Precision:** Full `double` precision everywhere except academic prose (`formatting.significant_figures = 3`).
 
----
+## 2. Optimized Workflow & Transversal Governance
+`prompt-optimizer-gatekeeper` → Human Alignment → Direct Execution *(light tasks)* **or** Specialist Subagent with Model Tiering *(parallel/deep/isolated tasks)* → `high-standard-paper-reviewer` *(milestones only, clean context)* → `documentation-and-tracking-secretary` *(end-of-phase audit in `flash`)*.
 
-## 1. Overview and Objective
+- **Analyst → Backend Synergy:** Before proposing new code/infrastructure, the Analyst consults the Backend once on what already exists or can be extended in C# (`MelloSilveiraTools`). All sensitivity studies cover the 4 mandatory 1D scenarios and report RMSE, $R^2$, AIC/BIC, and multi-stage error propagation.
+- **Backend Governance:** Read `AGENTS.md` before every task; update `CHANGELOG.md` on every feature/fix delivery; alter `AGENTS.md` architecture rules, introduce microservices, or permanently purge scientific data only with explicit justification and human approval.
+- **Secretary Critical Directive ("The Why"):** Enforce documenting the **Why** alongside **What** and **From where** for every permanent decision, *future work*, and *opportunity/gap*.
+- **Centralized Human Bridge:** Only the Coordinator/Orchestrator invokes `ask_question`; specialists surface decisions/approvals in their concise handoff.
 
-The ecosystem is composed of **1 Central Orchestrator** and **8 Specialist Agents** that give cadence to the research on the mechanical behavior of porcine soft tissues. **Strict Current Scope:** Porcine knee ligaments (Master's thesis). **Long-term Vision:** Expanding the architecture to other soft tissues (e.g., spine) is a future goal for the research group, post-thesis.
+## 3. Agents Roster & Model Tiering
 
-**System Architecture & Strategy:** The ecosystem is designed to accelerate research rather than compete with established FEA software. It is divided into: 1) **Frontend** (dynamic plotting, interactive visual comparison); 2) **Backend** (business logic strictly separated into reusable logic in `MelloSilveiraTools` and research-specific orchestration in `SoftTissue`); and 3) **Database** (persistence).
-**Theoretical Evolution:** The internal C# computational engine will remain **scalar (1D)** to completely avoid the overhead of implementing complex finite element logic (e.g., mesh generation). The definitive output for the frontend visualizer will always contrast 3 data sources: (1) Real experimental data, (2) Scalar numerical simulation (C# Engine), and (3) 3D Tensorial numerical simulation (Open-source software, preferably FEBio).
-
-**Thermodynamic Context:** the research is not focused on thermodynamics (negligible temperature variation in ligaments). Only thermodynamic concepts used in the formulation of non-linear and hyperelastic models (e.g., Schapery) are considered.
-
-**Design Principles:**
-- **Numerical Precision:** only the Writer rounds numbers, and only in text (`formatting.significant_figures` = 3). Everything else, including `data_payload` and Ledger, uses full precision.
-- **Orchestrator Isolation:** the Orchestrator only plans and delegates, even light tasks.
-- **Total Traceability:** every output follows the JSON contract; the Orchestrator logs telemetry and the Secretary logs the Ledger.
-- **Centralized Human Approval:** only the Orchestrator uses `ask_question`.
-- **Incremental Backend:** new features over the existing system; only the deploy pipeline is created from scratch. `AGENTS.md` is mandatory and `CHANGELOG.md` is always updated.
-
----
-
-## 2. Topology
-
-The ecosystem strictly enforces a **Pre-Execution Justification and QA Gate**:
-1. **Strategy Proposal:** Before executing any actual work (e.g., writing code, processing data), the assigned subagent MUST present a justification and strategy of what will be done.
-2. **Evaluation:** The Secretary reviews this strategy. Then, the Orchestrator evaluates it alongside the Human User.
-3. **Execution:** ONLY after explicit approval from the Human User is the subagent allowed to proceed with the execution.
-
-The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inherit"`) and, in the `Prompt`, instructs each to read the persona's `SKILL.md` in `paths.skills_directory`.
-
-*Orchestrator -> Subagent (Strategy Proposal) -> Secretary (Strategy QA) -> Human (Approval) -> Subagent (Execution) -> JSON -> Telemetry -> Save JSON to `outputs/` folder -> (Reviewer, if text) -> Secretary (QA + Ledger) -> Synthesis to human.*
-
----
-
-## 3. Agents Roster
-
-| Skill (canonical name) | Role |
-|---|---|
-| `central-biomechanics-research-orchestrator` | Macro/micro planning, delegation, `ask_question`, telemetry, PDF policy. |
-| `documentation-and-tracking-secretary` | Traceability QA and Ledger (What / From where / Why), including future works and opportunities. |
-| `senior-applied-biomechanics-researcher-deep-research` | Deep research with real sources and DOI; validates trends and factual statements. |
-| `experimental-data-analyst` | Data processing, constitutive fitting, sensitivity (4 scenarios), RMSE/$R^2$ and error propagation, in consensus with the Backend. |
-| `academic-writer-biomechanics-specialist` | Academic writing; the only one who rounds numbers (in text). |
-| `high-standard-paper-reviewer` | Scientific and textual criticism in an actionable format. |
-| `biomechanics-co-advisor` | Scope guardian, trends (with Researcher backing), AI/ML only with precedents. |
-| `senior-backend-software-engineer-net` | C#/.NET 10/PostgreSQL incremental; Analyst's consultant; CI/CD from scratch. |
-| `senior-frontend-mobile-software-engineer` | Frontend prioritizing .NET synergy and WebGL/Canvas graphics. |
-
----
-
-## 4. Contracts and Telemetry (`.\.agents\soft-tissue-biomechanics\config.yaml`)
-
-- **Standard output:** `contracts.standard_json_output` (`task_id`, `skill`, `status`, `retry_count`, `data_payload`, `output_summary`, `artifacts`, `warnings`).
-- **Rejection feedback:** `actionable_feedback` with `contracts.actionable_feedback_item` items.
-- **Telemetry:** `contracts.telemetry_line` appended to `paths.telemetry_file`.
-- **Ledger:** `paths.ledger_file`.
-
----
-
-## 5. Transversal Rules
-
-### 5.1 Orchestrator and Human Flow
-- Never executes specialized tasks.
-- Always creates a Macro Planning with the human and divides it into Micro Plannings.
-- **Circuit Breaker:** after `execution.max_retries` failures (including timeout of `execution.micro_timeout_seconds`), consults the human.
-- **PDF:** stops and asks the human; if denied, waits for another format; if authorized, delegates conversion (`paths.pdf_converter_script`).
-
-### 5.2 Analyst -> Backend Synergy
-- The Analyst does not reinvent the wheel: before proposing something new, asks **once** (via Orchestrator) for the Backend's analysis on what can be used, extended, or implemented in C#.
-- Flow: Analyst -> Backend -> Analyst consolidates -> Orchestrator -> human decides.
-- Mandatory sensitivity: stress x variable (initial time), stress x variable (final time), asymptote time x variable, stress variation x variable (Strictly mandated for the scalar 1D formulation).
-- Metrics: RMSE and $R^2$, with consolidated error/precision across steps (e.g., 4 steps of Schapery fitting).
-
-### 5.3 Backend Governance
-- Reads `AGENTS.md` before any task; new/altered architectural decisions update `AGENTS.md` after human approval.
-- `CHANGELOG.md` updated in every delivery.
-- Microservices and definitive deletion of scientific data only with justification, explicit functionality, and human approval.
-
-### 5.4 Secretary
-- Registers current decisions, **future works** and **opportunities/breaches**.
-- **CRITICAL DIRECTIVE:** The Secretary MUST enforce the documentation of the "Why" at every single step. No architectural, methodological, or technical decision is accepted without explicit, documented reasoning (e.g., explicitly noting that C# was chosen due to the need for automation and the researcher's existing expertise). The justification is strictly more important than the action itself.
-
-### 5.5 Absolute Prohibitions
-- ❌ Executing custom research system codes (Backend, Frontend, Database, Python Scripts) directly on the Host operating system. These MUST run isolated in Docker containers. *(Exception: Third-party native technologies like FEBio and C++ compilers must be installed on the host and documented as dependencies).*
-- ❌ Inventing links, DOIs, or references.
-- ❌ Rounding numbers outside the text written by the Writer.
-- ❌ Specialists using `ask_question` directly.
-- ❌ Orchestrator executing or converting any content.
-
----
-
-## 6. Revision History
-
-| Date | Version | Changes |
+| Skill (canonical name) | Tier | Role & Trigger |
 |---|---|---|
-| 2026-10-02 | v1.0 | Initial creation of the architecture. |
-| 2026-10-02 | v2.0 | Fixes FR-01 to FR-07 and Planning. |
-| 2026-10-03 | v3.0 | Numerical precision, Isolated Orchestrator, knee ligament focus, incremental backend. |
-| 2026-10-05 | v4.0 | Alignment of roster and prohibitions to skills; thermodynamic context; centralized schemas. |
-| 2026-10-05 | v5.0 | English standardization across all files. |
-| 2026-10-07 | v6.0 | Pivot to strictly porcine uniaxial tension. Open-source FEBio/C++ host exception. 5th model included. UI/Python graphing division defined. |
+| `prompt-optimizer-gatekeeper` *(shared)* | `flash` / `inherit` | **Mandatory entry gate:** audits gaps/flaws, asks surgical questions, outputs compact prompt + target skill/tier/files. |
+| `central-biomechanics-research-orchestrator` | `inherit` | Multi-step Macro/Micro planning, parallel subagent delegation (`Workspace: "inherit"`), `ask_question`, PDF policy (direct execution allowed for light tasks). |
+| `biomechanics-co-advisor` | `inherit` / `pro` | Scope/deadline guardian (uniaxial knee ligaments), research direction, actionable 1–3 step plans. |
+| `senior-applied-biomechanics-researcher-deep-research` | `flash` / `pro` | Web search (CAPES/PubMed/ScienceDirect) + CrossRef DOI validation; autonomous multi-hop funnel; writes directly to `base-literature/`. |
+| `experimental-data-analyst` | `inherit` | Constitutive fitting logic, 4-scenario OAAT sensitivity, RMSE/$R^2$/AIC/BIC & error propagation, Dockerized Python plots. |
+| `senior-backend-software-engineer-net` | `inherit` / `pro` | Incremental C#/.NET 10, PostgreSQL, FEBio/UDM, CI/CD & Docker from scratch, `dotnet build/test`, `CHANGELOG.md`. |
+| `senior-frontend-mobile-software-engineer` | `inherit` | Accessible minimalist UI (Blazor/MAUI/Uno .NET synergy, WebGL/Canvas), NDJSON streaming, zero business rules on edge, Docker. |
+| `academic-writer-biomechanics-specialist` | `pro` | Thesis chapters (PPEMM/UFCIRJ) & JOSS/journal manuscripts; 3 sig. figs. in prose, mandatory page-cited equations. |
+| `high-standard-paper-reviewer` | `pro` | Blind critical review of chapters/papers (**milestones only**, clean context, complete prioritized actionable list). |
+| `documentation-and-tracking-secretary` | `flash` | **End-of-phase** Ledger QA (`What / From where / Why`) for decisions, `future-works.md`, and `Opportunity/Gap` records. |
+
+## 4. Absolute Prohibitions
+- ❌ Fabricating DOIs, URLs, citations, or test results.
+- ❌ Running custom research Python/API/DB/Frontend stacks directly on the host *(must run in Docker; exception: native host FEBio / C++ compiler documented as dependency)*.
+- ❌ Rounding numbers outside Writer prose.
+- ❌ Specialists calling `ask_question` directly.
+- ❌ Modifying `AGENTS.md` architecture rules or deleting scientific data without explicit human approval.
+
+## 5. Revision History
+| Date | Version | Summary |
+|---|---|---|
+| 2026-10-02 – 2026-10-05 | v1.0 – v5.0 | Initial ecosystem, FR-01–FR-07 fixes, numerical precision & knee-ligament focus, thermodynamic context, English standardization. |
+| 2026-10-07 | v6.0 | Pivot to isolated porcine uniaxial tension, open-source FEBio/C++ host exception, HGO/5th-model roadmap, UI vs. Python plotting split. |
+| 2026-11-19 | v7.0 | Shared `prompt-optimizer-gatekeeper`, Model Tiering, Pass-by-Reference (replacing JSON-only/telemetry bloat), consolidated thesis & JOSS guides. |

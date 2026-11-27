@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
@@ -17,4 +18,12 @@ public interface IRootFinding
     /// <returns>The root of the continuous function and its error.</returns>
     /// <exception cref="NonConvergenceException">When it was not possible to converge to a value.</exception>
     (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function);
+
+    /// <summary>
+    /// Attempts to find the root of a continuous <paramref name="function"/> within the interval specified in <paramref name="input"/> without throwing an exception when convergence fails.
+    /// </summary>
+    /// <param name="input">Contains the inputs for the root-finding algorithm.</param>
+    /// <param name="function">Represents the continuous function.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the approximate root and its residual error on success, or failure details when convergence fails.</returns>
+    Result<(double Root, double Error)> TryFindRoot(RootFindingInput input, Func<double, double> function);
 }

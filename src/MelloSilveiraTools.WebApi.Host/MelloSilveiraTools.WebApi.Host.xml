@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.WebApi.Host</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand">
+            <summary>
+            Lists all pre-bundled sample dataset files stored via <c>AddStorageEntryCommand</c>,
+            returning a <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.StorageEntryResultData"/> entry for each sample file so callers can download them
+            directly through <c>GET /api/v1/storage-entry-metadata/{fileId}/download</c>.
+            </summary>
+            <param name="readStorageEntriesCommand">Command used to query stored file entries and metadata.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand.#ctor(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand)">
+            <summary>
+            Lists all pre-bundled sample dataset files stored via <c>AddStorageEntryCommand</c>,
+            returning a <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.StorageEntryResultData"/> entry for each sample file so callers can download them
+            directly through <c>GET /api/v1/storage-entry-metadata/{fileId}/download</c>.
+            </summary>
+            <param name="readStorageEntriesCommand">Command used to query stored file entries and metadata.</param>
+        </member>
+        <member name="F:MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand.SampleIdentifier">
+            <summary>
+            External correlation identifier assigned to bundled sample datasets.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand.SampleContext">
+            <summary>
+            Storage context partition under which bundled sample datasets are uploaded on startup.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Host.Controllers.SamplesController">
+            <summary>
+            Exposes pre-bundled knee ligament experimental datasets stored in the application.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Controllers.SamplesController.GetSamples(MelloSilveiraTools.WebApi.Host.Commands.GetSampleDatasetsCommand,System.Threading.CancellationToken)">
+            <summary>
+            Lists all pre-bundled sample dataset files as <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.StorageEntryResultData"/> entries.
+            </summary>
+            <param name="command">Command that retrieves stored sample dataset entries.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Stored sample entries wrapped in <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Host.Endpoints.SamplesEndpoints">
+            <summary>
+            Maps the same pre-bundled sample dataset surface as <see cref="T:MelloSilveiraTools.WebApi.Host.Controllers.SamplesController"/>
+            using minimal APIs.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Endpoints.SamplesEndpoints.MapSamplesEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps the bundled sample dataset listing endpoint under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/samples"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain authorization or tags.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Host.Services.SampleDatasetsStartupSeeder">
+            <summary>
+            Hosted service that bootstraps the configured superuser account on startup and,
+            when <see cref="P:MelloSilveiraTools.WebApi.Host.Settings.UploadSampleDatasetsOnStartup"/> is enabled, uploads bundled CSV files
+            from <c>SamplesData/</c> as public storage entries (<c>user_id IS NULL</c>) under the superuser context.
+            </summary>
+            <param name="logger">Structured logger for startup seeding diagnostics.</param>
+            <param name="encryptionService">Scope factory used to resolve scoped services such as <see cref="T:MelloSilveiraTools.Core.Services.Encryption.IEncryptionService"/>.</param>
+            <param name="repository">Relational repository used to ensure the superuser account exists.</param>
+            <param name="currentUserProvider">User context provider used to establish the superuser RLS scope during sample upload.</param>
+            <param name="addStorageEntryCommand">Command used to store each sample file and persist its metadata.</param>
+            <param name="readStorageEntriesCommand">Command used to check for already-uploaded sample files for idempotency.</param>
+            <param name="settings">Host settings carrying superuser credentials and sample-seeding flags.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Services.SampleDatasetsStartupSeeder.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Host.Services.SampleDatasetsStartupSeeder},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Security.ICurrentUserProvider,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand,MelloSilveiraTools.WebApi.Host.Settings)">
+            <summary>
+            Hosted service that bootstraps the configured superuser account on startup and,
+            when <see cref="P:MelloSilveiraTools.WebApi.Host.Settings.UploadSampleDatasetsOnStartup"/> is enabled, uploads bundled CSV files
+            from <c>SamplesData/</c> as public storage entries (<c>user_id IS NULL</c>) under the superuser context.
+            </summary>
+            <param name="logger">Structured logger for startup seeding diagnostics.</param>
+            <param name="encryptionService">Scope factory used to resolve scoped services such as <see cref="T:MelloSilveiraTools.Core.Services.Encryption.IEncryptionService"/>.</param>
+            <param name="repository">Relational repository used to ensure the superuser account exists.</param>
+            <param name="currentUserProvider">User context provider used to establish the superuser RLS scope during sample upload.</param>
+            <param name="addStorageEntryCommand">Command used to store each sample file and persist its metadata.</param>
+            <param name="readStorageEntriesCommand">Command used to check for already-uploaded sample files for idempotency.</param>
+            <param name="settings">Host settings carrying superuser credentials and sample-seeding flags.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Services.SampleDatasetsStartupSeeder.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Services.SampleDatasetsStartupSeeder.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Host.SuperuserSettings">
+            <summary>
+            Credentials for bootstrapping the application superuser account on startup.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.SuperuserSettings.Username">
+            <summary>
+            Gets the unique username for the application superuser.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.SuperuserSettings.Password">
+            <summary>
+            Gets the plaintext password secret for bootstrapping the superuser (stored hashed via PBKDF2 in PostgreSQL).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Host.Settings">
+            <summary>
+            Root strongly-typed configuration settings for <c>MelloSilveiraTools.WebApi.Host</c>,
+            aggregating every required and optional settings contract needed to bootstrap the application.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.DefaultResiliencePipeline">
+            <summary>
+            Gets the default Polly v8 resilience pipeline settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Database">
+            <summary>
+            Gets the PostgreSQL database connection and timeout settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Encryption">
+            <summary>
+            Gets the PBKDF2 password hashing and encryption settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.FileStorage">
+            <summary>
+            Gets the file storage provider settings (Local, DFS, BlobStorage, AwsS3).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.CurveFitter">
+            <summary>
+            Gets the curve fitter engine and deterministic seed settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.ExperimentalData">
+            <summary>
+            Gets the experimental data processing pipeline topology and upload limit settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.ParametricSweep">
+            <summary>
+            Gets the parametric sensitivity sweep pipeline settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.PipelineProgressNotifier">
+            <summary>
+            Gets the real-time pipeline progress notifier channel settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Jwt">
+            <summary>
+            Gets the JWE / JWT authentication settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Superuser">
+            <summary>
+            Gets the superuser account credentials seeded on startup.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.AddMechanicalModels">
+            <summary>
+            Gets whether mechanical constitutive model calculators should be registered in DI.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.UploadSampleDatasetsOnStartup">
+            <summary>
+            Gets whether bundled sample CSV datasets should be uploaded via <c>AddStorageEntryCommand</c> during application startup.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.AllowedCorsOrigins">
+            <summary>
+            Gets the allowed CORS origins. When empty in Development, all origins are permitted;
+            in non-Development environments, only explicitly listed origins are allowed.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Plugins">
+            <summary>
+            Gets the dynamic plugin runtime settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Email">
+            <summary>
+            Gets optional SMTP email service settings.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Host.Settings.Logger">
+            <summary>
+            Gets optional Serilog multi-sink logger settings.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Host.Settings.Validate(System.Boolean)">
+            <summary>
+            Validates critical runtime prerequisites eagerly before building the application container.
+            </summary>
+            <param name="isDevelopment">When <see langword="false"/>, rejects known quickstart placeholder secrets.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result"/> indicating whether all required settings are valid, or listing every validation failure.</returns>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>

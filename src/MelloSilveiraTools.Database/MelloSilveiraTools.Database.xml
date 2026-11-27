@@ -9,28 +9,73 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseHealthCheck(Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseHealthCheck(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)">
             <summary>
-            Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
+            Creates an AOT-compatible <see cref="T:Npgsql.NpgsqlDataSource"/> using <see cref="T:Npgsql.NpgsqlSlimDataSourceBuilder"/>
+            with TLS/SSL transport security and PostgreSQL array support enabled, wired into the supplied
+            <see cref="T:Microsoft.Extensions.Logging.ILoggerFactory"/> while keeping parameter logging disabled for security.
             </summary>
+            <param name="databaseSettings">Database settings containing the PostgreSQL connection string.</param>
+            <param name="loggerFactory">Optional logger factory for Npgsql connection and pool diagnostics.</param>
+            <returns>A configured <see cref="T:Npgsql.NpgsqlDataSource"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers ASP.NET Core native health checks with <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> configured
+            using <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+            </summary>
+            <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+            <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <summary>
+            Registers database services as singletons: <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings"/>, an AOT-friendly
+            <see cref="T:Npgsql.NpgsqlDataSource"/> built via <see cref="T:Npgsql.NpgsqlSlimDataSourceBuilder"/>,
+            <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>, and <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            The DI container owns the <see cref="T:Npgsql.NpgsqlDataSource"/> lifetime and disposes its connection pool on shutdown.
+            </summary>
+            <remarks>
+            <see cref="T:Npgsql.NpgsqlDataSource"/> is registered explicitly via <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)"/> instead of
+            <c>AddNpgsqlDataSource</c> for four architectural reasons:
+            <list type="number">
+            <item><description><b>Minimal dependencies:</b> on Npgsql 10.x, <c>AddNpgsqlDataSource</c> requires the separate <c>Npgsql.DependencyInjection</c> NuGet package.</description></item>
+            <item><description><b>Native AOT &amp; trimming:</b> <c>AddNpgsqlDataSource</c> instantiates the full <see cref="T:Npgsql.NpgsqlDataSourceBuilder"/>, pulling default codecs (geometry, network, full-text search, etc.), whereas <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)"/> uses the pay-per-play <see cref="T:Npgsql.NpgsqlSlimDataSourceBuilder"/>.</description></item>
+            <item><description><b>RLS &amp; resilience boundary:</b> <c>AddNpgsqlDataSource</c> also registers <see cref="T:Npgsql.NpgsqlConnection"/> and <c>DbConnection</c> directly in DI, which could encourage bypassing <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository"/> and its transactional Row-Level Security (<c>SET LOCAL</c>) + Polly v8 execution pipeline.</description></item>
+            <item><description><b>Same DI lifetime &amp; test reuse:</b> registering the factory as a singleton gives the DI container full ownership of disposal on shutdown while allowing tests to call <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)"/> directly without building a service provider.</description></item>
+            </list>
+            </remarks>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
-            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
-            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers ASP.NET Core native health checks with <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> configured
+            using <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+            </summary>
+            <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> so callers can chain additional services.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
             <summary>
-            Contains extension methods for class.
+            Contains Native AOT-compatible extension methods for mapping entities and filters to typed <see cref="T:Npgsql.NpgsqlParameter"/> collections.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
             <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters"/>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
             <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters"/>
@@ -41,70 +86,49 @@
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
             <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection"/>
         </member>
-        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.&lt;M&gt;$9693FCD04DC098E818044F36B6B87842">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetCustomValue(System.Reflection.PropertyInfo,System.Object)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$A68E0825C8469CCB2F38F50C7F6F03AB.GetCustomValue(System.Object)"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.&lt;M&gt;$375380368E3E42D52D9D261431ED7F06">
             <summary>
             Contains extension methods for class instances.
             </summary>
             <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
+            <param name="obj">Target entity or filter instance.</param>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)">
             <summary>
-            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            Builds a sequence of strongly-typed <see cref="T:Npgsql.NpgsqlParameter"/> instances from <c>[Column]</c>-annotated properties.
             </summary>
-            <param name="useDeclaredProperties"></param>
-            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters">
-            <summary>
-            Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
-            </summary>
-            <returns></returns>
+            <param name="useDeclaredProperties">When <see langword="true"/>, inspects only declared properties (plus <c>UserId</c> for user-scoped entities).</param>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="T:Npgsql.NpgsqlParameter"/> instances.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters">
             <summary>
-            Builds a SQL WHERE clause and a list of <see cref="T:Npgsql.NpgsqlParameter"/> based on filter.
+            Builds a parameterized SQL <c>WHERE</c> clause and its corresponding strongly-typed <see cref="T:Npgsql.NpgsqlParameter"/> list from a filter object.
             </summary>
-            <returns></returns>
+            <returns>A tuple containing the SQL <c>WHERE</c> clause (or <see langword="null"/> when empty) and the bound <see cref="T:Npgsql.NpgsqlParameter"/> list.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$C43E2675C7BBF9284AF22FB8A9BF0280.SetValues``1(System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
             <summary>
-            Sets the values in objects using reflection.
+            Sets property values on <paramref name="obj"/> by property name.
             </summary>
-            <param name="type"></param>
-            <param name="valuesGroupedByPropertyName"></param>
+            <typeparam name="T">Value type stored in the dictionary.</typeparam>
+            <param name="type">Target runtime type whose public properties are preserved for trimming and Native AOT.</param>
+            <param name="valuesGroupedByPropertyName">Map of property names to values to assign.</param>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection">
             <summary>
-            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            Builds a 1-based suffixed (<c>_1</c>, <c>_2</c>, ...) sequence of strongly-typed <see cref="T:Npgsql.NpgsqlParameter"/> instances for bulk operations.
             </summary>
-            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="T:Npgsql.NpgsqlParameter"/> instances.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$A68E0825C8469CCB2F38F50C7F6F03AB.GetCustomValue(System.Object)">
             <summary>
-            Constains extension methods for <see cref="T:System.Data.Common.DbDataReader"/>.
+            Gets the value of the property for the specified object, converting it to an <see cref="T:System.Int32"/> if it is an <see cref="T:System.Enum"/>.
             </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1">
-            <summary>
-            Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object.
-            </summary>
-            <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
-            <summary>
-            Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object using a cache to store property info of object.
-            </summary>
-            <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <param name="propertyInfoCache"></param>
-            <returns></returns>
+            <param name="obj">The object whose property value will be returned.</param>
+            <returns>The property value, or its integer representation if the value is an <see cref="T:System.Enum"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions">
             <summary>
@@ -119,6 +143,109 @@
             Converts a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchCommandExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlBatchCommand"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchCommandExtensions.SetCommandParameters(Npgsql.NpgsqlBatchCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchCommandExtensions.&lt;G&gt;$C09E19A3D58782A2DF2F3249524A0B3C.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchCommandExtensions.&lt;G&gt;$C09E19A3D58782A2DF2F3249524A0B3C.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)">
+            <summary>
+            Adds all <see cref="T:Npgsql.NpgsqlParameter"/> instances from <paramref name="parameters"/> to the batch command,
+            optionally binding detached <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies for retry-safe execution.
+            </summary>
+            <param name="parameters">Parameters to bind to the batch command.</param>
+            <param name="cloneParameters">
+            When <see langword="true"/>, binds detached <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies so retries reuse
+            pre-built parameters without parameter-collection ownership conflicts.
+            </param>
+            <returns>The same <see cref="T:Npgsql.NpgsqlBatchCommand"/> instance for call chaining.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions">
+            <summary>
+            Contains fluent command composition, RLS scoping, and Native AOT-compatible execution extensions for <see cref="T:Npgsql.NpgsqlBatch"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.AddCommand(Npgsql.NpgsqlBatch,System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.AddCommand(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.AddUserContext(Npgsql.NpgsqlBatch,System.Nullable{System.Int64})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.AddUserContext(System.Nullable{System.Int64})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlBatch,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.ExecuteScalarAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlBatch,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.QueryFirstOrDefaultAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.StreamAsync``1(Npgsql.NpgsqlBatch,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.StreamAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.ExecuteNonQueryRowsAsync(Npgsql.NpgsqlBatch,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.ExecuteNonQueryRowsAsync(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.AddCommand(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Boolean)">
+            <summary>
+            Appends a command executing <paramref name="sql"/> with optional <paramref name="parameters"/> to <paramref name="batch"/>.
+            </summary>
+            <param name="sql">PostgreSQL statement to append to the batch.</param>
+            <param name="parameters">Optional parameters to bind to the command.</param>
+            <param name="cloneParameters">
+            When <see langword="true"/>, binds detached <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies for retry-safe execution.
+            </param>
+            <returns>The same <see cref="T:Npgsql.NpgsqlBatch"/> instance for call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.AddUserContext(System.Nullable{System.Int64})">
+            <summary>
+            Appends a transaction-local PostgreSQL RLS context command
+            (<c>SELECT set_config('app.current_user_id', @UserId, true)</c>) to <paramref name="batch"/>.
+            PostgreSQL resets <c>app.current_user_id</c> automatically at the end of the batch's implicit transaction block.
+            </summary>
+            <param name="userId">Active user identifier, or <see langword="null"/> for anonymous (public) access.</param>
+            <returns>The same <see cref="T:Npgsql.NpgsqlBatch"/> instance for call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.ExecuteScalarAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes <paramref name="batch"/>, advances to <paramref name="resultSetIndex"/>, and converts
+            the first column of the first row to <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Expected scalar return type.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set (e.g. <c>1</c> when preceded by <c>AddUserContext</c>).</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous execution.</param>
+            <returns>The converted scalar value, or <c>default</c> when the target result set is empty or SQL <c>NULL</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.QueryFirstOrDefaultAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes <paramref name="batch"/>, advances to <paramref name="resultSetIndex"/>, and materializes
+            the first row as <typeparamref name="T"/>, or returns <see langword="null"/> when no rows match.
+            </summary>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set (e.g. <c>1</c> when preceded by <c>AddUserContext</c>).</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous execution.</param>
+            <returns>The first mapped entity, or <see langword="null"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.StreamAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes <paramref name="batch"/>, advances to <paramref name="resultSetIndex"/>, and streams
+            materialized <typeparamref name="T"/> instances while deterministically disposing the underlying reader.
+            </summary>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set (e.g. <c>1</c> when preceded by <c>AddUserContext</c>).</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous stream.</param>
+            <returns>An asynchronous stream of mapped entities.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlBatchExtensions.&lt;G&gt;$9A6EFEF0206F745485771223D131B669.ExecuteNonQueryRowsAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes <paramref name="batch"/> as a non-query and returns the affected row count reported for
+            the command at <paramref name="commandIndex"/>.
+            </summary>
+            <param name="commandIndex">Zero-based index of the target command inside <see cref="P:Npgsql.NpgsqlBatch.BatchCommands"/>.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous execution.</param>
+            <returns>The number of rows affected by the command at <paramref name="commandIndex"/>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="commandIndex"/> is outside <see cref="P:Npgsql.NpgsqlBatch.BatchCommands"/>.</exception>
+        </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions">
             <summary>
             Contains extension methods for <see cref="T:Npgsql.NpgsqlCommand"/>.
@@ -132,121 +259,195 @@
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParametersFromEntity``1(``0)">
             <summary>
-            Sets the parameter for sql command.
+            Adds strongly-typed <see cref="T:Npgsql.NpgsqlParameter"/> entries derived from <c>[Column]</c>-annotated properties of <paramref name="entity"/>.
             </summary>
-            <typeparam name="TEntity"></typeparam>
-            <param name="entity"></param>
-            <returns></returns>
+            <typeparam name="TEntity">Entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="entity">Entity instance providing parameter values.</param>
+            <returns>The same <see cref="T:Npgsql.NpgsqlCommand"/> instance for call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
             <summary>
-            Sets the parameter for sql command.
+            Adds all <see cref="T:Npgsql.NpgsqlParameter"/> instances from <paramref name="parameters"/> to the command.
             </summary>
-            <param name="parameters"></param>
-            <returns></returns>
+            <param name="parameters">Parameters to bind to the command.</param>
+            <returns>The same <see cref="T:Npgsql.NpgsqlCommand"/> instance for call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions">
             <summary>
-            Contains extension methods for <see cref="T:Npgsql.NpgsqlConnection"/>.
+            Contains pure-Npgsql, Native AOT-compatible query and scalar execution extensions for <see cref="T:Npgsql.NpgsqlConnection"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.StreamAsync``1(Npgsql.NpgsqlConnection,System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.StreamAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)"/>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.&lt;M&gt;$7E08B0497304926E2C845BC43C5B1B93">
             <summary>
             Contains extension methods for <see cref="T:Npgsql.NpgsqlConnection"/> instances.
             </summary>
-            <param name="connection">Connection to query on.</param>
+            <param name="connection">Opened PostgreSQL connection to execute statements on.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
             <summary>
-            Executes a query, returning the data typed as <typeparamref name="T"/>.
+            Executes a parameterized SQL query and materializes the first row as <typeparamref name="T"/>,
+            or returns <see langword="null"/> when no rows match.
             </summary>
-            <typeparam name="T">Type of results to return.</typeparam>
-            <param name="sql">Text query to be executed.</param>
-            <param name="parameters">The parameters for this command.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>
-            A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
-            otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
-            </returns>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+            <param name="parameters">Optional <see cref="T:Npgsql.NpgsqlParameter"/> collection to bind to the command.</param>
+            <param name="commandTimeout">Optional command timeout in seconds.</param>
+            <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous query.</param>
+            <returns>The first mapped entity, or <see langword="null"/> if no rows are returned.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
             <summary>
-            Executes a query, returning the data typed as <typeparamref name="T"/>.
+            Executes a parameterized SQL query and materializes every returned row into a list of <typeparamref name="T"/>.
             </summary>
-            <typeparam name="T">Type of results to return.</typeparam>
-            <param name="sql">Text query to be executed.</param>
-            <param name="parameters">The parameters for this command.</param>
-            <param name="commandTimeout">Number of seconds before command execution timeout.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>
-            A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
-            otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
-            </returns>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+            <param name="parameters">Optional <see cref="T:Npgsql.NpgsqlParameter"/> collection to bind to the command.</param>
+            <param name="commandTimeout">Optional command timeout in seconds.</param>
+            <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous query.</param>
+            <returns>A list containing all mapped entities.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.StreamAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
             <summary>
-            Execute a query asynchronously using Task.
+            Streams rows returned by a parameterized SQL query and materializes each row as <typeparamref name="T"/>,
+            deterministically disposing both the <see cref="T:Npgsql.NpgsqlCommand"/> and <see cref="T:Npgsql.NpgsqlDataReader"/>.
             </summary>
-            <typeparam name="T">Type of results to return.</typeparam>
-            <param name="sql">Text query to be executed.</param>
-            <param name="parameters">The parameters for this command.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>
-            A sequence of data of <typeparamref name="T"/>; if a basic type (int, string, etc) is queried then the data from the first column is assumed, otherwise an instance is
-            created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
-            </returns>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+            <param name="parameters">Optional <see cref="T:Npgsql.NpgsqlParameter"/> collection to bind to the command.</param>
+            <param name="commandTimeout">Optional command timeout in seconds.</param>
+            <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous stream.</param>
+            <returns>An asynchronous stream of mapped entities.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},Npgsql.NpgsqlTransaction,System.Threading.CancellationToken)">
             <summary>
-            Execute parameterized SQL that selects a single value.
+            Executes a parameterized SQL query and converts the first column of the first row to <typeparamref name="T"/>.
             </summary>
-            <typeparam name="T">The type to return.</typeparam>
-            <param name="sql">The SQL to execute.</param>
-            <param name="parameters">The parameters to use for this command.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
+            <typeparam name="T">Expected scalar return type.</typeparam>
+            <param name="sql">Parameterized PostgreSQL statement to execute.</param>
+            <param name="parameters">Optional <see cref="T:Npgsql.NpgsqlParameter"/> collection to bind to the command.</param>
+            <param name="commandTimeout">Optional command timeout in seconds.</param>
+            <param name="transaction">Optional active PostgreSQL transaction enclosing the command.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous command.</param>
+            <returns>The converted scalar value, or <c>default</c> when the query returns no rows or SQL <c>NULL</c>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions">
             <summary>
-            Execute parameterized SQL that selects a single value.
+            Contains Native AOT-compatible result-set navigation and materialization extensions for <see cref="T:Npgsql.NpgsqlDataReader"/>.
             </summary>
-            <typeparam name="T">The type to return.</typeparam>
-            <param name="sql">The SQL to execute.</param>
-            <param name="parameters">The parameters to use for this command.</param>
-            <param name="commandTimeout">Number of seconds before command execution timeout.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.AdvanceToResultSetAsync(Npgsql.NpgsqlDataReader,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.AdvanceToResultSetAsync(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.ReadScalarAsync``1(Npgsql.NpgsqlDataReader,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.ReadScalarAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.ReadFirstOrDefaultAsync``1(Npgsql.NpgsqlDataReader,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.ReadFirstOrDefaultAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.StreamAsync``1(Npgsql.NpgsqlDataReader,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.StreamAsync``1(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.AdvanceToResultSetAsync(System.Int32,System.Threading.CancellationToken)">
             <summary>
-            Execute parameterized SQL and return an <see cref="T:System.Data.IDataReader"/>.
+            Advances <paramref name="reader"/> forward by <paramref name="resultSetIndex"/> result sets using
+            <see cref="M:Npgsql.NpgsqlDataReader.NextResultAsync(System.Threading.CancellationToken)"/>.
             </summary>
-            <param name="sql">The SQL to execute.</param>
-            <param name="parameters">The parameters to use for this command.</param>
-            <param name="cancellationToken">Cancellation token for this command.</param>
-            <returns>An <see cref="T:System.Data.IDataReader"/> that can be used to iterate over the results of the SQL query.</returns>
-            <remarks>
-            This is typically used when the results of a query are not processed by Dapper, for example, used to fill a <see cref="T:System.Data.DataTable"/>
-            or <see cref="T:DataSet"/>.
-            </remarks>
+            <param name="resultSetIndex">Zero-based index of the target result set.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous advance.</param>
+            <returns><see langword="true"/> if the target result set is available; otherwise <see langword="false"/>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="resultSetIndex"/> is negative.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.ReadScalarAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Advances to <paramref name="resultSetIndex"/> and reads the first column of the first row converted to <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Expected scalar return type.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous read.</param>
+            <returns>The converted scalar value, or <c>default</c> when the result set is missing, empty, or SQL <c>NULL</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.ReadFirstOrDefaultAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Advances to <paramref name="resultSetIndex"/> and materializes the first row as <typeparamref name="T"/>,
+            or returns <see langword="null"/> when no row is available or the first column is SQL <c>NULL</c>.
+            </summary>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous read.</param>
+            <returns>The first mapped entity, or <see langword="null"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataReaderExtensions.&lt;G&gt;$168D61E4CCF46AAE0673AEE6051C4517.StreamAsync``1(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Advances to <paramref name="resultSetIndex"/> and streams every row whose first column is not SQL <c>NULL</c>
+            materialized as <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
+            <param name="resultSetIndex">Zero-based index of the target result set.</param>
+            <param name="cancellationToken">Token used to cancel the asynchronous stream.</param>
+            <returns>An asynchronous stream of mapped entities.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlDataSource"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.CreateBatch(Npgsql.NpgsqlDataSource,System.Nullable{System.Int32})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.CreateBatch(System.Nullable{System.Int32})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.EnsureNonSuperuserRoleAsync(Npgsql.NpgsqlDataSource,Microsoft.Extensions.Logging.ILogger,System.Boolean,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.EnsureNonSuperuserRoleAsync(Microsoft.Extensions.Logging.ILogger,System.Boolean,System.Boolean,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.PingAsync(Npgsql.NpgsqlDataSource,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.CreateBatch(System.Nullable{System.Int32})">
+            <summary>
+            Creates a new <see cref="T:Npgsql.NpgsqlBatch"/> from <paramref name="dataSource"/> and applies
+            <paramref name="commandTimeoutSeconds"/> when specified.
+            </summary>
+            <param name="commandTimeoutSeconds">Optional per-command timeout in seconds.</param>
+            <returns>A configured <see cref="T:Npgsql.NpgsqlBatch"/> bound to <paramref name="dataSource"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.EnsureNonSuperuserRoleAsync(Microsoft.Extensions.Logging.ILogger,System.Boolean,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Verifies that the PostgreSQL role used by <paramref name="dataSource"/> does not carry
+            <c>SUPERUSER</c> or <c>BYPASSRLS</c> privileges, which would silently bypass Row-Level Security.
+            </summary>
+            <param name="logger">The logger to use for logging messages.</param>
+            <param name="allowSuperuser">
+            When <see langword="true"/>, skips the role verification (explicit development opt-out).
+            </param>
+            <param name="ignoreConnectionErrors">
+            When <see langword="true"/>, ignores transient <see cref="T:Npgsql.NpgsqlException"/> connectivity errors
+            (useful in development while PostgreSQL is still starting up).
+            </param>
+            <param name="cancellationToken">Token used to cancel the verification query.</param>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <paramref name="allowSuperuser"/> is <see langword="false"/> and the active PostgreSQL role has
+            <c>SUPERUSER</c> or <c>BYPASSRLS</c> privileges.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes a lightweight <c>SELECT 1</c> connectivity probe against PostgreSQL.
+            </summary>
+            <param name="commandTimeoutSeconds">Optional command timeout in seconds applied to the probe command.</param>
+            <param name="cancellationToken">Token used to cancel the connectivity probe.</param>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions">
             <summary>
@@ -268,14 +469,6 @@
             Thrown when <paramref name="type"/> is not handled by this mapping (i.e. it is not one of the supported
             primitive, nullable primitive, array or generic enumerable types).
             </exception>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <summary>
-            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the unified settings.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ColumnAttribute">
             <summary>
@@ -331,12 +524,12 @@
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute">
             <summary>
-            Specifies if the property correspond to foreign key column of table.
+            Specifies if the property corresponds to a foreign key column of a table.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType)">
             <summary>
-            Specifies if the property correspond to foreign key column of table.
+            Specifies if the property corresponds to a foreign key column of a table.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute.JoinType">
@@ -385,6 +578,32 @@
             Specifies that a column has a unique constraint, used for ON CONFLICT upserts and typed lookups via GetByUniqueColumnAsync.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing PostgreSQL connectivity via
+            <see cref="T:Npgsql.NpgsqlDataSource"/> using the configured <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/>.
+            </summary>
+            <param name="logger">Logger recording connectivity failures.</param>
+            <param name="dataSource">Shared PostgreSQL data source probed with <c>SELECT 1</c>.</param>
+            <param name="databaseSettings">Database settings supplying the unit-operation command timeout.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck},Npgsql.NpgsqlDataSource,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing PostgreSQL connectivity via
+            <see cref="T:Npgsql.NpgsqlDataSource"/> using the configured <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/>.
+            </summary>
+            <param name="logger">Logger recording connectivity failures.</param>
+            <param name="dataSource">Shared PostgreSQL data source probed with <c>SELECT 1</c>.</param>
+            <param name="databaseSettings">Database settings supplying the unit-operation command timeout.</param>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName">
+            <summary>
+            Default registration name used when adding <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> to ASP.NET Core health checks.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.DatabaseConstants">
             <summary>
             Constant values related to database interactions.
@@ -408,6 +627,100 @@
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.EntityBase.CreationTimestamp">
             <summary>
             Moment (UTC) in which the entity was created.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity">
+            <summary>
+            Generic entity for auditing and tracking physical and cloud-stored files generated by the application,
+            recording operational context, storage provider technology, and file size metrics.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.ExternalIdentifier">
+            <summary>
+            External identifier correlating the file to an analysis, experiment, or simulation run (e.g., "Sim_ACL_01").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.StorageProvider">
+            <summary>
+            Storage provider technology where the artifact resides (Local, BlobStorage, Dfs).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Location">
+            <summary>
+            Absolute file system path, URI, or cloud blob key where the file can be retrieved.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Directory">
+            <summary>
+            Logical or physical directory path containing the stored artifact.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.FileName">
+            <summary>
+            Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.SizeBytes">
+            <summary>
+            File size in bytes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.ContentType">
+            <summary>
+            MIME content type representing the file format (defaults to "text/csv").
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Create(MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata,System.String,System.String)">
+            <summary>
+            Creates a new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> instance from the specified external identifier, context, and storage entry metadata.
+            </summary>
+            <param name="metadata">The storage entry metadata describing the physical or cloud-stored entry.</param>
+            <param name="externalIdentifier">The external correlation identifier.</param>
+            <param name="contentType">The MIME content type (defaults to "text/csv").</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> instance.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity">
+            <summary>
+            Represents an authenticated user account persisted in the <c>users</c> table.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> for persistence mapping and deserialization.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.Username">
+            <summary>
+            Unique user login name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.PasswordHash">
+            <summary>
+            Salted PBKDF2 password hash generated by <c>IEncryptionService</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.IsActive">
+            <summary>
+            Indicates whether the user account is active and allowed to authenticate.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.IsSuperuser">
+            <summary>
+            Indicates whether the user account has superuser privileges to view and manage resources across all tenants.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase">
+            <summary>
+            Base record for user-scoped entities stored in PostgreSQL tables protected by Row-Level Security (RLS).
+            A <see langword="null"/> <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase.UserId"/> represents a public record (generated anonymously or published
+            publicly by a superuser), whereas a positive value isolates the record to that owning user.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase.UserId">
+            <summary>
+            Identifier of the owning user, or <see langword="null"/> for public records.
+            For non-superusers, <c>PostgresRepository</c> automatically enforces this value from the active
+            <see cref="T:MelloSilveiraTools.Core.Security.ICurrentUserProvider"/> before executing write statements.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause">
@@ -479,6 +792,56 @@
             Descending order (largest value first).
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records in the <c>storage_entry_metadata</c> table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.ExternalIdentifier">
+            <summary>
+            Optional external identifier correlating the file to an analysis, experiment, or simulation run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.StorageProvider">
+            <summary>
+            Optional storage provider technology where the artifact resides.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.Location">
+            <summary>
+            Optional absolute file system path, URI, or cloud blob key where the file can be retrieved.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.Directory">
+            <summary>
+            Optional directory path or prefix where the file is stored.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.FileName">
+            <summary>
+            Optional physical file name including extension.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.ContentType">
+            <summary>
+            Optional MIME content type representing the file format.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.UserFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records in the <c>users</c> table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.UserFilter.Username">
+            <summary>
+            Optional exact username filter.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.UserFilter.IsActive">
+            <summary>
+            Optional active status filter.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType">
             <summary>
             JOIN is an SQL clause used to query and access data from multiple tables, based on logical relationships between those tables.
@@ -501,13 +864,26 @@
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository">
             <summary>
-            Repository that contains methods to deal with Postgres database.
-            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
+            Pure-Npgsql, Native AOT-compatible repository for PostgreSQL.
+            Registered as Singleton in DI; borrows pooled connections from the DI-managed singleton
+            <see cref="T:Npgsql.NpgsqlDataSource"/> and executes every operation inside a single-round-trip
+            <see cref="T:Npgsql.NpgsqlBatch"/> scoped by transaction-local Row-Level Security context. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
-            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
-            retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
+            Every operation is executed via <see cref="M:Npgsql.NpgsqlDataSource.CreateBatch"/> with
+            <c>SELECT set_config('app.current_user_id', @UserId, true)</c> prepended as the first batch command.
+            Under PostgreSQL's extended query protocol, all commands in an <see cref="T:Npgsql.NpgsqlBatch"/> run atomically
+            inside a single implicit transaction block until the trailing <c>Sync</c> message — eliminating explicit
+            <c>BEGIN</c>/<c>COMMIT</c> network round-trips while guaranteeing that PostgreSQL resets
+            <c>app.current_user_id</c> automatically before returning the connection to the pool.
+            </para>
+            <para>
+            All non-streaming database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
+            retries transient failures (connection drops, deadlocks, serialization failures, timeouts).
+            <see cref="T:Npgsql.NpgsqlParameter"/> collections are constructed once per repository call (avoiding repeated reflection);
+            the first attempt binds the original instances directly (zero extra allocations), and retries bind detached
+            <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies to prevent parameter-collection ownership conflicts.
             </para>
             <para>
             Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings"/>:
@@ -516,27 +892,35 @@
             <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
             (bulk insert, bulk upsert).
             </para>
-            <para>
-            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
-            SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
-            lifetime of the application.
-            </para>
-            <para>
-            SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
-            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
-            join type configured on the attribute and the metadata of the referenced entity type.
-            </para>
             </remarks>
+            <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+            <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS batch scoping.</param>
+            <param name="dataSource">Singleton <see cref="T:Npgsql.NpgsqlDataSource"/> managed by the DI container.</param>
+            <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+            <param name="databaseSettings">Database connection and command timeout settings.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Core.Security.ICurrentUserProvider,Npgsql.NpgsqlDataSource,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
-            Repository that contains methods to deal with Postgres database.
-            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
+            Pure-Npgsql, Native AOT-compatible repository for PostgreSQL.
+            Registered as Singleton in DI; borrows pooled connections from the DI-managed singleton
+            <see cref="T:Npgsql.NpgsqlDataSource"/> and executes every operation inside a single-round-trip
+            <see cref="T:Npgsql.NpgsqlBatch"/> scoped by transaction-local Row-Level Security context. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
-            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
-            retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
+            Every operation is executed via <see cref="M:Npgsql.NpgsqlDataSource.CreateBatch"/> with
+            <c>SELECT set_config('app.current_user_id', @UserId, true)</c> prepended as the first batch command.
+            Under PostgreSQL's extended query protocol, all commands in an <see cref="T:Npgsql.NpgsqlBatch"/> run atomically
+            inside a single implicit transaction block until the trailing <c>Sync</c> message — eliminating explicit
+            <c>BEGIN</c>/<c>COMMIT</c> network round-trips while guaranteeing that PostgreSQL resets
+            <c>app.current_user_id</c> automatically before returning the connection to the pool.
+            </para>
+            <para>
+            All non-streaming database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
+            retries transient failures (connection drops, deadlocks, serialization failures, timeouts).
+            <see cref="T:Npgsql.NpgsqlParameter"/> collections are constructed once per repository call (avoiding repeated reflection);
+            the first attempt binds the original instances directly (zero extra allocations), and retries bind detached
+            <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies to prevent parameter-collection ownership conflicts.
             </para>
             <para>
             Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings"/>:
@@ -545,21 +929,16 @@
             <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
             (bulk insert, bulk upsert).
             </para>
-            <para>
-            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
-            SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
-            lifetime of the application.
-            </para>
-            <para>
-            SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
-            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
-            join type configured on the attribute and the metadata of the referenced entity type.
-            </para>
             </remarks>
+            <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+            <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS batch scoping.</param>
+            <param name="dataSource">Singleton <see cref="T:Npgsql.NpgsqlDataSource"/> managed by the DI container.</param>
+            <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+            <param name="databaseSettings">Database connection and command timeout settings.</param>
         </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings">
             <summary>
-            Database settings used to configure connections and command timeouts.
+            Database settings used to configure command timeouts.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
@@ -613,20 +992,30 @@
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``1(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Threading.CancellationToken)">
             <summary>
-            Streams rows returned by <paramref name="sql"/> and materializes each of them into a <typeparamref name="TEntity"/>.
+            Streams rows returned by <paramref name="sql"/> inside a single-round-trip RLS-scoped <see cref="T:Npgsql.NpgsqlBatch"/>
+            and materializes each of them into a <typeparamref name="TEntity"/>.
             </summary>
+            <typeparam name="TEntity">Target entity type whose public properties are preserved for trimming and Native AOT.</typeparam>
             <param name="sql">SQL statement to execute.</param>
             <param name="parameters">Parameters to bind to the statement, if any.</param>
             <param name="cancellationToken">Token used to cancel the streaming operation.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetNewOpenedConnectionAsync(System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.CreateScopedBatch(System.String,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter},System.Nullable{System.Int32},System.Boolean)">
             <summary>
-            Creates and opens a new Npgsql connection using the configured connection string.
+            Creates an <see cref="T:Npgsql.NpgsqlBatch"/> from the DI-managed <see cref="T:Npgsql.NpgsqlDataSource"/> prepended with
+            transaction-local RLS context (<c>SELECT set_config('app.current_user_id', @UserId, true)</c>) followed by
+            <paramref name="sql"/>, executing both atomically in a single network round-trip.
             </summary>
-            <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
-            <returns>An opened <see cref="T:Npgsql.NpgsqlConnection"/>.</returns>
+            <param name="sql">Target PostgreSQL statement to append after the RLS context command.</param>
+            <param name="parameters">Optional parameters to bind to <paramref name="sql"/>.</param>
+            <param name="commandTimeoutSeconds">Optional per-command timeout in seconds.</param>
+            <param name="cloneParameters">
+            When <see langword="true"/>, binds detached <see cref="M:Npgsql.NpgsqlParameter.Clone"/> copies so Polly retries
+            reuse pre-built parameters without repeated reflection or parameter-collection ownership conflicts.
+            </param>
+            <returns>A configured <see cref="T:Npgsql.NpgsqlBatch"/> ready for execution.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings">
             <summary>
@@ -646,6 +1035,18 @@
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInMilliseconds">
             <summary>
             Timeout, in milliseconds, applied to bulk operations that touch many rows.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.ResiliencePipelineSettings">
+            <summary>
+            Optional resilience pipeline settings applied to database operations.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.AllowSuperuserDatabaseConnection">
+            <summary>
+            Explicit opt-out allowing startup when the PostgreSQL connection role has <c>SUPERUSER</c>
+            or <c>BYPASSRLS</c> privileges. Defaults to <see langword="false"/> so Row-Level Security
+            role enforcement is validated eagerly on startup.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider">
@@ -756,24 +1157,19 @@
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider">
             <inheritdoc cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>
             <summary>
-            Registered as Singleton in DI. Thread-safe. Backed by ConcurrentDictionary.
+            Registered as Singleton in DI. Thread-safe and Native AOT-compatible. Backed by per-type static generic caches.
             </summary>
             <remarks>
             <para>
-            Generated SQL strings are memoized in a process-wide static <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
-            keyed by <c>(Type, Operation, BatchSize)</c>. Entries are never evicted: the cache lives for the entire
-            application lifetime. Memory growth is therefore bounded by the number of entity types multiplied by the
-            number of supported operations (and, for bulk inserts, by the number of distinct batch sizes used).
+            Generated SQL strings are memoized per entity type in static generic caches (and a <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            keyed by batch size for bulk inserts). Entries live for the lifetime of the application so reflection-based SQL
+            generation runs at most once per entity type and operation without delegate reflection or AOT hazards.
             </para>
             <para>
-            Reads and writes to the cache are thread-safe via <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>;
-            concurrent first-time generation of the same key may execute the factory more than once, but the result
-            is deterministic for a given type and only one instance is retained.
-            </para>
-            <para>
-            This provider is NOT multi-tenant safe when different tenants map the same CLR type to different schemas
-            or table names: the cached SQL is keyed only by <see cref="T:System.Type"/>, not by tenant context. Use a separate
-            provider instance (or distinct entity types per tenant) when schema isolation is required.
+            For entities inheriting from <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase"/> that declare one or more
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.UniqueColumnAttribute"/> properties, <c>user_id</c> is automatically appended to the
+            <c>ON CONFLICT</c> unique key list so conflict resolution aligns with PostgreSQL multi-tenant
+            unique constraints (<c>UNIQUE NULLS NOT DISTINCT (..., user_id)</c>).
             </para>
             </remarks>
         </member>
@@ -936,15 +1332,15 @@
         </member>
         <member name="T:MelloSilveiraTools.Database.Repositories.IRepository">
              <summary>
-             Provides a generic, filter-driven abstraction over persistent storage for entity types.
+             Provides a generic, filter-driven, AOT-compatible abstraction over persistent storage for entity types.
              </summary>
              <remarks>
              All asynchronous members accept a <see cref="T:System.Threading.CancellationToken"/> and will throw
              <see cref="T:System.OperationCanceledException"/> when cancellation is signalled.
             
              Transient database failures (connection drops, broken protocol, network blips, command timeouts caused by
-             transient conditions) are absorbed and retried resilience pipeline. Once the pipeline budget is exhausted 
-             the underlying exceptions are re-thrown to the caller. Non-transient failures — for example unique-constraint 
+             transient conditions) are absorbed and retried by the resilience pipeline. Once the pipeline budget is exhausted
+             the underlying exceptions are re-thrown to the caller. Non-transient failures — for example unique-constraint
              violations, permission errors, or definitive command timeouts — are not retried and are propagated as <see cref="T:System.TimeoutException"/>.
              </remarks>
         </member>
@@ -985,7 +1381,7 @@
             (and any other single-column unique key) without needing to write a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.FilterBase"/>-derived filter.
             </summary>
             <param name="value">Value to compare against the unique column. Bound as a SQL parameter.</param>
-            <param name="cancellationToken"></param>
+            <param name="cancellationToken">Token used to cancel the operation.</param>
             <exception cref="T:System.InvalidOperationException">
             Thrown when <typeparamref name="TEntity"/> has zero or more than one <c>[UniqueColumn]</c>-annotated
             property — for composite unique keys, use a custom <c>FilterBase</c> with multiple <c>[FilterColumn]</c>

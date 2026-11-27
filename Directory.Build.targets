@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<!-- Enable built-in .NET SDK NuGet package validation on every publishable library package. -->
+	<PropertyGroup Condition="'$(IsPackable)' != 'false' and '$(GeneratePackageOnBuild)' == 'true'">
+		<EnablePackageValidation>true</EnablePackageValidation>
+	</PropertyGroup>
+</Project>

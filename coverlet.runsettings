@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Exclude vendored 3rd-party ALGLIB source (~205k lines) and non-core host/UI/CLI projects
+               so coverage gates reflect the 8 publishable core NuGet libraries accurately and fast. -->
+          <Exclude>[MelloSilveiraTools.MechanicsOfMaterials.Optimizations]alglib*,[MelloSilveiraTools.MechanicsOfMaterials.Optimizations]alglib/*,[MelloSilveiraTools.Database.Migrator]*,[MelloSilveiraTools.WebApi.Host]*,[MelloSilveiraTools.WebUi]*,[MelloSilveiraTools.Launcher]*</Exclude>
+          <ExcludeByFile>**/Alglib/*.cs,**\Alglib\*.cs,**/*.g.cs,**\*.g.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
