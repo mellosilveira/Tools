@@ -250,8 +250,8 @@ public static class CoreDependencyInjection
             if (!string.IsNullOrWhiteSpace(settings.HealthMarkerFileName))
             {
                 string markerName = settings.HealthMarkerFileName;
-                if (markerName.Contains(Path.DirectorySeparatorChar)
-                    || markerName.Contains(Path.AltDirectorySeparatorChar)
+                if (markerName.Contains('/')
+                    || markerName.Contains('\\')
                     || markerName.Contains("..", StringComparison.Ordinal))
                 {
                     throw new ArgumentException("DFS HealthMarkerFileName must be a simple file name directly under BaseDirectory without path separators or traversal segments.", nameof(settings));
