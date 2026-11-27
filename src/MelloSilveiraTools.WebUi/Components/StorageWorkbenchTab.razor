@@ -1,0 +1,323 @@
+@inject ApiClientService ApiClient
+
+<div class="grid">
+    <section class="card">
+        <h2>Upload Storage Entry</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="st-id">Identifier</label>
+                <input id="st-id" type="text" class="form-control" placeholder="e.g. experiment-01" @bind="_uploadIdentifier" />
+            </div>
+            <div class="form-group">
+                <label for="st-ctx">Context</label>
+                <input id="st-ctx" type="text" class="form-control" placeholder="e.g. datasets" @bind="_uploadContext" />
+            </div>
+            <div class="form-group">
+                <label for="st-ext">External Identifier (optional)</label>
+                <input id="st-ext" type="text" class="form-control" placeholder="Correlation ID" @bind="_uploadExternalId" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Select File</label>
+            <InputFile OnChange="OnUploadFileSelected" class="form-control" />
+        </div>
+        <button class="btn btn-primary" @onclick="UploadFileAsync" disabled="@(_isBusy || _selectedFile is null)">
+            Upload to Storage
+        </button>
+    </section>
+
+    <section class="card">
+        <h2>Query Stored Files</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="flt-ext">External Identifier</label>
+                <input id="flt-ext" type="text" class="form-control" @bind="_filterExternalId" />
+            </div>
+            <div class="form-group">
+                <label for="flt-id">Identifier</label>
+                <input id="flt-id" type="text" class="form-control" @bind="_filterIdentifier" />
+            </div>
+            <div class="form-group">
+                <label for="flt-ctx">Context</label>
+                <input id="flt-ctx" type="text" class="form-control" @bind="_filterContext" />
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" @onclick="LoadEntriesAsync" disabled="@_isBusy">Search Storage</button>
+            <button class="btn btn-secondary" @onclick="ResetFiltersAsync" disabled="@_isBusy">Reset Filters</button>
+        </div>
+    </section>
+</div>
+
+<section class="card">
+    <div class="card-header-row">
+        <h2>Storage Entries (@_entries.Count)</h2>
+        @if (!ApiClient.IsAuthenticated)
+        {
+            <span class="muted">Sign in to overwrite or delete your own files (superuser for public files).</span>
+        }
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>File Name</th>
+                    <th>Provider</th>
+                    <th>Size</th>
+                    <th>Created (UTC)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (StorageEntryResultDto entry in _entries)
+                {
+                    <tr>
+                        <td>@entry.EntityId</td>
+                        <td><strong>@(entry.Metadata.FileName ?? "(directory)")</strong></td>
+                        <td>@entry.Metadata.StorageProvider</td>
+                        <td>@FormatSize(entry.Metadata.SizeBytes)</td>
+                        <td>@entry.Metadata.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <div class="btn-row">
+                                <a class="btn btn-sm btn-secondary" href="@($"/api/v1/storage-entry-metadata/{entry.EntityId}/download")" download>Download</a>
+                                <button class="btn btn-sm btn-secondary" @onclick="@(() => PreviewEntryAsync(entry))" disabled="@_isBusy">Preview</button>
+                                @if (ApiClient.IsAuthenticated)
+                                {
+                                    <button class="btn btn-sm btn-secondary" @onclick="@(() => BeginOverwrite(entry.EntityId))" disabled="@_isBusy">Overwrite</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteEntryAsync(entry.EntityId))" disabled="@_isBusy">Delete</button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_overwriteEntryId.HasValue)
+    {
+        <div class="stack-gap" style="padding-top: 0.75rem; border-top: 1px solid var(--border);">
+            <h3>Overwrite Entry #@_overwriteEntryId.Value</h3>
+            <div class="btn-row">
+                <InputFile OnChange="OnOverwriteFileSelected" class="form-control" style="max-width: 340px;" />
+                <button class="btn btn-primary" @onclick="CommitOverwriteAsync" disabled="@(_isBusy || _overwriteFile is null)">Confirm Overwrite</button>
+                <button class="btn btn-secondary" @onclick="CancelOverwrite">Cancel</button>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_previewContent))
+    {
+        <div class="stack-gap">
+            <div class="card-header-row">
+                <h3>Preview: @_previewTitle</h3>
+                <button class="btn btn-sm btn-secondary" @onclick="ClearPreview">Close</button>
+            </div>
+            <div class="code-block">@_previewContent</div>
+        </div>
+    }
+</section>
+
+@code {
+    /// <summary>Callback raised whenever this tab emits a status or error notification.</summary>
+    [Parameter]
+    public EventCallback<(string Message, bool IsError)> OnStatus { get; set; }
+
+    /// <summary>Monotonic authentication state counter triggering reloads on login/logout.</summary>
+    [Parameter]
+    public int AuthVersion { get; set; }
+
+    private int _lastAuthVersion = -1;
+    private bool _isBusy;
+    private List<StorageEntryResultDto> _entries = [];
+
+    private string _uploadIdentifier = "workbench";
+    private string _uploadContext = "uploads";
+    private string _uploadExternalId = string.Empty;
+    private IBrowserFile? _selectedFile;
+
+    private string _filterExternalId = string.Empty;
+    private string _filterIdentifier = string.Empty;
+    private string _filterContext = string.Empty;
+
+    private long? _overwriteEntryId;
+    private IBrowserFile? _overwriteFile;
+
+    private string _previewTitle = string.Empty;
+    private string _previewContent = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_lastAuthVersion == AuthVersion)
+            return;
+
+        _lastAuthVersion = AuthVersion;
+        await LoadEntriesAsync();
+    }
+
+    private void OnUploadFileSelected(InputFileChangeEventArgs args) => _selectedFile = args.File;
+
+    private void OnOverwriteFileSelected(InputFileChangeEventArgs args) => _overwriteFile = args.File;
+
+    private void BeginOverwrite(long entryId)
+    {
+        _overwriteEntryId = entryId;
+        _overwriteFile = null;
+    }
+
+    private void CancelOverwrite()
+    {
+        _overwriteEntryId = null;
+        _overwriteFile = null;
+    }
+
+    private void ClearPreview()
+    {
+        _previewTitle = string.Empty;
+        _previewContent = string.Empty;
+    }
+
+    private async Task ResetFiltersAsync()
+    {
+        _filterExternalId = string.Empty;
+        _filterIdentifier = string.Empty;
+        _filterContext = string.Empty;
+        await LoadEntriesAsync();
+    }
+
+    private async Task LoadEntriesAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            _entries = await ApiClient.GetStorageEntriesAsync(_filterExternalId, _filterIdentifier, _filterContext);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Could not query storage entries: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task UploadFileAsync()
+    {
+        if (_selectedFile is null)
+            return;
+
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<StorageEntryResultDto> result = await ApiClient.UploadStorageEntryAsync(
+                _selectedFile,
+                _uploadIdentifier,
+                _uploadContext,
+                _uploadExternalId);
+
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Upload failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _selectedFile = null;
+            await LoadEntriesAsync();
+            await NotifyAsync($"Uploaded storage entry #{result.Data?.EntityId}.", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Storage upload error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task CommitOverwriteAsync()
+    {
+        if (!_overwriteEntryId.HasValue || _overwriteFile is null)
+            return;
+
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<StorageEntryResultDto> result = await ApiClient.UpdateStorageEntryFileAsync(_overwriteEntryId.Value, _overwriteFile);
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Overwrite failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            long overwrittenId = _overwriteEntryId.Value;
+            CancelOverwrite();
+            await LoadEntriesAsync();
+            await NotifyAsync($"Overwrote storage entry #{overwrittenId}.", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Overwrite error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task DeleteEntryAsync(long entryId)
+    {
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<object> result = await ApiClient.DeleteStorageEntryAsync(entryId);
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Delete failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            await LoadEntriesAsync();
+            await NotifyAsync($"Deleted storage entry #{entryId}.", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Delete error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task PreviewEntryAsync(StorageEntryResultDto entry)
+    {
+        _isBusy = true;
+        try
+        {
+            string raw = await ApiClient.DownloadStoredFileCsvAsync(entry.EntityId);
+            _previewTitle = $"{entry.Metadata.FileName ?? $"entry-{entry.EntityId}"} (#{entry.EntityId})";
+            _previewContent = raw.Length > 4000 ? $"{raw[..4000]}\n... (truncated)" : raw;
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Preview failed: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        >= 1024 * 1024 => $"{bytes / (1024.0 * 1024.0):F2} MB",
+        >= 1024 => $"{bytes / 1024.0:F1} KB",
+        _ => $"{bytes} B"
+    };
+
+    private Task NotifyAsync(string message, bool isError) => OnStatus.InvokeAsync((message, isError));
+}

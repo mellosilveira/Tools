@@ -90,6 +90,7 @@ public class InMemoryTwoLevelCacheTests
     {
         InMemoryTwoLevelCache cache = new();
         cache.Set("dept1", "emp1", "Alice");
+        cache.Set("dept1", "emp2", 42);
         cache.Set("dept2", "emp2", "Bob");
 
         List<(string Group, string Key, string Value)> results = [];
@@ -98,7 +99,15 @@ public class InMemoryTwoLevelCacheTests
             results.Add((g, k, v));
         }
 
+        List<(string Group, string Key, string Value)> filtered = [];
+        await foreach ((string g, string k, string v) in cache.StreamAll<string>("dept1", "emp1"))
+        {
+            filtered.Add((g, k, v));
+        }
+
         Assert.Equal(2, results.Count);
+        Assert.Single(filtered);
+        Assert.Equal("Alice", filtered[0].Value);
     }
 
     [Fact]

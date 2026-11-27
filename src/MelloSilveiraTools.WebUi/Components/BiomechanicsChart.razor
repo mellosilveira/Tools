@@ -1,0 +1,78 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
+
+<div id="@ElementId" class="chart-box"></div>
+
+@code {
+    private List<ChartDataPoint>? _lastExpPoints;
+    private List<ChartDataPoint>? _lastSimPoints;
+    private List<SensitivityPoint>? _lastSensitivityPoints;
+
+    /// <summary>Gets or sets the DOM container identifier for this chart instance.</summary>
+    [Parameter]
+    public string ElementId { get; set; } = $"chart-{Guid.NewGuid():N}";
+
+    /// <summary>Gets or sets the chart title.</summary>
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the experimental stress-strain points.</summary>
+    [Parameter]
+    public List<ChartDataPoint> ExperimentalPoints { get; set; } = [];
+
+    /// <summary>Gets or sets the simulated model curve points.</summary>
+    [Parameter]
+    public List<ChartDataPoint> SimulationPoints { get; set; } = [];
+
+    /// <summary>Gets or sets the OAAT parametric sensitivity points.</summary>
+    [Parameter]
+    public List<SensitivityPoint> SensitivityPoints { get; set; } = [];
+
+    /// <summary>Gets or sets whether this component renders an OAAT sensitivity chart.</summary>
+    [Parameter]
+    public bool IsSensitivityChart { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        bool dataChanged = !ReferenceEquals(_lastExpPoints, ExperimentalPoints)
+            || !ReferenceEquals(_lastSimPoints, SimulationPoints)
+            || !ReferenceEquals(_lastSensitivityPoints, SensitivityPoints);
+
+        if (!firstRender && !dataChanged)
+            return;
+
+        _lastExpPoints = ExperimentalPoints;
+        _lastSimPoints = SimulationPoints;
+        _lastSensitivityPoints = SensitivityPoints;
+
+        if (IsSensitivityChart && SensitivityPoints.Count > 0)
+        {
+            await JsRuntime.InvokeVoidAsync(
+                "biomechanicsCharts.renderSensitivityChart",
+                ElementId,
+                Title,
+                SensitivityPoints);
+        }
+        else if (!IsSensitivityChart && (ExperimentalPoints.Count > 0 || SimulationPoints.Count > 0))
+        {
+            await JsRuntime.InvokeVoidAsync(
+                "biomechanicsCharts.renderExperimentalAndSimulationChart",
+                ElementId,
+                Title,
+                ExperimentalPoints,
+                SimulationPoints);
+        }
+    }
+
+    /// <summary>Disposes the underlying ECharts canvas instance and removes window resize listeners.</summary>
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("biomechanicsCharts.disposeChart", ElementId);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

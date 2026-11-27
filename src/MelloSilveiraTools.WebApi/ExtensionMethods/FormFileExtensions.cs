@@ -17,9 +17,11 @@ public static class FormFileExtensions
         {
             await using Stream stream = formFile.OpenReadStream();
             await using MemoryStream memoryStream = new();
-            await using GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true);
+            await using (GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true))
+            {
+                await stream.CopyToAsync(gzipStream).ConfigureAwait(false);
+            }
 
-            await stream.CopyToAsync(gzipStream);
             return memoryStream.ToArray();
         }
     }

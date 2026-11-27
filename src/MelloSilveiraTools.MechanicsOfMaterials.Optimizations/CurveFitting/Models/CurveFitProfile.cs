@@ -1,25 +1,25 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 /// <summary>
-/// Define o perfil de comportamento e restrições para o ajuste de curvas.
+/// Defines behavior and constraint profiles for curve fitting.
 /// </summary>
 public enum CurveFitProfile
 {
     /// <summary>
-    /// Seleção automática. Se houver regras de validação booleana informadas,
-    /// assume RuleConstrained; caso contrário, Standard.
+    /// Automatic selection. If boolean validation rules are provided,
+    /// selects RuleConstrained; otherwise, Standard.
     /// </summary>
     Automatic = 0,
 
     /// <summary>
-    /// Ajuste analítico rápido para funções suaves e limites simples de caixa (Min/Max).
-    /// Execução na ordem de milissegundos via L-BFGS.
+    /// Fast analytical fitting for smooth functions and simple box bounds (Min/Max).
+    /// Runs in milliseconds via L-BFGS.
     /// </summary>
     Standard = 1,
 
     /// <summary>
-    /// Busca global estocástica (Evolução Diferencial / GDEMO).
-    /// Suporta validações booleanas de consistência e descarta combinações inválidas sem quebrar derivadas.
+    /// Stochastic global search (Differential Evolution / GDEMO).
+    /// Supports boolean consistency validations and discards invalid combinations without breaking derivatives.
     /// </summary>
     RuleConstrained = 2
 }

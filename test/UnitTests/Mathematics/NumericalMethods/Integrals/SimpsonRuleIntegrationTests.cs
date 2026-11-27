@@ -19,27 +19,12 @@ public class SimpsonRuleIntegrationTests
     }
 
     [Fact]
-    public async Task CalculateAsync_LinearFunction_ShouldYieldExactIntegral()
+    public void Calculate_WithOddNumberOfDivisions_CombinesSimpsonAndTrapezoidalRule()
     {
         SimpsonRuleIntegration integration = new();
-        // Integral of 2x from 0 to 4 is x^2 = 16.0
-        Func<double, Task<double>> func = x => Task.FromResult(2.0 * x);
-        IntegralInput input = new(InitialPoint: 0.0, FinalPoint: 4.0, Step: 0.2);
+        // Linear integral of 2x on [0, 0.03] with step 0.01 (N = 3, odd) equals 0.03^2 = 0.0009.
+        double result = integration.Calculate(x => 2.0 * x, new IntegralInput(0.0, 0.03, 0.01));
 
-        double result = await integration.CalculateAsync(func, input);
-
-        Assert.Equal(16.0, result, precision: 3);
-    }
-
-    [Theory]
-    [InlineData(0, 10, 1)]
-    [InlineData(10, 10, 1)]
-    [InlineData(1, 10, 4)]
-    [InlineData(2, 10, 2)]
-    public void GetFactor_ShouldFollowSimpsonWeights(int index, int numberOfDivisions, int expectedWeight)
-    {
-        int weight = SimpsonRuleIntegration.GetFactor(index, numberOfDivisions);
-
-        Assert.Equal(expectedWeight, weight);
+        Assert.Equal(0.0009, result, precision: 10);
     }
 }

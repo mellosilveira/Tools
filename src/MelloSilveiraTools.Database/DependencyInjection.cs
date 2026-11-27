@@ -1,14 +1,14 @@
-using MelloSilveiraTools.Core;
-using MelloSilveiraTools.Core.Logging;
 using MelloSilveiraTools.Core.ResiliencePipelines;
-using MelloSilveiraTools.Database.Logging;
+using MelloSilveiraTools.Database.RelationalDatabase.HealthChecks;
 using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace MelloSilveiraTools.Database;
 
@@ -17,35 +17,95 @@ namespace MelloSilveiraTools.Database;
 /// </summary>
 public static class DatabaseDependencyInjection
 {
+    extension(IHealthChecksBuilder healthChecksBuilder)
+    {
+        /// <summary>
+        /// Registers ASP.NET Core native health checks with <see cref="PostgresHealthCheck"/> configured
+        /// using <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+        /// </summary>
+        /// <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="PostgresHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+        /// <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
+        public IHealthChecksBuilder AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null)
+            => healthChecksBuilder.AddCheck<PostgresHealthCheck>(
+                name,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: tags ?? ["database", "ready"],
+                timeout: TimeSpan.FromMilliseconds(databaseSettings.UnitOperationTimeoutInMilliseconds));
+    }
+
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
+        /// Registers database services as singletons: <see cref="DatabaseSettings"/>, an AOT-friendly
+        /// <see cref="NpgsqlDataSource"/> built via <see cref="NpgsqlSlimDataSourceBuilder"/>,
+        /// <see cref="PostgresResiliencePipeline"/>, <see cref="ISqlProvider"/>, and <see cref="IRepository"/>.
+        /// The DI container owns the <see cref="NpgsqlDataSource"/> lifetime and disposes its connection pool on shutdown.
         /// </summary>
+        /// <remarks>
+        /// <see cref="NpgsqlDataSource"/> is registered explicitly via <see cref="CreateDataSource"/> instead of
+        /// <c>AddNpgsqlDataSource</c> for four architectural reasons:
+        /// <list type="number">
+        /// <item><description><b>Minimal dependencies:</b> on Npgsql 10.x, <c>AddNpgsqlDataSource</c> requires the separate <c>Npgsql.DependencyInjection</c> NuGet package.</description></item>
+        /// <item><description><b>Native AOT &amp; trimming:</b> <c>AddNpgsqlDataSource</c> instantiates the full <see cref="NpgsqlDataSourceBuilder"/>, pulling default codecs (geometry, network, full-text search, etc.), whereas <see cref="CreateDataSource"/> uses the pay-per-play <see cref="NpgsqlSlimDataSourceBuilder"/>.</description></item>
+        /// <item><description><b>RLS &amp; resilience boundary:</b> <c>AddNpgsqlDataSource</c> also registers <see cref="NpgsqlConnection"/> and <c>DbConnection</c> directly in DI, which could encourage bypassing <see cref="PostgresRepository"/> and its transactional Row-Level Security (<c>SET LOCAL</c>) + Polly v8 execution pipeline.</description></item>
+        /// <item><description><b>Same DI lifetime &amp; test reuse:</b> registering the factory as a singleton gives the DI container full ownership of disposal on shutdown while allowing tests to call <see cref="CreateDataSource"/> directly without building a service provider.</description></item>
+        /// </list>
+        /// </remarks>
+        /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
         /// <param name="databaseSettings">Database connection and behavior settings.</param>
-        /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
-        /// <param name="loggerSettings">Settings used by logger service.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-        public IServiceCollection AddDatabaseServices(DatabaseSettings databaseSettings,
-            ResiliencePipelineSettings resiliencePipelineSettings,
-            LoggerSettings? loggerSettings = null)
-            => services
-                // Register logger.
-                .AddDatabaseLogging(loggerSettings ?? new LoggerSettings())
-                // Register settings.
-                .AddSingleton(databaseSettings)
-                .AddSingleton(resiliencePipelineSettings)
-                // Register resilience pipelines.
-                .AddSingleton(provider => new PostgresResiliencePipeline(provider.GetRequiredService<ILogger<PostgresResiliencePipeline>>(), resiliencePipelineSettings))
-                // Register SQL providers.
-                .AddSingleton<ISqlProvider, PostgresSqlProvider>()
-                // Register repositories.
-                .AddSingleton<IRepository, PostgresRepository>();
+        public IServiceCollection AddDatabaseServices(ResiliencePipelineSettings defaultResiliencePipelineSettings, DatabaseSettings databaseSettings) => services
+            // Register settings.
+            .AddSingleton(databaseSettings)
+            // Register NpgsqlDataSource directly via NpgsqlSlimDataSourceBuilder instead of AddNpgsqlDataSource:
+            // avoids the extra Npgsql.DependencyInjection package (Npgsql 10.x), stays slim/AOT-friendly,
+            // prevents exposing raw NpgsqlConnection/DbConnection in DI outside PostgresRepository's RLS/Polly scope,
+            // and lets DI own disposal while reusing CreateDataSource in tests.
+            .AddSingleton(provider => CreateDataSource(databaseSettings, provider.GetService<ILoggerFactory>()))
+            // Register resilience pipelines.
+            .AddSingleton(provider => new PostgresResiliencePipeline(provider.GetRequiredService<ILogger<PostgresResiliencePipeline>>(), databaseSettings.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
+            // Register SQL providers.
+            .AddSingleton<ISqlProvider, PostgresSqlProvider>()
+            // Register repositories.
+            .AddSingleton<IRepository, PostgresRepository>();
 
-        public IServiceCollection AddDatabaseLogging(LoggerSettings loggerSettings)
+        /// <summary>
+        /// Registers ASP.NET Core native health checks with <see cref="PostgresHealthCheck"/> configured
+        /// using <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+        /// </summary>
+        /// <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="PostgresHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+        /// <returns>The <see cref="IServiceCollection"/> so callers can chain additional services.</returns>
+        public IServiceCollection AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null)
         {
-            var loggerConfiguration = LoggerConfigurationExtensions.Create().WriteToPostgres(loggerSettings);
-            return services.AddCoreLogging(loggerConfiguration, loggerSettings);
+            services
+                .AddHealthChecks()
+                .AddDatabaseHealthCheck(databaseSettings, name, tags);
+
+            return services;
         }
+    }
+
+    /// <summary>
+    /// Creates an AOT-compatible <see cref="NpgsqlDataSource"/> using <see cref="NpgsqlSlimDataSourceBuilder"/>
+    /// with TLS/SSL transport security and PostgreSQL array support enabled, wired into the supplied
+    /// <see cref="ILoggerFactory"/> while keeping parameter logging disabled for security.
+    /// </summary>
+    /// <param name="databaseSettings">Database settings containing the PostgreSQL connection string.</param>
+    /// <param name="loggerFactory">Optional logger factory for Npgsql connection and pool diagnostics.</param>
+    /// <returns>A configured <see cref="NpgsqlDataSource"/> instance.</returns>
+    public static NpgsqlDataSource CreateDataSource(DatabaseSettings databaseSettings, ILoggerFactory? loggerFactory = null)
+    {
+        NpgsqlSlimDataSourceBuilder dataSourceBuilder = new NpgsqlSlimDataSourceBuilder(databaseSettings.ConnectionString)
+            .EnableTransportSecurity()
+            .EnableArrays();
+
+        if (loggerFactory is not null)
+            dataSourceBuilder.UseLoggerFactory(loggerFactory);
+
+        return dataSourceBuilder.Build();
     }
 }

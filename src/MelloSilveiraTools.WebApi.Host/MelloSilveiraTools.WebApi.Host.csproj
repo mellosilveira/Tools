@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <UserSecretsId>mellosilveiratools-webapi-host-quickstart</UserSecretsId>
+    <PublishReadyToRun Condition="'$(EnableReadyToRun)' == 'true'">true</PublishReadyToRun>
+    <AssemblyTitle>MelloSilveiraTools Web API Host</AssemblyTitle>
+    <Description>Turnkey ASP.NET Core Web API and Blazor WebAssembly host for viscoelastic constitutive modeling, experimental data optimization, and parametric sensitivity analysis.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MelloSilveiraTools\MelloSilveiraTools.csproj" />
+    <ProjectReference Include="..\MelloSilveiraTools.WebUi\MelloSilveiraTools.WebUi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="SamplesData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

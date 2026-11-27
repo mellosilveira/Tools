@@ -18,7 +18,7 @@ public class MechanicalParameterConverter : IMechanicalParameterConverter
     public double CalculateDisplacementDerivativeFromStrain(SpecimenParameter specimenParameter, double strain, double strainDerivative)
     {
         return specimenParameter.ConsiderLargeDisplacement
-            ? specimenParameter.PreLoadLength * Math.Exp(strain) * strainDerivative
+            ? specimenParameter.InitialLength * Math.Exp(strain) * strainDerivative
             : specimenParameter.InitialLength * strainDerivative;
     }
 

@@ -1,5 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
-using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
@@ -9,13 +8,18 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Reload;
 
 /// <summary>
 /// Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
+/// Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
 /// </summary>
-public class ReloadPlugins(IPluginService pluginService, PluginValidator<ReloadPluginsRequest> validator) : CommandBaseWithDefaultResponse<ReloadPluginsRequest>(validator)
+/// <param name="pluginService">Plugin management service.</param>
+/// <param name="validator">Validator for reload requests.</param>
+public class ReloadPlugins(
+    IPluginService pluginService,
+    PluginValidator<ReloadPluginsRequest> validator) : CommandBaseWithDefaultResponse<ReloadPluginsRequest>(validator)
 {
     /// <inheritdoc />
-    protected override Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request)
+    protected override async Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request, CancellationToken cancellationToken = default)
     {
-        pluginService.ReloadPluginsOnRuntime(request.Force, request.Name, PluginVersion.SafeParse(request.Version));
-        return Result.CreateSuccessOk().ToTask();
+        await pluginService.ReloadPluginsOnRuntimeAsync(request.Force, request.Name, PluginVersion.SafeParse(request.Version), cancellationToken).ConfigureAwait(false);
+        return Result.CreateSuccessOk();
     }
 }

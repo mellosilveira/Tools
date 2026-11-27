@@ -37,7 +37,7 @@ public sealed class PolynomialFunction(
         // f(x) = a_0
         // f'(x) = 0
         if (coefficientsLength <= 1)
-            return new ConstantFunction(InitialVariableValue, FinalVariableValue);
+            return new ConstantFunction(0, InitialVariableValue, FinalVariableValue);
 
         // f(x) = a_0 + a_1 * x
         // f'(x) = a_1

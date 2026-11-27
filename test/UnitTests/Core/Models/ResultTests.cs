@@ -66,6 +66,28 @@ public class ResultTests
     }
 
     [Fact]
+    public void CreateForbidden_ShouldReturnFailureWithForbiddenStatus()
+    {
+        Result withMessage = Result.CreateForbidden("Access to this resource is restricted.");
+        Result withoutMessage = Result.CreateForbidden();
+        Result<string> typedForbidden = withMessage;
+
+        Assert.False(withMessage.Success);
+        Assert.Equal(StatusCode.Forbidden, withMessage.StatusCode);
+        Assert.Single(withMessage.Messages);
+        Assert.Contains("Access to this resource is restricted.", withMessage.Messages);
+
+        Assert.False(withoutMessage.Success);
+        Assert.Equal(StatusCode.Forbidden, withoutMessage.StatusCode);
+        Assert.Empty(withoutMessage.Messages);
+
+        Assert.False(typedForbidden.Success);
+        Assert.Equal(StatusCode.Forbidden, typedForbidden.StatusCode);
+        Assert.Null(typedForbidden.Data);
+        Assert.Equal(withMessage.Messages, typedForbidden.Messages);
+    }
+
+    [Fact]
     public void CreateNotFound_ShouldReturnFailureWithNotFoundStatus()
     {
         Result result = Result.CreateNotFound("Requested business entity does not exist.");
@@ -142,5 +164,79 @@ public class ResultTests
         Assert.True(result.Success);
         Assert.Equal(StatusCode.OK, result.StatusCode);
         Assert.Equal(message, result.Data);
+    }
+
+    [Fact]
+    public void AdditionalFactoryMethodsAndConversions_CoverAllResultVariants()
+    {
+        Result unauthorizedNoMsg = Result.CreateUnauthorized();
+        Result notFoundNoMsg = Result.CreateNotFound();
+        Result timeout = Result.CreateRequestTimeout("Timed out");
+        Result unprocessable = Result.CreateUnprocessableEntity("Invalid state");
+        Result unknownNoMsg = Result.CreateUnknownError();
+        Result unknownWithMsg = Result.CreateUnknownError("Unexpected failure");
+        Result unavailable = Result.CreateServiceUnavailable("Maintenance");
+        Result<string> genericUnknown = Result.CreateUnknownError<Result<string>>("Typed unknown");
+
+        Assert.Equal(StatusCode.Unauthorized, unauthorizedNoMsg.StatusCode);
+        Assert.Empty(unauthorizedNoMsg.Messages);
+        Assert.Equal(StatusCode.NotFound, notFoundNoMsg.StatusCode);
+        Assert.Equal(StatusCode.RequestTimeout, timeout.StatusCode);
+        Assert.Equal(StatusCode.UnprocessableEntity, unprocessable.StatusCode);
+        Assert.Equal(StatusCode.UnknownError, unknownNoMsg.StatusCode);
+        Assert.Contains("Unexpected failure", unknownWithMsg.Messages);
+        Assert.Equal(StatusCode.ServiceUnavailable, unavailable.StatusCode);
+        Assert.Equal(StatusCode.UnknownError, genericUnknown.StatusCode);
+
+        Result multiMessageBadRequest = Result.CreateBadRequest(["M1", "M2"]);
+        Assert.Equal($"M1{Environment.NewLine}M2", multiMessageBadRequest.JoinedMessages);
+
+        Result<int> accepted = Result.CreateSuccessAccepted(7);
+        Result<int> created = Result.CreateSuccessCreated(8);
+        Result<string> conflictNoMsg = Result.CreateConflict<string>("dup");
+        Result conflictWithMsg = Result.CreateConflict("dup");
+        Assert.Equal(StatusCode.Accepted, accepted.StatusCode);
+        Assert.Equal(StatusCode.Created, created.StatusCode);
+        Assert.True(conflictNoMsg.IsConflict);
+        Assert.Equal("dup", conflictNoMsg.Data);
+        Assert.Empty(conflictNoMsg.Messages);
+        Assert.True(conflictWithMsg.IsConflict);
+        Assert.Equal(["dup"], conflictWithMsg.Messages);
+
+        Result convertedFromGeneric = Result.Create(accepted);
+        Result<double> convertedToGeneric = Result.Create<Result<double>>(multiMessageBadRequest);
+        Assert.True(convertedFromGeneric.Success);
+        Assert.Equal(2, convertedToGeneric.Messages.Count);
+
+        Result<string> emptyDataResult = Result.CreateError(StatusCode.BadRequest, "err");
+        Result<int> changedWhenNullData = emptyDataResult.ChangeData(42);
+        Assert.False(changedWhenNullData.Success);
+        Assert.Equal(default, changedWhenNullData.Data);
+
+        ListedResult<int> listedNull = Result.CreateListedSuccessOk<int>();
+        Assert.Equal(0, listedNull.Count);
+
+        ListedResult<int> listedImplicit = multiMessageBadRequest;
+        PagedResult<int> pagedImplicit = multiMessageBadRequest;
+        Assert.Equal(StatusCode.BadRequest, listedImplicit.StatusCode);
+        Assert.Equal(StatusCode.BadRequest, pagedImplicit.StatusCode);
+
+        PagedResult<int> pagedWithMeta = Result.CreatePagedSuccessOk([1, 2]) with
+        {
+            TotalCount = 10,
+            PageNumber = 2,
+            PageSize = 5
+        };
+        PagedResult<int> pagedNull = Result.CreatePagedSuccessOk<int>();
+        Assert.Equal(10, pagedWithMeta.TotalCount);
+        Assert.Equal(2, pagedWithMeta.PageNumber);
+        Assert.Equal(5, pagedWithMeta.PageSize);
+        Assert.Null(pagedNull.Data);
+
+        Result resultNullMsgs = new() { Success = true, StatusCode = StatusCode.OK, Messages = null! };
+        Result<int> convertedNullMsgs = Result.Create<Result<int>>(resultNullMsgs);
+        Result backFromGenericNullMsgs = Result.Create(new Result<int> { Success = true, StatusCode = StatusCode.OK, Messages = null! });
+        Assert.Empty(convertedNullMsgs.Messages);
+        Assert.Empty(backFromGenericNullMsgs.Messages);
     }
 }

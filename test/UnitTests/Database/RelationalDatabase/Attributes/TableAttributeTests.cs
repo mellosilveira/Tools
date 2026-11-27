@@ -9,7 +9,7 @@ public sealed class TableAttributeTests
     [Fact]
     public void Constructor_WithExplicitAlias_UsesThatAlias()
     {
-        var attr = new TableAttribute("product", "prd");
+        TableAttribute attr = new("product", "prd");
 
         Assert.Equal("product", attr.Name);
         Assert.Equal("prd", attr.Alias);
@@ -25,7 +25,7 @@ public sealed class TableAttributeTests
     public void Constructor_AutoAlias_GeneratesCorrectAbbreviation(
         string tableName, string expectedAlias)
     {
-        var attr = new TableAttribute(tableName);
+        TableAttribute attr = new(tableName);
 
         Assert.Equal(expectedAlias, attr.Alias);
     }
@@ -35,7 +35,7 @@ public sealed class TableAttributeTests
     [Fact]
     public void ProductEntity_HasExpectedTableNameAndAlias()
     {
-        var attr = typeof(ProductEntity)
+        TableAttribute? attr = typeof(ProductEntity)
             .GetCustomAttributes(typeof(TableAttribute), inherit: false)
             .Cast<TableAttribute>()
             .Single();
@@ -47,7 +47,7 @@ public sealed class TableAttributeTests
     [Fact]
     public void OrderItemEntity_HasExpectedTableNameAndAlias()
     {
-        var attr = typeof(OrderItemEntity)
+        TableAttribute? attr = typeof(OrderItemEntity)
             .GetCustomAttributes(typeof(TableAttribute), inherit: false)
             .Cast<TableAttribute>()
             .Single();

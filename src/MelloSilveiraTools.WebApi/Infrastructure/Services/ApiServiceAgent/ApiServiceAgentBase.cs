@@ -27,7 +27,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     {
         JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
         options.Converters.Add(new JsonStringEnumConverter());
-        options.MakeReadOnly();
+        options.MakeReadOnly(populateMissingResolver: true);
         JsonSerializerOptions = options;
     }
 
@@ -75,7 +75,8 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
     protected async Task<ListedResult<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class => await ResiliencePipeline.ExecuteAsync(async _ =>
     {
-        CancellationToken token = new CancellationTokenSource(timeoutInMiliseconds).Token;
+        using CancellationTokenSource timeoutCts = new(timeoutInMiliseconds);
+        CancellationToken token = timeoutCts.Token;
         try
         {
             HttpResponseMessage result = await HttpClient.GetAsync(requestUri, token).ConfigureAwait(false);

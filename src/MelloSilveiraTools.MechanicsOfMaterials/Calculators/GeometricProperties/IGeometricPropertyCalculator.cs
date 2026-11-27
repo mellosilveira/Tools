@@ -7,6 +7,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.GeometricPropertie
 /// structural profile used in Mechanics of Materials analyses.
 /// </summary>
 /// <typeparam name="TProfile">The concrete <see cref="Profile"/> type whose geometric properties are evaluated.</typeparam>
+// TODO: Restructure this interface and its implementations to support multiple structural profile types dynamically.
 public interface IGeometricPropertyCalculator<TProfile>
     where TProfile : Profile
 {

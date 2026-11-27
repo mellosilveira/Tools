@@ -3,6 +3,7 @@
 name: Build and publish .NET nuget packages
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 
@@ -45,6 +46,17 @@ jobs:
       run: dotnet restore MelloSilveiraTools.sln
     - name: Build solution
       run: dotnet build MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Run unit tests with coverage
+      run: dotnet test test/UnitTests/UnitTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --settings coverlet.runsettings --collect:"XPlat Code Coverage" --results-directory build/test-results/unit --logger "trx;LogFileName=unit-tests.trx"
+    - name: Run acceptance tests with coverage
+      run: dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --settings coverlet.runsettings --collect:"XPlat Code Coverage" --results-directory build/test-results/acceptance --logger "trx;LogFileName=acceptance-tests.trx"
+    - name: Upload test and coverage results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-main
+        path: build/test-results/
+        if-no-files-found: ignore
     - name: Pack every NuGet package
       run: dotnet pack MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.UPLOAD_PATH }}
     - name: List produced packages

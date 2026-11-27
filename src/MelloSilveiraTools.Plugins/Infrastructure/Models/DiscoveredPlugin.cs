@@ -34,14 +34,14 @@ public record DiscoveredPlugin
     }
 
     /// <summary>Plugin name without version (e.g., "SoftTissue.Plugins").</summary>
-    public string Name { get; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
     /// <summary>Parsed semantic version.</summary>
-    public PluginVersion Version { get; }
+    public PluginVersion Version { get; init; } = PluginVersion.Default;
 
     /// <summary>Absolute path to the DLL file.</summary>
-    public string FullPath { get; } = string.Empty;
+    public string FullPath { get; init; } = string.Empty;
 
     /// <summary>Timestamp when the plugin was first discovered.</summary>
-    public DateTimeOffset DiscoveredAt { get; }
+    public DateTimeOffset DiscoveredAt { get; init; }
 }

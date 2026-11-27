@@ -1,3 +1,4 @@
+#nullable disable
 /*************************************************************************
 ALGLIB 4.08.0 (source code generated 2026-06-08)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
@@ -1232,9 +1233,9 @@ public partial class alglib
             int i = 0;
             double[] buf = new double[0];
 
-            alglib.ap.assert(n > 0, "FFTC1D: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(a) >= n, "FFTC1D: Length(A)<N!");
-            alglib.ap.assert(apserv.isfinitecvector(a, n, _params), "FFTC1D: A contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTC1D: incorrect N!");
+            ap.assert(ap.len(a) >= n, "FFTC1D: Length(A)<N!");
+            ap.assert(apserv.isfinitecvector(a, n, _params), "FFTC1D: A contains infinite or NAN values!");
 
             //
             // Special case: N=1, FFT is just identity transform.
@@ -1302,9 +1303,9 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n > 0, "FFTC1DInv: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(a) >= n, "FFTC1DInv: Length(A)<N!");
-            alglib.ap.assert(apserv.isfinitecvector(a, n, _params), "FFTC1DInv: A contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTC1DInv: incorrect N!");
+            ap.assert(ap.len(a) >= n, "FFTC1DInv: Length(A)<N!");
+            ap.assert(apserv.isfinitecvector(a, n, _params), "FFTC1DInv: A contains infinite or NAN values!");
 
             //
             // Inverse DFT can be expressed in terms of the DFT as
@@ -1359,9 +1360,9 @@ public partial class alglib
         {
             f = new complex[0];
 
-            alglib.ap.assert(n > 0, "FFTR1D: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(a) >= n, "FFTR1D: Length(A)<N!");
-            alglib.ap.assert(apserv.isfinitevector(a, n, _params), "FFTR1D: A contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTR1D: incorrect N!");
+            ap.assert(ap.len(a) >= n, "FFTR1D: Length(A)<N!");
+            ap.assert(apserv.isfinitevector(a, n, _params), "FFTR1D: A contains infinite or NAN values!");
             fftr1dbuf(a, n, ref f, _params);
         }
 
@@ -1389,9 +1390,9 @@ public partial class alglib
             ftbase.fasttransformplan plan = new();
             int i_ = 0;
 
-            alglib.ap.assert(n > 0, "FFTR1DBuf: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(a) >= n, "FFTR1DBuf: Length(A)<N!");
-            alglib.ap.assert(apserv.isfinitevector(a, n, _params), "FFTR1DBuf: A contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTR1DBuf: incorrect N!");
+            ap.assert(ap.len(a) >= n, "FFTR1DBuf: Length(A)<N!");
+            ap.assert(apserv.isfinitevector(a, n, _params), "FFTR1DBuf: A contains infinite or NAN values!");
 
             //
             // Special cases:
@@ -1517,17 +1518,17 @@ public partial class alglib
 
             a = new double[0];
 
-            alglib.ap.assert(n > 0, "FFTR1DInv: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(f) >= (int)Math.Floor((double)n / (double)2) + 1, "FFTR1DInv: Length(F)<Floor(N/2)+1!");
-            alglib.ap.assert(math.isfinite(f[0].x), "FFTR1DInv: F contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTR1DInv: incorrect N!");
+            ap.assert(ap.len(f) >= (int)Math.Floor((double)n / (double)2) + 1, "FFTR1DInv: Length(F)<Floor(N/2)+1!");
+            ap.assert(math.isfinite(f[0].x), "FFTR1DInv: F contains infinite or NAN values!");
             for (i = 1; i <= (int)Math.Floor((double)n / (double)2) - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(f[i].x) && math.isfinite(f[i].y), "FFTR1DInv: F contains infinite or NAN values!");
+                ap.assert(math.isfinite(f[i].x) && math.isfinite(f[i].y), "FFTR1DInv: F contains infinite or NAN values!");
             }
-            alglib.ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].x), "FFTR1DInv: F contains infinite or NAN values!");
+            ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].x), "FFTR1DInv: F contains infinite or NAN values!");
             if (n % 2 != 0)
             {
-                alglib.ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].y), "FFTR1DInv: F contains infinite or NAN values!");
+                ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].y), "FFTR1DInv: F contains infinite or NAN values!");
             }
             fftr1dinvbuf(f, n, ref a, _params);
         }
@@ -1550,17 +1551,17 @@ public partial class alglib
             double[] h = new double[0];
             complex[] fh = new complex[0];
 
-            alglib.ap.assert(n > 0, "FFTR1DInvBuf: incorrect N!");
-            alglib.ap.assert(alglib.ap.len(f) >= (int)Math.Floor((double)n / (double)2) + 1, "FFTR1DInvBuf: Length(F)<Floor(N/2)+1!");
-            alglib.ap.assert(math.isfinite(f[0].x), "FFTR1DInvBuf: F contains infinite or NAN values!");
+            ap.assert(n > 0, "FFTR1DInvBuf: incorrect N!");
+            ap.assert(ap.len(f) >= (int)Math.Floor((double)n / (double)2) + 1, "FFTR1DInvBuf: Length(F)<Floor(N/2)+1!");
+            ap.assert(math.isfinite(f[0].x), "FFTR1DInvBuf: F contains infinite or NAN values!");
             for (i = 1; i <= (int)Math.Floor((double)n / (double)2) - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(f[i].x) && math.isfinite(f[i].y), "FFTR1DInvBuf: F contains infinite or NAN values!");
+                ap.assert(math.isfinite(f[i].x) && math.isfinite(f[i].y), "FFTR1DInvBuf: F contains infinite or NAN values!");
             }
-            alglib.ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].x), "FFTR1DInvBuf: F contains infinite or NAN values!");
+            ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].x), "FFTR1DInvBuf: F contains infinite or NAN values!");
             if (n % 2 != 0)
             {
-                alglib.ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].y), "FFTR1DInvBuf: F contains infinite or NAN values!");
+                ap.assert(math.isfinite(f[(int)Math.Floor((double)n / (double)2)].y), "FFTR1DInvBuf: F contains infinite or NAN values!");
             }
 
             //
@@ -1629,7 +1630,7 @@ public partial class alglib
             complex v = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n > 0 && n % 2 == 0, "FFTR1DEvenInplace: incorrect N!");
+            ap.assert(n > 0 && n % 2 == 0, "FFTR1DEvenInplace: incorrect N!");
 
             //
             // Special cases:
@@ -1693,7 +1694,7 @@ public partial class alglib
             int i = 0;
             int n2 = 0;
 
-            alglib.ap.assert(n > 0 && n % 2 == 0, "FFTR1DInvInternalEven: incorrect N!");
+            ap.assert(n > 0 && n % 2 == 0, "FFTR1DInvInternalEven: incorrect N!");
 
             //
             // Special cases:
@@ -1785,7 +1786,7 @@ public partial class alglib
         {
             r = new complex[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1D: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1D: incorrect N or M!");
             convc1dbuf(a, m, b, n, ref r, _params);
         }
 
@@ -1805,7 +1806,7 @@ public partial class alglib
             ref complex[] r,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DBuf: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DBuf: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -1858,7 +1859,7 @@ public partial class alglib
         {
             r = new complex[0];
 
-            alglib.ap.assert((n > 0 && m > 0) && n <= m, "ConvC1DInv: incorrect N or M!");
+            ap.assert((n > 0 && m > 0) && n <= m, "ConvC1DInv: incorrect N or M!");
             convc1dinvbuf(a, m, b, n, ref r, _params);
         }
 
@@ -1890,7 +1891,7 @@ public partial class alglib
             complex c3 = 0;
             double t = 0;
 
-            alglib.ap.assert((n > 0 && m > 0) && n <= m, "ConvC1DInvBuf: incorrect N or M!");
+            ap.assert((n > 0 && m > 0) && n <= m, "ConvC1DInvBuf: incorrect N or M!");
             p = ftbase.ftbasefindsmooth(m, _params);
             ftbase.ftcomplexfftplan(p, 1, plan, _params);
             buf = new double[2 * p];
@@ -1978,7 +1979,7 @@ public partial class alglib
         {
             c = new complex[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
             convc1dcircularbuf(s, m, r, n, ref c, _params);
         }
 
@@ -2007,7 +2008,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -2077,7 +2078,7 @@ public partial class alglib
         {
             r = new complex[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircularInv: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircularInv: incorrect N or M!");
             convc1dcircularinvbuf(a, m, b, n, ref r, _params);
         }
 
@@ -2114,7 +2115,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircularInv: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircularInv: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -2222,7 +2223,7 @@ public partial class alglib
         {
             r = new double[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvR1D: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvR1D: incorrect N or M!");
             convr1dbuf(a, m, b, n, ref r, _params);
         }
 
@@ -2244,7 +2245,7 @@ public partial class alglib
             ref double[] r,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0 && m > 0, "ConvR1DBuf: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvR1DBuf: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -2297,7 +2298,7 @@ public partial class alglib
         {
             r = new double[0];
 
-            alglib.ap.assert((n > 0 && m > 0) && n <= m, "ConvR1DInv: incorrect N or M!");
+            ap.assert((n > 0 && m > 0) && n <= m, "ConvR1DInv: incorrect N or M!");
             convr1dinvbuf(a, m, b, n, ref r, _params);
         }
 
@@ -2329,7 +2330,7 @@ public partial class alglib
             complex c3 = 0;
             int i_ = 0;
 
-            alglib.ap.assert((n > 0 && m > 0) && n <= m, "ConvR1DInvBuf: incorrect N or M!");
+            ap.assert((n > 0 && m > 0) && n <= m, "ConvR1DInvBuf: incorrect N or M!");
             p = ftbase.ftbasefindsmootheven(m, _params);
             buf = new double[p];
             for (i_ = 0; i_ <= m - 1; i_++)
@@ -2408,7 +2409,7 @@ public partial class alglib
         {
             c = new double[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
             convr1dcircularbuf(s, m, r, n, ref c, _params);
         }
 
@@ -2435,7 +2436,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircularBuf: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircularBuf: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -2506,7 +2507,7 @@ public partial class alglib
         {
             r = new double[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvR1DCircularInv: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvR1DCircularInv: incorrect N or M!");
             convr1dcircularinvbuf(a, m, b, n, ref r, _params);
         }
 
@@ -2544,7 +2545,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvR1DCircularInv: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvR1DCircularInv: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -2706,8 +2707,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DX: incorrect N or M!");
-            alglib.ap.assert(n <= m, "ConvC1DX: N<M assumption is false!");
+            ap.assert(n > 0 && m > 0, "ConvC1DX: incorrect N or M!");
+            ap.assert(n <= m, "ConvC1DX: N<M assumption is false!");
 
             //
             // Auto-select
@@ -3191,8 +3192,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvR1DX: incorrect N or M!");
-            alglib.ap.assert(n <= m, "ConvR1DX: N<M assumption is false!");
+            ap.assert(n > 0 && m > 0, "ConvR1DX: incorrect N or M!");
+            ap.assert(n <= m, "ConvR1DX: N<M assumption is false!");
 
             //
             // handle special cases
@@ -3384,7 +3385,7 @@ public partial class alglib
             //
             if (alg == 1)
             {
-                alglib.ap.assert(m + n - 1 > 2, "ConvR1DX: internal error!");
+                ap.assert(m + n - 1 > 2, "ConvR1DX: internal error!");
                 if ((circular && ftbase.ftbaseissmooth(m, _params)) && m % 2 == 0)
                 {
 
@@ -3518,7 +3519,7 @@ public partial class alglib
             //
             if (alg == 2)
             {
-                alglib.ap.assert((q + n - 1) % 2 == 0, "ConvR1DX: internal error!");
+                ap.assert((q + n - 1) % 2 == 0, "ConvR1DX: internal error!");
                 buf = new double[q + n - 1];
                 buf2 = new double[q + n - 1];
                 buf3 = new double[q + n - 1];
@@ -3669,7 +3670,7 @@ public partial class alglib
         {
             r = new complex[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "CorrC1D: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "CorrC1D: incorrect N or M!");
             corrc1dbuf(signal, n, pattern, m, ref r, _params);
         }
 
@@ -3695,7 +3696,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "CorrC1DBuf: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "CorrC1DBuf: incorrect N or M!");
             p = new complex[m];
             for (i = 0; i <= m - 1; i++)
             {
@@ -3766,7 +3767,7 @@ public partial class alglib
 
             c = new complex[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -3847,7 +3848,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -3950,7 +3951,7 @@ public partial class alglib
         {
             r = new double[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "CorrR1D: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "CorrR1D: incorrect N or M!");
             corrr1dbuf(signal, n, pattern, m, ref r, _params);
         }
 
@@ -3976,7 +3977,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "CorrR1DBuf: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "CorrR1DBuf: incorrect N or M!");
             p = new double[m];
             for (i = 0; i <= m - 1; i++)
             {
@@ -4038,7 +4039,7 @@ public partial class alglib
         {
             c = new double[0];
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
             corrr1dcircularbuf(signal, m, pattern, n, ref c, _params);
         }
 
@@ -4067,7 +4068,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
+            ap.assert(n > 0 && m > 0, "ConvC1DCircular: incorrect N or M!");
 
             //
             // normalize task: make M>=N,
@@ -4149,7 +4150,7 @@ public partial class alglib
             int i = 0;
             complex[] fa = new complex[0];
 
-            alglib.ap.assert(n > 0, "FHTR1D: incorrect N!");
+            ap.assert(n > 0, "FHTR1D: incorrect N!");
 
             //
             // Special case: N=1, FHT is just identity transform.
@@ -4193,7 +4194,7 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n > 0, "FHTR1DInv: incorrect N!");
+            ap.assert(n > 0, "FHTR1DInv: incorrect N!");
 
             //
             // Special case: N=1, iFHT is just identity transform.

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace MelloSilveiraTools.Core.ExtensionMethods;
 
@@ -12,6 +13,16 @@ public static class ClassExtensions
         public Task<T> ToTask() => Task.FromResult(obj);
 
         /// <summary>
+        /// Gets the values from object using an <see cref="IEnumerable{T}"/> of properties as reference.
+        /// </summary>
+        /// <param name="properties">Properties to be used as reference to get the values from object.</param>
+        /// <returns></returns>
+        public IEnumerable<object?> GetValues(IEnumerable<PropertyInfo> properties) => properties.Select(property => property.GetValue(obj));
+    }
+
+    extension<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(T obj)
+    {
+        /// <summary>
         /// Gets the values from object which is following the hierarchy order from parent to child.
         /// </summary>
         /// <returns>A <see cref="List{T}"/> containing the values from object which is following the hierarchy order from parent to child.</returns>
@@ -19,16 +30,6 @@ public static class ClassExtensions
         {
             PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
             return obj.GetValues(properties);
-        }
-
-        /// <summary>
-        /// Gets the values from object using an <see cref="IEnumerable{T}"/> of properties as reference.
-        /// </summary>
-        /// <param name="properties">Properties to be used as reference to get the values from object.</param>
-        /// <returns></returns>
-        public IEnumerable<object?> GetValues(IEnumerable<PropertyInfo> properties)
-        {
-            return properties.Select(property => property.GetValue(obj));
         }
 
         /// <summary>

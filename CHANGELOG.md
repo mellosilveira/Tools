@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-11-27
+### Added
+- **Turnkey Quickstart, Web Workbench & Multi-Platform Launcher (`WebApi.Host`, `WebUi`, `Launcher`, `Docker`, `CI`)**:
+  - Added the `MelloSilveiraTools.WebApi.Host` API server (REST/Minimal APIs, OpenAPI/Swagger, JWE authentication, bundled ligament sample dataset, and real-time NDJSON streaming) alongside the Blazor WebAssembly `MelloSilveiraTools.WebUi` workbench featuring an overview Home screen, interactive Apache ECharts visualizations, experimental fitting/sweep tools, mechanics/fatigue calculators, storage explorer, and plugin moderation.
+  - Added dual local HTTP (`26324`) and HTTPS (`24263`) endpoint support via native Kestrel (`https-cert.pfx` configured in `appsettings` at the application root) and `UseForwardedHeaders`, with the Launcher prompting users for a custom `.pfx` certificate or generating a local one on demand.
+  - Added the standalone cross-platform `MelloSilveiraTools.Launcher` CLI and GitHub Actions release workflow (`.github/workflows/publish_launcher_executables.yml`) for `win-x64`, `win-arm64`, `osx-x64`, `osx-arm64`, `linux-x64`, and `linux-arm64` that checks or installs prerequisites (PostgreSQL, Docker, `.NET 10`, Git), reuses existing Docker PostgreSQL containers, resolves port conflicts interactively, clones the chosen branch, runs and cleans up migrations, and launches the application.
+- **Database Schema Migrator (`Database.Migrator`)**:
+  - Added a standalone DbUp CLI runner and Docker image executing contextual PostgreSQL migrations (`All`, `Common`, `Optimizations`, `Plugins`) for users, storage metadata, curve fits, simulations, parametric sweeps, and plugin governance.
+- **Biomechanics Optimization, Sensitivity Analysis & Mechanics APIs (`MechanicsOfMaterials`, `Optimizations`, `Mathematics`)**:
+  - Added single and parallel/sequential batch experimental data processing pipelines (automated phase segmentation, constrained ALGLIB/MathNet constitutive parameter fitting with confidence intervals, and real-time NDJSON progress streaming).
+  - Added One-At-A-Time (OAAT) parametric sensitivity sweep pipelines (`ParametricSweepPipeline` and `ExecuteParametricSweepFromExperimentalDataCommand`) with numerical asymptote detection and variable-partitioned CSV export, plus `ExponentialIntegralFunction` and `VandermondeLeastSquares` analytical polynomial fitting.
+  - Added `GetMechanicalModelsCommand` (returning representative example JSONs for constitutive parameters and outputs across static and plugin models) and `ExecuteSpecimenAnalysisCommand` (with REST/Minimal API endpoints) for direct 3D specimen load-sharing analysis and classical fatigue calculations.
+- **Multi-Provider Storage, Pipeline Telemetry & Host Operations (`Core`, `Database`, `WebApi`)**:
+  - Added unified `IFileStorageService` providers (`Local`, `DFS`, `Azure Blob`, `AWS S3`) with streaming CSV/upload helpers and `FileStorageHealthCheck`.
+  - Added `IPipelineProgressNotifier` for bounded NDJSON progress streaming, lossless `DataflowFanOut`, and `IEnumerablePipelineStep<TIn, TOut>`.
+  - Added `PostgresHealthCheck`, `CheckHealthCommand` (`GET /api/health`), rate limiting (`AddDefaultRateLimiting`), CORS configuration (`AddDefaultCors`), and JWE user authentication endpoints (`Register`, `Login`, `RefreshToken`, `ValidateToken`, `GET /api/v1/auth/me`).
+- **Community Plugin Governance (`Plugins`)**:
+  - Added storage-agnostic collectible assembly loading (`PluginLoadContext`), community submission and superuser moderation workflows (`SubmitPlugin`, `ApprovePluginSubmission`, `RejectPluginSubmission`, `CancelPluginSubmission`, `InspectPlugins`), and strict managed IL-only assembly validation.
+- **JOSS Publication Readiness & Community Governance (`CI`, `Docs`)**:
+  - Re-licensed the repository under `GPL-3.0-or-later`, added the JOSS manuscript (`paper/paper.md`, `paper/paper.bib`, `.github/workflows/draft-pdf.yml`), community governance files (`CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, GitHub issue templates), root and per-package `README.md` guides, NuGet package validation (`Directory.Build.targets`), and `coverlet.runsettings` coverage rules.
+### Changed
+- **Native AOT Compatibility & Pure Npgsql Persistence (`Core`, `Database`, `WebApi.Host`)**:
+  - Replaced Dapper with pure `Npgsql` (`NpgsqlSlimDataSourceBuilder` and single-round-trip `NpgsqlBatch` queries), added trimming/AOT annotations and compiled-expression fallbacks, and standardized `TimeProvider` injection across services and pipelines.
+- **Unified Domain Contracts & Pipelines (`Core`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
+  - Standardized `StorageEntryMetadata` and `PluginInfo` models across storage, database, plugin, and WebUi layers, and unified simulation/CSV output writing around `IFileStorageService`.
+  - Converted `IValidator<T>` to `ValueTask<Result> ValidateAsync(...)`, standardized `Result` factory methods, enforced explicit `CancellationToken` passing outside request DTOs, and replaced static service helpers with DI-registered singletons.
+  - Replaced legacy Morris sensitivity prototypes with the unified OAAT `ParametricSweepPipeline` and converted `PipelineFactory` into an injectable singleton service.
+### Breaking
+- **Core, Storage & Pipeline Contracts (`Core`, `Database`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
+  - Replaced `IFileManager`/`FileMetadata` with `IFileStorageService`/`StorageEntryMetadata`, standardized `Result`/`CommandBase` and `ValueTask<Result> IValidator<T>.ValidateAsync`, and removed Dapper (`DynamicParameters`, `DbDataReaderExtensions`).
+  - Replaced `IProgress<PipelineProgressEvent>` with DI-injected `IPipelineProgressNotifier`, converted `PipelineFactory` from static to singleton, removed static service helpers from `PluginFileProcessor` and `UserContextMiddleware`, and replaced `CurveFittingController`/`FitCurve` with the unified `ExperimentalData` and `ParametricSweep` pipelines.
+### Fixed
+- **SQL Generation, Numerical Stability & Serialization (`Core`, `Database`, `Mathematics`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`)**:
+  - Fixed `PostgresSqlProvider` `INSERT`/`TryInsert`/`BulkInsert`/`UPDATE` generated column handling (`id`, `creation_timestamp`) and FK join alias disambiguation.
+  - Fixed culture-invariant `Vector3D` parsing/formatting (`CultureInfo.InvariantCulture`), JSON reference cycles and polymorphic JSON serialization/deserialization on `Function` and `PronySeries`, `LogarithmicCurveFitter` zero-based indexing, `ConstantFunction`/`FunctionFactory` edge cases, `ResultExtensions` immutable record chaining, and file-handle scoping in `JsonFilePluginCachePersistence`.
+  - Fixed `WriteLineAsNdJsonAsync` NDJSON serialization in `WebApi` to honor configured `JsonSerializerOptions` with string enum conversion, and improved test isolation and reliability across unit and PostgreSQL acceptance suites.
+### Security
+- **PostgreSQL Row-Level Security & Platform Hardening (`Core`, `Database`, `Database.Migrator`, `WebApi`, `Plugins`)**:
+  - Enforced per-operation PostgreSQL Row-Level Security (RLS) separating public reference datasets from private authenticated workspaces and superuser moderation, backed by startup non-superuser role validation.
+  - Removed privilege claims from JWE tokens in favor of live database user/superuser checks in `UserContextMiddleware`, migrated password hashing to BCL `Rfc2898DeriveBytes.Pbkdf2`, hardened `LocalFileStorageService` against path traversal and case-collision escapes, and enforced `CorFlags.ILOnly` / `AllowUnmanagedDlls = false` on plugin assemblies.
+
 ## [2.0.0] - 2026-10-08
 ### Added
 - `LogarithmicFunction` in `MelloSilveiraTools.Mathematics.Functions`.
@@ -62,7 +103,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - Fluent stage configuration: `.AddStep()` (overloaded for sync, async, and `IAsyncEnumerable`), `.AddDataMapping()`, `.AddForkingStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddCollectAllStep()`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal()`.
     - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members overriding TPL Dataflow defaults with `PropagateCompletion = true` on block linkages, guaranteeing automatic and graceful graph draining on `pipeline.Complete()`.
     - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
-    - Integrated resilience: exponential backoff retry policies (`RetryOptions`), dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
+    - Integrated resilience: dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
     - Telemetry and tracing: OpenTelemetry `ActivitySource` tracing and structured Serilog logging via `TelemetryExtensions`.
   - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations with `.AddStep()` supporting sync, async, and streaming steps.
 - **Command Pattern Infrastructure (`MelloSilveiraTools.Core.Application.Commands`)**:

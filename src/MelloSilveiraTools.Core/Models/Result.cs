@@ -26,6 +26,8 @@ public abstract record ResultBase
     /// Indicates whether the action was halted due to conflicting business data (such as a duplicate record).
     /// </summary>
     public bool IsConflict => StatusCode == StatusCode.Conflict;
+
+    public string JoinedMessages => string.Join(Environment.NewLine, Messages);
 }
 
 /// <summary>
@@ -129,6 +131,14 @@ public record Result : ResultBase
     public static Result CreateBadRequest(string message) => CreateError(StatusCode.BadRequest, message);
 
     /// <summary>
+    /// Creates an outcome indicating that the submitted data did not meet business requirements or validation rules.
+    /// </summary>
+    /// <param name="messages">Explanations detailing the required corrections.</param>
+    /// <returns>An invalid request result containing guidance messages.</returns>
+    public static Result CreateBadRequest(List<string> messages)
+        => new() { StatusCode = StatusCode.BadRequest, Messages = messages, Success = false };
+
+    /// <summary>
     /// Creates an outcome indicating that the action requires valid user authentication or authorization.
     /// </summary>
     /// <returns>An unauthorized outcome.</returns>
@@ -140,6 +150,13 @@ public record Result : ResultBase
     /// <param name="message">Authorization guidance.</param>
     /// <returns>An unauthorized outcome with instructions.</returns>
     public static Result CreateUnauthorized(string message) => CreateError(StatusCode.Unauthorized, message);
+
+    /// <summary>
+    /// Creates an outcome indicating that the caller does not have permission to perform the requested action.
+    /// </summary>
+    /// <param name="message">Optional explanation of the missing permission or ownership restriction.</param>
+    /// <returns>A forbidden outcome.</returns>
+    public static Result CreateForbidden(string? message = null) => CreateError(StatusCode.Forbidden, message);
 
     /// <summary>
     /// Creates an outcome indicating that the requested information or record could not be found.
@@ -154,6 +171,13 @@ public record Result : ResultBase
     /// <param name="message">Explanation of the elapsed time limit.</param>
     /// <returns>A timeout outcome.</returns>
     public static Result CreateRequestTimeout(string message) => CreateError(StatusCode.RequestTimeout, message);
+
+    /// <summary>
+    /// Creates an outcome indicating that the action conflicts with existing records (e.g. duplicate key).
+    /// </summary>
+    /// <param name="message">Explanation of the conflict.</param>
+    /// <returns>A conflict outcome.</returns>
+    public static Result CreateConflict(string message) => CreateError(StatusCode.Conflict, message);
 
     /// <summary>
     /// Creates an outcome indicating that the request was understood but cannot be processed under current business rules.
@@ -202,6 +226,15 @@ public record Result : ResultBase
         => CreateSuccess(StatusCode.OK, resultData);
 
     /// <summary>
+    /// Creates a standard successful outcome delivering business data.
+    /// </summary>
+    /// <typeparam name="TResultData">The type of business data payload.</typeparam>
+    /// <param name="resultData">The business payload delivered to the client.</param>
+    /// <returns>A successful 202 Accepted outcome carrying data.</returns>
+    public static Result<TResultData> CreateSuccessAccepted<TResultData>(TResultData? resultData = default)
+        => CreateSuccess(StatusCode.Accepted, resultData);
+
+    /// <summary>
     /// Creates an outcome confirming that a new record was created, delivering the created record details.
     /// </summary>
     /// <typeparam name="TResultData">The type of business data payload.</typeparam>
@@ -230,6 +263,15 @@ public record Result : ResultBase
         => new() { Data = data, Messages = [message], StatusCode = StatusCode.Conflict, Success = false };
 
     /// <summary>
+    /// Creates an outcome indicating temporary service unavailability while carrying structured diagnostic data.
+    /// </summary>
+    /// <typeparam name="TResultData">The type of diagnostic or business data payload.</typeparam>
+    /// <param name="data">The structured payload describing the unavailable state.</param>
+    /// <returns>A 503 Service Unavailable outcome carrying data.</returns>
+    public static Result<TResultData> CreateServiceUnavailable<TResultData>(TResultData data)
+        => new() { Data = data, StatusCode = StatusCode.ServiceUnavailable, Success = false };
+
+    /// <summary>
     /// Creates a successful outcome delivering a list of business records.
     /// </summary>
     /// <typeparam name="TResultData">The type of items in the list.</typeparam>
@@ -255,7 +297,7 @@ public record Result : ResultBase
     /// <param name="data">The items belonging to the current page.</param>
     /// <returns>A paginated outcome.</returns>
     public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
-        => new() { StatusCode = StatusCode.OK, Data = data?.ToList() };
+        => new() { StatusCode = StatusCode.OK, Success = true, Data = data?.ToList() };
 }
 
 /// <summary>
@@ -310,6 +352,8 @@ public record ListedResult<TResultData> : ResultBase
     /// Implicitly converts a general result into a listed result structure.
     /// </summary>
     public static implicit operator ListedResult<TResultData>(Result response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
+
+    public static implicit operator ListedResult<TResultData>(List<TResultData> data) => new() { StatusCode = StatusCode.OK, Success = true, Data = data };
 }
 
 /// <summary>

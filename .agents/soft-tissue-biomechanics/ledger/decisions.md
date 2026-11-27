@@ -1,160 +1,166 @@
 # Decisions and Scientific Traceability Ledger
 
-## Execution: Smoke Test Validation
-- **Date**: 2026-10-06T01:00:06Z
-- **Task IDs**: `smoke-test-task-1`, `smoke-test`
-- **What**: Successful execution of the Biomechanics Research ecosystem smoke test using Docker.
-- **From where**: Executed by `senior-backend-software-engineer-net` (`docker-compose`) and `experimental-data-analyst` (`docker run`).
-- **Why**: To validate the infrastructure setup, ensuring isolated and reproducible execution via Docker, thereby complying with the absolute prohibition of non-containerized (local) installations and tool executions.
-- **Category**: Execution
+> **Consolidated Scientific Ledger** — Maintains the permanent triple-record traceability (`What / From where / Why`) of all scientific, methodological, bibliographic, and core architectural decisions for the PPEMM/UFCIRJ Master's Thesis and `MelloSilveiraTools` JOSS submission.
+>
+> *Transient software-sprint QA gates (Storage API phases, portability hotfixes, batch mutex orchestration) were pruned on 2026-11-19; implementation history remains tracked in Git and `CHANGELOG.md`. For thematic guides, see [`consolidated-thesis-guide.md`](../consolidated-thesis-guide.md) and [`consolidated-joss-and-publications.md`](../consolidated-joss-and-publications.md).*
 
-### 2026-10-06 Task: baseline-style-guide-and-previous-cycle
-**Category**: Decision & Execution
+---
 
-#### Style Guide (Decision)
-- **What**: Established standard Style Guide for the research ecosystem.
-  - **Tone**: Academic, impersonal, fluid, rigorous, and with impeccable logical linking.
-  - **Methodological Approach**: Emphasizes strict geometric and kinematic boundary conditions. Acknowledges limitations openly.
-  - **Mathematical Exposition**: Defines all variables immediately after equations. Addresses singularities explicitly. Moves heavy deductions to appendices.
-  - **Terminology**: Employs rigorous continuum mechanics and viscoelastic terminology.
-  - **Formatting**: Uses `$...$` and `$$...$$`. Limits significant figures in descriptive text.
-- **From where**: Extracted by the Academic Writer from the user's baseline paper `Texto base para revista_Schapery.docx`.
-- **Why**: To ensure all future research outputs and written texts strictly respect this foundation and maintain high editorial and scientific standards.
+## Index of Core Decisions
 
-#### Previous Cycle Baseline (Execution)
-- **What**: Registered the achievements and findings of the previous cycle.
-  - **Methodology**: Developed a 1D non-linear viscoelastic load-sharing framework for porcine knee ligaments based on Schapery’s theory. Evaluated 81 combinatorial joint scenarios under a 75 N step-like vertical distraction, comparing 0% and 3% initial pre-strain.
-  - **Results**: Demonstrated viscoelasticity reduces joint load capacity over time. 0% pre-strain dropped to 43.07 N; 3% pre-strain mitigated decay to 60.48 N. MCL experienced most relative force reduction.
-- **From where**: Extracted by the Academic Writer from the user's baseline paper `Texto base para revista_Schapery.docx`.
-- **Why**: To serve as the state-of-the-art reference and methodological starting point for the next iterations of the study.
+| Date | Task ID | Category | Summary |
+|---|---|---|---|
+| 2026-10-06 | `baseline-style-guide-and-previous-cycle` | Decision & Execution | Academic Style Guide (3 sig. figs. in text) & Schapery 1D baseline (81 joint scenarios, 0% vs. 3% pre-strain). |
+| 2026-10-06 | `methodological-directive-evidence-funnel` | Decision | 4-stage Evidence Funnel (Soft Tissues → Knee Ligaments → FEA Tech → FEBio Validation) to prevent confirmation bias. |
+| 2026-10-06 | `safeguard-anti-hallucination-guardrails` | Decision | Human-in-the-Loop QA gate, short loops, deterministic validation scripts, zero invented DOIs/URLs. |
+| 2026-10-07 | `scope-uniaxial-and-architecture-pivot` | Decision | Focus strictly on isolated uniaxial porcine knee ligaments; C# 1D engine (`MelloSilveiraTools`) + 3D FEBio triad. |
+| 2026-10-08 | `evidence-funnel-and-hgo-inclusion` | Decision & Execution | Completed 301-DOI Evidence Funnel (Tasks 1.1–1.3); confirmed FEBio; expanded guiding models to 6 (added HGO). |
+| 2026-10-08 / 14 | `1d-fitters-and-sensitivity-engine` | Execution & Decision | Implemented Fung QLV 2-stage (Task 2.1), Schapery 3-stage (Task 2.2), and OAAT Sensitivity Engine (Task 2.7). |
+| 2026-10-16 | `target-journals-and-dual-publication` | Decision | Audited 301 DOIs across 137 journals → Top 3 (*Scientific Reports*, *JBME*, *JMBBM*) + JOSS software paper strategy. |
+| 2026-10-28 | `production-first-anti-tdd-directive` | Decision | Production-First implementation directive (validate clean production architecture before test scaffolding). |
+| 2026-11-09 | `register-sensitivity-theory-basis` | Execution & Decision | Registered 10 CrossRef/ISBN-audited references for sensitivity gradients and continuation (`sensitivity-analysis-and-continuation.md`). |
+| 2026-11-09 | `advisor-academic-title-standardization` | Decision & Style | Standardized advisor formal title as **Prof. Dr. Paulo Pedro Kenedi** (PPEMM/UFCIRJ). |
+| 2026-11-09 | `focus-strictly-on-stress-relaxation` | Scope Refinement | Purged creep compliance and Kelvin-Voigt; aligned formulations and codebase strictly to stress relaxation. |
+| 2026-11-09 | `streamline-axial-single-ligament-scope` | Scope Refinement | Pruned rotational kinematics (Polar Decomposition, Spin, dynamic inertia) for coaxial quasi-static uniaxial tension; retained dual Lagrangian/Eulerian kinematics, experimental bridge, and 4 major 3D continuum theories in `Consolidated_Biomechanical_Formulations.docx` (246 eqs). |
+| 2026-11-10 | `soft-tissue-vs-polymers-comparative-mechanics` | Execution & Gap | 60 CrossRef-verified papers comparing native soft tissues vs. synthetic polymers (`comparative-mechanics-soft-tissues-vs-polymers.md`). |
+| 2026-11-17 | `future-works-explainable-ai-traceability` | Future Work & Directive | Mandatory Explainable AI (XAI) step-by-step theoretical and experimental traceability in any AI-synthesized final analysis. |
+| 2026-11-20 | `launcher-docker-self-contained-and-aot-evaluation` | Decision & Architecture | Self-contained Docker + ReadyToRun AOT (`PublishReadyToRun=true`); full `PublishAot` recorded in `future-works.md`. |
+| 2026-11-26 | `pure-npgsql-webui-governance-and-qa-hardening` | Execution & Architecture | Pure Npgsql (`NpgsqlSlimDataSourceBuilder`/`NpgsqlBatch`, zero `Dapper`), non-partitioned RLS (`storage_entry_metadata`), `WebApi.Host` + `WebUi` + `Launcher`, Model 2 plugin governance, distributed health checks (`AddWebApiHealthChecks`), `EnablePackageValidation=true`, and `coverlet.runsettings` scope. |
 
-### 2026-10-06 Task: methodological-directive-evidence-funnel
-**Category**: Decision (Methodological Directive for Deep Research)
+---
 
-#### Evidence Funnel Approach
-- **What**: Established the "Evidence Funnel" approach for theoretical research and literature reviews. The process strictly follows:
-  1. **Broad search**: Identify which constitutive models the state-of-the-art uses to predict soft tissue mechanical behavior in general.
-  2. **Narrowing**: Focus specifically on knee ligaments.
-  3. **Computational Analysis**: Investigate which software and computational technologies are being used for these simulations.
-  4. **Specific validation**: Look at how specific target tools (e.g., FEBio) fit into that landscape.
-- **From where**: User directive (received 2026-10-06).
-- **Why**: To avoid confirmation bias in literature reviews (i.e., preventing searches that only target pre-chosen tools or models).
+## Detailed Scientific & Architectural Records
 
-### 2026-10-06 Task: theoretical-advance-3d-continuum-febio
-**Category**: Decision & Future Work
+### 2026-10-06 — Baseline Style Guide, Previous Cycle & Evidence Funnel
+* **Task_ID:** `baseline-style-guide-and-previous-cycle`, `methodological-directive-evidence-funnel`, `safeguard-anti-hallucination-guardrails`
+* **Category:** Decision & Execution
+* **What:**
+  1. **Style Guide:** Academic, impersonal, rigorous continuum mechanics and viscoelastic terminology; LaTeX math (`$...$`, `$$...$$`); variables defined immediately after equations; heavy deductions in appendices; numbers rounded to **3 significant figures only in prose** (full precision in code/ledger).
+  2. **Previous Cycle Baseline:** 1D Schapery load-sharing framework across 81 combinatorial porcine knee scenarios under 75 N vertical distraction: 0% pre-strain dropped to 43.07 N; 3% pre-strain mitigated decay to 60.48 N (MCL showed highest relative drop).
+  3. **Evidence Funnel Directive:** Mandatory 4-step literature funnel (Broad Soft Tissue Models → Knee Ligaments → Computational/FEA Technologies → Specific Tool Validation) to eliminate confirmation bias.
+  4. **Anti-Hallucination & Automated Parsing Guardrails:** Short processing loops, mandatory human-in-the-loop QA gate for automated PDF/OCR parsing (`markdown-books/` + `temp_images/` targeted formula healing — never blindly trust automated equation extraction), deterministic verification scripts, zero fabricated DOIs/URLs.
+* **From where:** Researcher baseline manuscript (`Texto base para revista_Schapery.docx`) and explicit user directives.
+* **Why:** Establishes editorial rigor, prevents confirmation bias in literature reviews, and guarantees verifiable scientific integrity.
 
-#### Transition to 3D Continuum Mechanics (Decision)
-- **What**: Expanding the 1D baseline modeling into a 3D Tensorial Continuum Mechanics framework.
-- **From where**: Biomechanics Co-advisor.
-- **Why**: 1D models are insufficient for capturing 3D behavior. 3D tensorial generalizations provide the necessary rigor.
+---
 
-#### Action Plan for Theoretical Advance
-- **What**: Formulate the 3D tensorial generalization of the existing 1D models (defining Helmholtz free energy and Cauchy stress tensor) to run in a 3D open-source FEA software.
-- **From where**: Biomechanics Co-advisor.
-- **Why**: To bridge the gap between 1D simplifications and full 3D continuum mechanics required by advanced models.
+### 2026-10-07 — Uniaxial Scope, Data Triad & FEBio Architecture Pivot
+* **Task_ID:** `scope-uniaxial-and-architecture-pivot`
+* **Category:** Decision (Scope & Software Architecture)
+* **What:**
+  1. **Uniaxial Isolated Focus:** Restricted thesis scope to uniaxial tensile testing of the 4 isolated porcine knee ligaments (ACL, PCL, MCL, LCL) from Dr. Rodrigo Rodarte's dataset; full-knee articular contact deferred to post-thesis work.
+  2. **1D C# Engine + 3D FEBio Triad:** `MelloSilveiraTools` (C# / .NET 10) remains strictly **1D scalar** (curve fitting, simulation, sensitivity, data orchestration) to avoid reimplementing finite element meshing/solvers. 3D tensorial simulation is delegated to **FEBio** (open-source, native biphasic/soft-tissue support, C++ UDM extensibility).
+  3. **Guiding Constitutive Models:** Initially 5 models (Fung QLV, Schapery, Generalized Maxwell/Prony, Weiss Transversely Isotropic, Poroviscoelasticity); expanded to **6 models** on 2026-10-08 with **Holzapfel-Gasser-Ogden (HGO)** based on Evidence Funnel findings.
+  4. **UDM Time-Box Safety:** C++ UDM development for non-native FEBio models (e.g., Schapery) capped at a strict 4-week time-box with documented fallback to 1D comparison.
+* **From where:** Researcher / Human directive and `biomechanics-co-advisor`.
+* **Why:** Achieves a defensible, high-rigor Master's thesis within a 12-month window by leveraging C# fluency for 1D automation and open-source FEBio for 3D continuum validation.
 
-#### Mandatory Human-in-the-Loop QA Gate for Automated Parsing
-- **What**: For any automated text generation or parsing loop (e.g., Vision LaTeX extraction), the system is FORBIDDEN from writing directly to the final markdown file. 
-  1. The agent must process only a small batch (short loop).
-  2. The output must be saved to a temporary file (e.g., draft.md).
-  3. The system MUST halt execution and explicitly prompt the human user to validate the temporary file.
-  4. Only after the user expressly approves the content will the changes be migrated and merged into the final target file.
-- **From where**: User directive after observing LLM loop fatigue and lazy scripting behaviors.
-- **Why**: To prevent data corruption, AI hallucinations, "lazy shortcut" scripting, and unnecessary token burn. Ensures absolute human control over the final repository state.
+---
 
-### 2026-10-06 Task: safeguard-anti-hallucination-guardrails
-**Category**: Decision (System Safeguards against LLM Fatigue & Shortcuts)
+### 2026-10-08 — Evidence Funnel Validation (301 Unique DOIs)
+* **Task_ID:** `task-1.1`, `task-1.2`, `task-1.3`, `roadmap-revision-phase1-findings`
+* **Category:** Decision & Execution
+* **What:** Audited 358 reference records consolidated into **301 unique verified entries** ([`base-literature/evidence-funnel-bibliography.md`](../base-literature/evidence-funnel-bibliography.md)):
+  * Confirmed hyperelastic + viscoelastic formulations (Fung QLV, Prony/Maxwell, Weiss, HGO) as dominant for knee ligaments;
+  * Added **HGO** to capture collagen fiber angular dispersion ($\kappa$);
+  * Validated **FEBio** over Abaqus/ANSYS for hydrated soft-tissue biomechanics and open-source reproducibility.
+* **From where:** `senior-applied-biomechanics-researcher-deep-research` (validated via CrossRef/EuropePMC APIs).
+* **Why:** Grounds constitutive model selection and solver choice in systematic empirical literature rather than intuition.
 
-#### The 4 Pillars of Bulk Processing Defense
-To ensure data integrity and prevent runaway token consumption during automated text/math parsing, the ecosystem is bound by these 4 interconnected guardrails:
-1. **Architectural Guardrail (Short Loops & Mandatory Validation)**: Massive batching is strictly forbidden. 
-2. **Deterministic QA Gate (Draft Verification Script)**: A deterministic Python script will inspect drafts for valid mathematical syntax before presenting to humans.
-3. **Anti-Laziness Prompt Clause**: Vision and Parsing Workers are injected with a strict cognitive penalty clause prohibiting blind regex wrapping.
-4. **Token Budgeting & Circuit Breaker**: Orchestrator terminates agents bypassing the "short loop" rule.
-- **From where**: User directive following the failure of blind bulk processing in Chapter 7.
-- **Why**: To lock the system into a deterministic workflow that prevents AI hallucinations.
+---
 
-## [2026-10-07] - Deadline Restructuring and Focus on Uniaxial Tension
-**Category:** Decision (Scope Reduction)
-- **What:** Focus exclusively on isolated uniaxial loading for the 4 porcine knee ligaments.
-- **From where:** Researcher / Human directive.
-- **Why:** Full-knee 3D simulations with complex articular loading present a high risk of non-convergence in a 12-month timeframe. Complex kinematics are moved to post-thesis future works.
+### 2026-10-08 to 2026-10-14 — 1D Constitutive Fitters & Sensitivity Analysis Engine
+* **Task_ID:** `task-2.1`, `task-2.2`, `task-2.7`
+* **Category:** Execution & Decision
+* **What:**
+  1. **Fung QLV 1D (`FungRelaxationOnlyCurveFitterStep`):** Two-stage decoupling (Stage 1: normalized relaxation for $c, \tau_1, \tau_2$ with $\tau_1 < \tau_2$ via ALGLIB Differential Evolution; Stage 2: ramp elastic constants $A, B$).
+  2. **Schapery Non-Linear 1D (`SchaperyRelaxationOnlyCurveFitterStep`):** Three-stage hierarchical identification (Stage 1: linear anchor segment for $G_e, g_1, n$; Stage 2: pointwise Helmholtz multipliers $h_e, h_2$; Stage 3: continuous function competition among `Logarithmic`, `Exponential`, `Polynomial` selected by min SSR).
+  3. **OAAT Sensitivity Engine (`ParametricSweepPipeline`):** Concurrent TPL Dataflow pipeline evaluating all 4 mandatory scenarios ($\sigma(t_0)$, $\sigma(t_f)$, $t_{\text{asymptote}}$, $\Delta\sigma / \%\Delta\sigma$) across Fung, Simplified Fung, and Schapery, using pre-compiled expression trees in `MechanicalModelTypeCache`.
+* **From where:** `senior-backend-software-engineer-net` and `experimental-data-analyst`.
+* **Why:** Eliminates parameter collinearity during non-linear regression, removes commercial toolbox dependency (MATLAB/OriginLab), and automates high-throughput parametric sensitivity analyses.
 
-## [2026-10-07] - The 5 Guiding Constitutive Models
-**Category:** Decision (Methodological Baseline)
-- **What:** Selected 5 models to guide the initial research development:
-  1. *Fung QLV* (Historical gold-standard)
-  2. *Schapery Tensorial* (Mathematical advance)
-  3. *Generalized Maxwell / Prony Series* (Industry standard)
-  4. *Weiss / Transversely Isotropic* (Hyperelastic anatomical baseline)
-  5. *Poroviscoelasticity* (Fluid-solid interaction)
-- **From where:** Prior preliminary analyses by the research group.
-- **Why:** To serve as a guiding hypothesis for the computational development. *Note: These are not set in stone and may oscillate or be altered as new information emerges from the evidence funnel.*
+---
 
-## [2026-10-07] - Computational Architecture Pivot (Backend/Frontend and C# Engine)
-**Category:** Decision (Software Architecture)
-- **What:** The C# engine (`MelloSilveiraTools`) will be restricted to scalar (1D) curve fitting and data orchestration. 3D tensorial simulations will be delegated to open-source FEA software (priority: FEBio). The architecture will orchestrate 3 data sources: experimental, 1D C#, and 3D FEBio.
-- **From where:** Researcher / Human directive.
-- **Why:** To automate and accelerate research. Expanding C# to 3D tensors (meshes) would consume critical time, missing the 12-month deadline. C# serves best as an orchestrator and 1D baseline, leveraging the researcher's existing fluency.
+### 2026-10-16 — Storage Abstraction (`IFileStorageService`) & NDJSON Progress Streaming Architecture
+* **Task_ID:** `task-storage-api-phase2-3`, `task-storage-api-phase4-5`, `task-storage-write-simplification`, `task-storage-create-and-optional-prefix`
+* **Category:** Decision & Execution (Software Architecture)
+* **What:**
+  1. Standardized `IFileStorageService` with storage-agnostic partitioned paths (`Create` / `CreateTimebased`, optional prefix, `StorageEntryMetadataEntity` persisted in PostgreSQL `storage_entry_metadata`, formerly `stored_files`).
+  2. Standardized CSV pipeline persistence via composition (`CsvFileWriter` — 128 KB buffer, 1,000-row batching, UTF-8 no-BOM, `CultureInfo.InvariantCulture`).
+  3. Adopted real-time pipeline progress streaming via `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier`) exposed as `application/x-ndjson` (`WriteNdjsonAsync` with `X-Stream-Status: true` trailer).
+* **From where:** `senior-backend-software-engineer-net` (details tracked in `CHANGELOG.md` and package `README.md` files).
+* **Why:** Decouples scientific file outputs from local host paths (enabling Local/S3/Blob/DFS portability) and gives long-running curve-fitting/sweep campaigns timeout-free observability.
 
-## [2026-10-07] - FEBio as the Primary 3D FEA Tool
-**Category:** Decision (Tooling)
-- **What:** Preferential selection of FEBio over other software.
-- **From where:** Prior preliminary analyses.
-- **Why:** FEBio is free, open-source, and specifically tailored for biomechanics (supporting soft tissues natively). *Note: Like the models, this is a guiding hypothesis that can change if future evidence requires.*
+---
 
-## [2026-10-07] - Strategy for Missing Native FEA Models
-**Category:** Decision (Computational Implementation)
-- **What:** Any constitutive model lacking native support in the chosen 3D FEA software will be custom-implemented.
-- **From where:** Researcher / Human directive.
-- **Why:** To ensure all 5 hypothesized models can be compared. The ecosystem will compile User-Defined Material (UDM) plugins (e.g., in C++) to inject the custom 3D tensorial math into the solver.
+### 2026-10-16 — Target Journal Mapping & Dual-Publication Strategy (JOSS + Scientific Article)
+* **Task_ID:** `target-journals-and-dual-publication`
+* **Category:** Decision
+* **What:** Systematic 4-step bibliometric intersection over the 301 verified DOIs (137 journals → 16 Fung/QLV/Prony → 27 open-source/in-house → **8 exact intersection journals**). Selected dual-publication roadmap:
+  1. **Primary Scientific Paper:** *Scientific Reports* (Top 1), *JBME/ASME* (Top 2), or *JMBBM/Elsevier* (Top 3) comparing Fung QLV continuous vs. Simplified Fung/Prony on knee ligaments.
+  2. **Software Paper:** *Journal of Open Source Software* (**JOSS**) presenting `MelloSilveiraTools` under `GPL-3.0-or-later` (compatible with bundled ALGLIB `GPL-2.0-or-later`).
+* **From where:** `senior-applied-biomechanics-researcher-deep-research` + `biomechanics-co-advisor` (see [`consolidated-joss-and-publications.md`](../consolidated-joss-and-publications.md)).
+* **Why:** Maximizes academic impact by separating software engineering architecture (JOSS) from empirical biomechanical characterization (Q1/Q2 biomechanics journal).
 
-## Ledger Entry: 2026-10-08
+---
 
-### Decision & Execution
-* **Task_ID:** task-1.1
-* **Date:** 2026-10-08
-* **What:** Selection of primary constitutive models for soft tissue mechanics, specifically hyperelastic and viscoelastic models (Fung QLV, Mooney-Rivlin, Neo-Hookean, Ogden, Holzapfel-Gasser-Ogden).
-* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1115/1.2834307, 10.1098/rsif.2015.0486, 10.1111/j.1475-1305.2006.00257.x, etc.)
-* **Why:** These models are chosen because they map well to the hierarchical structure of soft tissues like ligaments and tendons, representing large deformations, hysteresis, non-linear, time-dependent, and anisotropic behaviors.
+### 2026-10-28 — Production-First Development Directive
+* **Task_ID:** `production-first-anti-tdd-directive`
+* **Category:** Decision
+* **What:** Established **Production-First** engineering workflow (implement and stabilize clean production code and contracts before building/updating unit and acceptance test suites), explicitly avoiding test-first scaffolding churn.
+* **From where:** User directive.
+* **Why:** Prevents wasted effort refactoring brittle tests during rapid scientific API evolution while maintaining high final test coverage (automated unit tests + Testcontainers acceptance tests).
 
-### Decision & Execution
-* **Task_ID:** task-1.2
-* **Date:** 2026-10-08
-* **What:** Application of Hyperelastic and viscoelastic constitutive models for knee ligaments.
-* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1038/s41598-018-20739-w, 10.3389/fbioe.2014.00054, 10.1016/s0736-0266(03)00113-x, etc.)
-* **Why:** They correctly model the inherent nonlinearity, anisotropy (due to collagen bundles), and time-dependent behaviors (such as creep, hysteresis, and stress relaxation) under physiological and supra-physiological loads.
+---
 
-### Decision & Execution
-* **Task_ID:** task-1.3
-* **Date:** 2026-10-08
-* **What:** Selection of FEBio as the core finite element solver instead of general-purpose solvers like Abaqus and Ansys.
-* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1007/s10439-022-03074-0, 10.1111/os.13980, etc.)
-* **Why:** FEBio natively handles complex biphasic, multiphasic, and poroelastic materials essential for hydrated soft tissues. As open-source, it allows complete transparency, rigorous validation, and custom plugins for new constitutive models without licensing constraints.
+### 2026-11-09 — Canonical Biomechanical Formulations (`Consolidated_Biomechanical_Formulations.docx`)
+* **Task_ID:** `register-sensitivity-theory-basis`, `advisor-academic-title-standardization`, `focus-strictly-on-stress-relaxation`, `chapter-3-didactic-progression-restructure`, `chapter-5-general-gradient-and-solver-formulations`, `streamline-axial-single-ligament-scope`, `dual-lagrangian-eulerian-experimental-bridge-and-operators`
+* **Category:** Execution, Scope Refinement & Pedagogy
+* **What:**
+  1. Standardized advisor title to **Prof. Dr. Paulo Pedro Kenedi** (PPEMM/UFCIRJ).
+  2. Consolidated all thesis equations into a single ABNT/PPEMM-formatted Word document ([`thesis/Consolidated_Biomechanical_Formulations.docx`](../thesis/Consolidated_Biomechanical_Formulations.docx), **246 sequential OMML equations**, 100% auto-black typography) generated deterministically by `scripts/build-consolidated-thesis.py`.
+  3. **Strict Stress-Relaxation Scope:** Purged all creep compliance formulations and Kelvin-Voigt model.
+  4. **Coaxial Uniaxial Specialization & Dual Formulations (Cap. 1):** Pruned rotational kinematics (Polar Decomposition, Spin, dynamic inertial terms); retained dual Lagrangian ($\mathbf{X}, \mathbf{U}, \mathbf{C}, \mathbf{E}$) and Eulerian ($\mathbf{x}, \mathbf{u}, \mathbf{B}, \mathbf{e}$) kinematics with explicit experimental LVDT/load-cell bridge, operator guide, isochoric area scaling ($A = A_0/\lambda$) backed by Flory/Ogden/Fung/Holzapfel/Humphrey/Weiss, and the 4 major 3D continuum theories (hyperelasticity, viscoelasticity, viscohyperelasticity, viscoporoelasticity).
+  5. **Didactic Restructuring (Cap. 3 & Cap. 5):** Chapter 3 separates general hereditary convolution → step relaxation → elastic exponential law → continuous Fung ($E_1$) vs. discrete Simplified Fung (Prony). Chapter 5 isolates general sensitivity gradients, Levenberg-Marquardt, iso-stress continuation, and settling-time zero-crossing from model-specific partial derivatives (backed by 10 CrossRef/ISBN references in `theory-cheat-sheets/sensitivity-analysis-and-continuation.md`).
+* **From where:** User directives executed by `academic-writer-biomechanics-specialist` and `senior-applied-biomechanics-researcher-deep-research`.
+* **Why:** Eliminates duplicated/divergent Word drafts, aligns 100% of mathematical formulations with the uniaxial stress-relaxation experimental protocol, and delivers publication-ready thesis material.
 
-### Opportunity/Gap & Future Work
-* **Task_ID:** task-1.1, task-1.2, task-1.3
-* **Date:** 2026-10-08
-* **What:** Implementation of FEBio UDM (User Defined Material) and converting 1D constants to 3D models.
-* **From where:** Traceability QA identification / human input logic based on limitations of standard models in 3D settings.
-* **Why:** To fully leverage FEBio's open-source architecture by implementing custom plugins for specific constitutive models, moving beyond simple 1D constants to accurately model 3D biomechanical behaviors.
+---
 
-### Execution & Decision
-* **Task_ID:** task-2.1
-* **Date:** 2026-10-08
-* **What:** Validated and maintained Fung QLV 1D model objective function logic using inline lambdas in FungRelaxationOnlyCurveFitterStep.cs.
-* **From where:** senior-backend-software-engineer-net (File: C:\Pessoal\Projetos\Tools\.agents\soft-tissue-biomechanics\outputs\task-2.1-result.json)
-* **Why:** To strictly adhere to the "Do Not Reinvent the Wheel" directive and maintain architectural consistency across the MelloSilveiraTools ecosystem. Avoided creating redundant custom ObjectiveFunction classes, ensuring a unified approach to curve-fitting constraints.
-### 2026-10-08 Task: roadmap-revision-phase1-findings
-**Category**: Decision & Future Work
+### 2026-11-10 — Soft Tissues vs. Polymers Comparative Mechanics (60 Verified Studies)
+* **Task_ID:** `task-deep-research-soft-tissue-vs-polymers-comparative-mechanics`
+* **Category:** Execution & Opportunity/Gap
+* **What:** Audited 60 peer-reviewed papers (100% CrossRef-validated DOIs) in [`base-literature/comparative-mechanics-soft-tissues-vs-polymers.md`](../base-literature/comparative-mechanics-soft-tissues-vs-polymers.md) across 5 domains: toe-region crimp vs. entropic elasticity; viscoelastic relaxation/creep; preconditioning vs. Mullins effect; multiscale fracture toughness vs. Lake-Thomas limit; anisotropic fibrous vs. isotropic hyperelastic modeling.
+* **From where:** `senior-applied-biomechanics-researcher-deep-research`.
+* **Why:** Provides empirical justification for adapting polymer-origin models (Schapery, Prony series) to knee ligaments and surfaces future research avenues (fractional viscoelasticity, damage vs. preconditioning, synthetic UHMWPE/PET grafts).
 
-#### Inclusion of Holzapfel-Gasser-Ogden (HGO) Model
-- **What**: Added the HGO structural model to the thesis scope (Tasks 1.9, 2.6, 4.2).
-- **From where**: Outputs of deep research Tasks 1.1 and 1.2.
-- **Why**: The literature strongly supports that soft tissues (especially knee ligaments) require anisotropic and structural constitutive models to account for collagen fiber dispersion in a ground matrix. Purely phenomenological polynomial models (Mooney-Rivlin, Neo-Hookean) were deemed insufficient, whereas HGO is a direct biological fit and is highly supported by modern FEA solvers like FEBio.
+---
 
-#### Validation of FEBio and Poroviscoelasticity
-- **What**: Confirmed the selection of FEBio and the inclusion of Poroviscoelasticity in the roadmap.
-- **From where**: Outputs of deep research Task 1.3.
-- **Why**: FEBio natively supports complex biphasic and poroelastic materials critical for hydrated tissues. Its open-source nature allows for writing custom User-Defined Materials (UDMs) in C++ without licensing constraints, validating Task 3.4 of the roadmap.
+### 2026-11-17 — Explainable AI (XAI) & Theoretical-Experimental Traceability Directive
+* **Task_ID:** `task-future-works-explainable-ai-traceability`
+* **Category:** Future Work & Methodological Directive
+* **What:** Any final analysis, conclusion, or report — even when synthesized by AI agents — must explicitly expose: (1) full step-by-step analytical/computational derivation; (2) formal theoretical backing (kinematic hypotheses, tensors/scalars, constitutive equations); and (3) contextualized experimental grounding (specimen, $L_0$, deformation phase segmentation, fitted parameters, $R^2$/RMSE).
+* **From where:** User directive (2026-11-17).
+* **Why:** Eliminates black-box outputs and guarantees full scientific auditability for the Master's defense and international peer-reviewed journals.
 
+
+---
+
+### 2026-11-20 — Self-Contained Docker & ReadyToRun AOT (`PublishReadyToRun=true`) vs. NativeAOT (`PublishAot=true`)
+* **Task_ID:** `launcher-docker-self-contained-and-aot-evaluation`
+* **Category:** Decision & Architecture
+* **What:** Evaluated `PublishAot=true` on `MelloSilveiraTools.WebApi.Host` (blocked by missing C++ platform linker locally and architectural incompatibilities with MVC `AddControllers`, Swashbuckle, Dapper IL emit, `Plugins` dynamic loading, and `WebUi` `browser-wasm` propagation). Adopted `--self-contained true` + `PublishReadyToRun=true` (`EnableReadyToRun=true` scoped to `WebApi.Host` and `Database.Migrator`) on `mcr.microsoft.com/dotnet/runtime-deps:10.0` for Docker mode, and `EnableReadyToRun=true` for `Launcher` Local mode, registering full NativeAOT migration in [`future-works.md`](./future-works.md).
+* **From where:** Empirical `dotnet publish` validation and user directive (2026-11-20).
+* **Why:** Guarantees AOT-compiled ReadyToRun startup performance and self-contained Docker images without imposing C++ linker prerequisites or breaking MVC/Swagger/Dapper/Plugins before JOSS submission.
+
+---
+
+### 2026-11-26 — Pure Npgsql Persistence, Interactive Quickstart (`WebApi.Host` / `WebUi` / `Launcher`), Health Checks & QA Governance
+* **Task_ID:** `pure-npgsql-webui-governance-and-qa-hardening`
+* **Category:** Execution & Software Architecture
+* **What:**
+  1. Removed `Dapper` completely and migrated `MelloSilveiraTools.Database` to pure `Npgsql` (`NpgsqlSlimDataSourceBuilder`, `NpgsqlBatch` single-round-trip transaction-local RLS scoping, `[DynamicallyAccessedMembers(PublicProperties)]`, `<IsAotCompatible>true</IsAotCompatible>` across the 8 NuGet packages).
+  2. Replaced `PARTITION BY LIST (user_id)` with non-partitioned Row-Level Security across `storage_entry_metadata` (renamed from `stored_files`), `mechanical_model_curve_fit_outputs`, `mechanical_model_simulations`, `parametric_sweeps`, `plugin_cache`, and `plugin_submissions` (Model 2 community plugin governance).
+  3. Delivered the turnkey runtime stack (`src/MelloSilveiraTools.WebApi.Host`, `src/MelloSilveiraTools.WebUi` Blazor WASM + Apache ECharts, `src/MelloSilveiraTools.Launcher`), distributed health checks (`AddWebApiHealthChecks`, `FileStorageHealthCheck`, `PostgresHealthCheck`, `HealthCheckEntryResultData`), NuGet package validation (`Directory.Build.targets`), and `coverlet.runsettings` broad coverage scope (8 core NuGet packages vs. 4 exempted app/UI/CLI projects).
+* **From where:** Repository implementation commits (`b6c6e56`–`5d60f11`), `CHANGELOG.md`, `Directory.Build.targets`, `coverlet.runsettings`, and user architectural directives.
+* **Why:** Eliminates Dapper reflection/IL-emit overhead, simplifies PostgreSQL RLS without partition DDL churn, delivers interactive zero-C#-setup execution for JOSS reviewers and thesis analysis, and stabilizes NuGet ABI/coverage governance.

@@ -1,0 +1,472 @@
+@inject ApiClientService ApiClient
+
+<section class="card">
+    <div class="card-header-row">
+        <h2>Registered Constitutive Models (@_models.Count)</h2>
+        <button class="btn btn-secondary" @onclick="LoadModelsAsync" disabled="@_isBusy">Refresh Models</button>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Model Name</th>
+                    <th>Calculator Service</th>
+                    <th>Constitutive Parameters Example</th>
+                    <th>Output Example</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (MechanicalModelMetadataDto model in _models)
+                {
+                    <tr>
+                        <td><strong>@model.MechanicalModelName</strong></td>
+                        <td><code>@model.CalculatorTypeName</code></td>
+                        <td>
+                            <pre class="code-block code-block-compact">@FormatJson(model.ConstitutiveParameters)</pre>
+                        </td>
+                        <td>
+                            <pre class="code-block code-block-compact">@FormatJson(model.Output)</pre>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" @onclick="@(() => UseModelExample(model))">
+                                Use Example
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="grid stack-gap">
+    <section class="card">
+        <h2>Deterministic Specimen Analysis</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="spec-model">Model</label>
+                <select id="spec-model" class="form-control" @bind="_specimenModel" @bind:after="ApplySpecimenPreset">
+                    @foreach (MechanicalModelMetadataDto model in _models)
+                    {
+                        <option value="@model.MechanicalModelName">@model.MechanicalModelName</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="spec-effect">Viscoelastic Effect</label>
+                <select id="spec-effect" class="form-control" @bind="_viscoelasticEffect">
+                    <option value="Relaxation">Relaxation</option>
+                    <option value="Creep">Creep</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="spec-ramp">Ramp Consideration</label>
+                <select id="spec-ramp" class="form-control" @bind="_rampConsideration">
+                    <option value="Disregard">Disregard</option>
+                    <option value="Consider">Consider</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="spec-indep">Independent Value (Strain/Stress)</label>
+                <input id="spec-indep" type="number" step="0.005" class="form-control" @bind="_independentValue" />
+            </div>
+            <div class="form-group">
+                <label for="spec-t0">Initial Time (s)</label>
+                <input id="spec-t0" type="number" step="0.1" class="form-control" @bind="_initialTime" />
+            </div>
+            <div class="form-group">
+                <label for="spec-dt">Time Step (s)</label>
+                <input id="spec-dt" type="number" step="0.1" class="form-control" @bind="_timeStep" />
+            </div>
+            <div class="form-group">
+                <label for="spec-tf">Final Time (s)</label>
+                <input id="spec-tf" type="number" step="1.0" class="form-control" @bind="_finalTime" />
+            </div>
+            @if (_rampConsideration == "Consider")
+            {
+                <div class="form-group">
+                    <label for="spec-ramp-time">Ramp Time (s)</label>
+                    <input id="spec-ramp-time" type="number" step="0.1" class="form-control" @bind="_rampTime" />
+                </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="spec-params-json">Constitutive Parameters JSON</label>
+            <textarea id="spec-params-json" class="form-control" @bind="_specimenParamsJson"></textarea>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" @onclick="ExecuteSpecimenAnalysisAsync" disabled="@_isBusy">
+                Execute Specimen Analysis
+            </button>
+            @if (_specimenResult is not null)
+            {
+                <a class="btn btn-secondary" href="@($"/api/v1/storage-entry-metadata/{_specimenResult.OutputMetadataEntityId}/download")" download>
+                    Download Output CSV (#@_specimenResult.OutputMetadataEntityId)
+                </a>
+            }
+        </div>
+
+        @if (_specimenResult is not null)
+        {
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <span class="metric-label">Output Metadata ID</span>
+                    <span class="metric-value">#@_specimenResult.OutputMetadataEntityId</span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">Asymptote Time</span>
+                    <span class="metric-value">@(_specimenResult.AsymptoteTime?.ToString("F3") ?? "Not reached")</span>
+                </div>
+            </div>
+            <details style="margin-top: 0.75rem;">
+                <summary>View Delta Output JSON</summary>
+                <div class="code-block">@FormatJson(_specimenResult.DeltaOutput)</div>
+            </details>
+        }
+    </section>
+
+    <section class="card">
+        <h2>Goodman / Marin High-Cycle Fatigue Analysis</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="fat-min">Min Stress (MPa)</label>
+                <input id="fat-min" type="number" step="1" class="form-control" @bind="_minStress" />
+            </div>
+            <div class="form-group">
+                <label for="fat-max">Max Stress (MPa)</label>
+                <input id="fat-max" type="number" step="1" class="form-control" @bind="_maxStress" />
+            </div>
+            <div class="form-group">
+                <label for="fat-sut">Tensile Strength Sut (MPa)</label>
+                <input id="fat-sut" type="number" step="10" class="form-control" @bind="_tensileStress" />
+            </div>
+            <div class="form-group">
+                <label for="fat-se">Fatigue Limit Se' (MPa)</label>
+                <input id="fat-se" type="number" step="10" class="form-control" @bind="_fatigueLimit" />
+            </div>
+            <div class="form-group">
+                <label for="fat-frac">Fatigue Fraction (f)</label>
+                <input id="fat-frac" type="number" step="0.01" class="form-control" @bind="_fatigueFraction" />
+            </div>
+            <div class="form-group">
+                <label for="fat-temp">Temperature (°C)</label>
+                <input id="fat-temp" type="number" step="1" class="form-control" @bind="_temperature" />
+            </div>
+            <div class="form-group">
+                <label for="fat-rel">Reliability</label>
+                <select id="fat-rel" class="form-control" @bind="_reliability">
+                    <option value="Fifty">50%</option>
+                    <option value="Ninety">90%</option>
+                    <option value="NinetyFive">95%</option>
+                    <option value="NinetyNine">99%</option>
+                    <option value="NinetyNinePointNine">99.9%</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fat-surf">Surface Finish</label>
+                <select id="fat-surf" class="form-control" @bind="_surfaceFinish">
+                    <option value="Rectified">Rectified</option>
+                    <option value="Machined">Machined</option>
+                    <option value="ColdRolled">ColdRolled</option>
+                    <option value="HotRolled">HotRolled</option>
+                    <option value="Wrought">Wrought</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fat-load">Loading Type</label>
+                <select id="fat-load" class="form-control" @bind="_loadingType">
+                    <option value="Bending">Bending</option>
+                    <option value="Axial">Axial</option>
+                    <option value="Torsion">Torsion</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fat-profile">Section Profile</label>
+                <select id="fat-profile" class="form-control" @bind="_profileType">
+                    <option value="Circular">Circular</option>
+                    <option value="Rectangular">Rectangular</option>
+                </select>
+            </div>
+            @if (_profileType == "Circular")
+            {
+                <div class="form-group">
+                    <label for="fat-diam">Diameter (mm)</label>
+                    <input id="fat-diam" type="number" step="1" class="form-control" @bind="_diameter" />
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label for="fat-w">Width (mm)</label>
+                    <input id="fat-w" type="number" step="1" class="form-control" @bind="_width" />
+                </div>
+                <div class="form-group">
+                    <label for="fat-h">Height (mm)</label>
+                    <input id="fat-h" type="number" step="1" class="form-control" @bind="_height" />
+                </div>
+            }
+        </div>
+
+        <div class="checkbox-row" style="margin-bottom: 0.75rem;">
+            <label><input type="checkbox" @bind="_isRotativeSection" /> Rotative Section</label>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" @onclick="CalculateFatigueAsync" disabled="@_isBusy">Calculate Fatigue</button>
+            <button class="btn btn-secondary" @onclick="CalculateEnduranceLimitAsync" disabled="@_isBusy">Calculate Se (Endurance Limit)</button>
+        </div>
+
+        @if (_enduranceLimitResult.HasValue || _fatigueResult is not null)
+        {
+            <div class="metric-grid">
+                @if (_enduranceLimitResult.HasValue)
+                {
+                    <div class="metric-tile">
+                        <span class="metric-label">Modified Endurance Limit Se</span>
+                        <span class="metric-value">@_enduranceLimitResult.Value.ToString("F2") MPa</span>
+                    </div>
+                }
+                @if (_fatigueResult is not null)
+                {
+                    <div class="metric-tile">
+                        <span class="metric-label">Safety Factor (Goodman)</span>
+                        <span class="metric-value">@_fatigueResult.SafetyFactor.ToString("F3")</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Stress Amplitude</span>
+                        <span class="metric-value">@_fatigueResult.StressAmplitude.ToString("F2") MPa</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Mean Stress</span>
+                        <span class="metric-value">@_fatigueResult.MeanStress.ToString("F2") MPa</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Equivalent Stress</span>
+                        <span class="metric-value">@_fatigueResult.EquivalentStress.ToString("F2") MPa</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="metric-label">Cycles to Failure</span>
+                        <span class="metric-value">@_fatigueResult.NumberOfCycles.ToString("E3")</span>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@if (_specimenChartPoints.Count > 0)
+{
+    <section class="card stack-gap">
+        <h2>Specimen Analysis Curve</h2>
+        <BiomechanicsChart ElementId="specimen-analysis-chart"
+                           Title="@($"Deterministic {_specimenModel} Specimen Response")"
+                           SimulationPoints="@_specimenChartPoints" />
+    </section>
+}
+
+@code {
+    /// <summary>Callback raised whenever this tab emits a status or error notification.</summary>
+    [Parameter]
+    public EventCallback<(string Message, bool IsError)> OnStatus { get; set; }
+
+    private static readonly JsonSerializerOptions _prettyJson = new() { WriteIndented = true };
+
+    private bool _isBusy;
+    private List<MechanicalModelMetadataDto> _models = [];
+
+    private string _specimenModel = "Elastic";
+    private string _viscoelasticEffect = "Relaxation";
+    private string _rampConsideration = "Disregard";
+    private double _independentValue = 0.05;
+    private double _initialTime;
+    private double _timeStep = 0.5;
+    private double _finalTime = 10.0;
+    private double? _rampTime = 1.0;
+    private string _specimenParamsJson = """{"youngModulus": 100.0}""";
+    private ExecuteSpecimenAnalysisResultDto? _specimenResult;
+    private List<ChartDataPoint> _specimenChartPoints = [];
+
+    private double _minStress = -80.0;
+    private double _maxStress = 180.0;
+    private double _tensileStress = 700.0;
+    private double _fatigueLimit = 350.0;
+    private double _fatigueFraction = 0.85;
+    private double _temperature = 25.0;
+    private bool _isRotativeSection = true;
+    private string _reliability = "NinetyNine";
+    private string _surfaceFinish = "Machined";
+    private string _loadingType = "Bending";
+    private string _profileType = "Circular";
+    private double _diameter = 25.0;
+    private double _width = 20.0;
+    private double _height = 30.0;
+    private FatigueOutputDto? _fatigueResult;
+    private double? _enduranceLimitResult;
+
+    protected override async Task OnInitializedAsync() => await LoadModelsAsync();
+
+    private async Task LoadModelsAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            _models = await ApiClient.GetMechanicalModelsAsync();
+            if (_models.Count > 0)
+            {
+                if (!_models.Any(m => m.MechanicalModelName == _specimenModel))
+                    _specimenModel = _models[0].MechanicalModelName;
+
+                ApplySpecimenPreset();
+            }
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Could not load mechanical models: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private void UseModelExample(MechanicalModelMetadataDto model)
+    {
+        _specimenModel = model.MechanicalModelName;
+        _specimenParamsJson = FormatJson(model.ConstitutiveParameters);
+    }
+
+    private void ApplySpecimenPreset()
+    {
+        MechanicalModelMetadataDto? selected = _models.FirstOrDefault(m => m.MechanicalModelName == _specimenModel);
+        if (selected is not null && selected.ConstitutiveParameters.ValueKind != JsonValueKind.Undefined)
+        {
+            _specimenParamsJson = FormatJson(selected.ConstitutiveParameters);
+            return;
+        }
+
+        _specimenParamsJson = """{"youngModulus": 100.0}""";
+    }
+
+    private async Task ExecuteSpecimenAnalysisAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(_specimenParamsJson);
+            ExecuteSpecimenAnalysisRequestDto request = new()
+            {
+                MechanicalModelName = _specimenModel,
+                AnalysisParameter = new AnalysisParameterDto
+                {
+                    InitialDependentMechanicalParameterValue = 0.0,
+                    IndependentMechanicalParameter = new MechanicalParameterDto { InitialValue = _independentValue }
+                },
+                LoadResponseRelationship = "StressStrain",
+                ViscoelasticEffect = _viscoelasticEffect,
+                RampTimeConsideration = _rampConsideration,
+                RampTime = _rampConsideration == "Consider" ? _rampTime : null,
+                InitialTime = _initialTime,
+                TimeStep = _timeStep,
+                FinalTime = _finalTime,
+                ConstitutiveParameters = doc.RootElement.Clone()
+            };
+
+            ApiResultDto<ExecuteSpecimenAnalysisResultDto> result = await ApiClient.ExecuteSpecimenAnalysisAsync(request);
+            if (!result.Success || result.Data is null)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Specimen analysis failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _specimenResult = result.Data;
+            string csv = await ApiClient.DownloadStoredFileCsvAsync(_specimenResult.OutputMetadataEntityId);
+            _specimenChartPoints = ApiClientService.ParseStressStrainCsv(csv);
+            await NotifyAsync($"Specimen analysis completed (CSV Entry #{_specimenResult.OutputMetadataEntityId}).", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Specimen analysis error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private FatigueInputDto BuildFatigueInput() => new()
+    {
+        MinimumAppliedStress = _minStress,
+        MaximumAppliedStress = _maxStress,
+        TensileStress = _tensileStress,
+        FatigueLimit = _fatigueLimit,
+        FatigueLimitFraction = _fatigueFraction,
+        IsRotativeSection = _isRotativeSection,
+        Reliability = _reliability,
+        SurfaceFinish = _surfaceFinish,
+        LoadingType = _loadingType,
+        Temperature = _temperature,
+        Profile = _profileType == "Circular"
+            ? new FatigueProfileDto { Type = "Circular", Diameter = _diameter }
+            : new FatigueProfileDto { Type = "Rectangular", Width = _width, Height = _height }
+    };
+
+    private async Task CalculateFatigueAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<FatigueOutputDto> result = await ApiClient.CalculateFatigueAsync(BuildFatigueInput());
+            if (!result.Success || result.Data is null)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Fatigue calculation failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _fatigueResult = result.Data;
+            await NotifyAsync($"Fatigue calculation succeeded (Safety Factor = {_fatigueResult.SafetyFactor:F3}).", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Fatigue calculation error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task CalculateEnduranceLimitAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<double> result = await ApiClient.CalculateEnduranceLimitAsync(BuildFatigueInput());
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Endurance limit calculation failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _enduranceLimitResult = result.Data;
+            await NotifyAsync($"Modified endurance limit Se = {result.Data:F2} MPa.", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Endurance limit error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private static string FormatJson(JsonElement element) =>
+        element.ValueKind == JsonValueKind.Undefined ? "{}" : JsonSerializer.Serialize(element, _prettyJson);
+
+    private Task NotifyAsync(string message, bool isError) => OnStatus.InvokeAsync((message, isError));
+}

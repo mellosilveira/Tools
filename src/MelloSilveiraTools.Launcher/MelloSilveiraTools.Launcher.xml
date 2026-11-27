@@ -1,0 +1,693 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.Launcher</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe">
+            <summary>
+            Shared health-check polling and browser-launch helper used by both Local and Docker launcher steps.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.IsHealthyAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Probes <c>{baseUrl}/api/health</c> once and returns <see langword="true"/> when a 2xx response is received.
+            </summary>
+            <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.WaitForHealthyAsync(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{System.Boolean},System.Int32,System.TimeProvider,System.Threading.CancellationToken)">
+            <summary>
+            Polls <c>{baseUrl}/api/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
+            </summary>
+            <param name="logger">Logger for startup polling diagnostics.</param>
+            <param name="baseUrl">Local HTTP base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+            <param name="httpsBaseUrl">Optional external HTTPS base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+            <param name="hasExitedEarly">Optional callback returning <see langword="true"/> if the launched process terminated prematurely.</param>
+            <param name="maxAttempts">Maximum polling attempts (5 seconds apart).</param>
+            <param name="timeProvider">Clock provider used for retry delays.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> if the host became healthy; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.PromptAndOpenBrowserIfRequested(Microsoft.Extensions.Logging.ILogger,System.String,System.Nullable{System.Boolean},System.Boolean)">
+            <summary>
+            Asks the user whether to open the default browser on the frontend Home page (unless overridden by CLI flags).
+            </summary>
+            <param name="logger">Logger for browser launch diagnostics.</param>
+            <param name="baseUrl">Frontend Home URL.</param>
+            <param name="openBrowserOverride">Explicit CLI flag override, or <see langword="null"/> to prompt interactively.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips prompting.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.TryOpenBrowser(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            Attempts to open <paramref name="url"/> in the operating system's default browser.
+            </summary>
+            <param name="logger">Logger for browser launch diagnostics.</param>
+            <param name="url">Target URL to open.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode">
+            <summary>
+            Defines where the application backend and database services are executed.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Local">
+            <summary>
+            Runs <c>WebApi.Host</c> locally with ReadyToRun AOT enabled (using local PostgreSQL).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Docker">
+            <summary>
+            Runs PostgreSQL, <c>Database.Migrator</c>, and self-contained <c>WebApi.Host</c> inside Docker Compose containers.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions">
+            <summary>
+            Resolved infrastructure configuration for execution mode, PostgreSQL, migrations, repository root/branch, and the Web API host.
+            </summary>
+            <param name="Mode">Resolved or requested execution mode (<see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Local"/> or <see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Docker"/>).</param>
+            <param name="ModeExplicitlySet">Whether <paramref name="Mode"/> was explicitly forced via CLI arguments.</param>
+            <param name="ConnectionString">Complete PostgreSQL connection string.</param>
+            <param name="MigrationContext">Target DbUp migration context.</param>
+            <param name="MigrationTimeoutSeconds">Migration command timeout in seconds.</param>
+            <param name="WebApiPort">Local HTTP TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>26324</c>).</param>
+            <param name="WebApiHttpsPort">External HTTPS TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>24263</c>).</param>
+            <param name="RepositoryRoot">Optional explicit repository root path.</param>
+            <param name="Branch">GitHub branch to clone when no local repository copy exists (default: <c>main</c>).</param>
+            <param name="BranchExplicitlySet">Whether <paramref name="Branch"/> was explicitly supplied via CLI arguments.</param>
+            <param name="AllowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
+            <param name="AllowPostgresInstall">Optional override for automatic local PostgreSQL installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
+            <param name="OpenBrowser">Optional override for browser opening (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively once ready.</param>
+            <param name="NonInteractive">Whether interactive stdin prompts are disabled.</param>
+            <param name="HttpsCertificatePath">Optional path to a custom HTTPS PKCS#12 (<c>.pfx</c>) certificate file.</param>
+            <param name="HttpsCertificatePassword">Optional password for <paramref name="HttpsCertificatePath"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.#ctor(MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode,System.Boolean,System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext,System.Int32,System.Int32,System.Int32,System.String,System.String,System.Boolean,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.String,System.String)">
+            <summary>
+            Resolved infrastructure configuration for execution mode, PostgreSQL, migrations, repository root/branch, and the Web API host.
+            </summary>
+            <param name="Mode">Resolved or requested execution mode (<see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Local"/> or <see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Docker"/>).</param>
+            <param name="ModeExplicitlySet">Whether <paramref name="Mode"/> was explicitly forced via CLI arguments.</param>
+            <param name="ConnectionString">Complete PostgreSQL connection string.</param>
+            <param name="MigrationContext">Target DbUp migration context.</param>
+            <param name="MigrationTimeoutSeconds">Migration command timeout in seconds.</param>
+            <param name="WebApiPort">Local HTTP TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>26324</c>).</param>
+            <param name="WebApiHttpsPort">External HTTPS TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>24263</c>).</param>
+            <param name="RepositoryRoot">Optional explicit repository root path.</param>
+            <param name="Branch">GitHub branch to clone when no local repository copy exists (default: <c>main</c>).</param>
+            <param name="BranchExplicitlySet">Whether <paramref name="Branch"/> was explicitly supplied via CLI arguments.</param>
+            <param name="AllowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
+            <param name="AllowPostgresInstall">Optional override for automatic local PostgreSQL installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
+            <param name="OpenBrowser">Optional override for browser opening (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively once ready.</param>
+            <param name="NonInteractive">Whether interactive stdin prompts are disabled.</param>
+            <param name="HttpsCertificatePath">Optional path to a custom HTTPS PKCS#12 (<c>.pfx</c>) certificate file.</param>
+            <param name="HttpsCertificatePassword">Optional password for <paramref name="HttpsCertificatePath"/>.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.Mode">
+            <summary>Resolved or requested execution mode (<see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Local"/> or <see cref="F:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode.Docker"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ModeExplicitlySet">
+            <summary>Whether <paramref name="Mode"/> was explicitly forced via CLI arguments.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ConnectionString">
+            <summary>Complete PostgreSQL connection string.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.MigrationContext">
+            <summary>Target DbUp migration context.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.MigrationTimeoutSeconds">
+            <summary>Migration command timeout in seconds.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WebApiPort">
+            <summary>Local HTTP TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>26324</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WebApiHttpsPort">
+            <summary>External HTTPS TCP port where <c>MelloSilveiraTools.WebApi.Host</c> listens (default: <c>24263</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.RepositoryRoot">
+            <summary>Optional explicit repository root path.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.Branch">
+            <summary>GitHub branch to clone when no local repository copy exists (default: <c>main</c>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BranchExplicitlySet">
+            <summary>Whether <paramref name="Branch"/> was explicitly supplied via CLI arguments.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.AllowDockerInstall">
+            <summary>Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.AllowPostgresInstall">
+            <summary>Optional override for automatic local PostgreSQL installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.OpenBrowser">
+            <summary>Optional override for browser opening (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively once ready.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.NonInteractive">
+            <summary>Whether interactive stdin prompts are disabled.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.HttpsCertificatePath">
+            <summary>Optional path to a custom HTTPS PKCS#12 (<c>.pfx</c>) certificate file.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.HttpsCertificatePassword">
+            <summary>Optional password for <paramref name="HttpsCertificatePath"/>.</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildWebApiBaseUrl">
+            <summary>
+            Builds the local <c>http://localhost:&lt;port&gt;</c> base URL for <c>MelloSilveiraTools.WebApi.Host</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildWebApiHttpsUrl">
+            <summary>
+            Builds the <c>https://localhost:&lt;httpsPort&gt;</c> URL for <c>MelloSilveiraTools.WebApi.Host</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildDockerConnectionString(System.Boolean)">
+            <summary>
+            Builds a Docker-network-safe PostgreSQL connection string, mapping <c>localhost</c>/<c>127.0.0.1</c>
+            either to the Compose <c>postgres</c> service or to <c>host.docker.internal</c> when reusing an external container.
+            </summary>
+            <param name="useHostGateway">When <see langword="true"/>, maps loopback hosts to <c>host.docker.internal</c> preserving the host port.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WithPostgresPort(System.Int32)">
+            <summary>
+            Returns a copy of this options record with the PostgreSQL host port updated in <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ConnectionString"/>.
+            </summary>
+            <param name="newPort">New PostgreSQL TCP port.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WithWebApiPort(System.Int32)">
+            <summary>
+            Returns a copy of this options record with <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WebApiPort"/> updated.
+            </summary>
+            <param name="newPort">New Web API / Frontend local HTTP TCP port.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WithWebApiHttpsPort(System.Int32)">
+            <summary>
+            Returns a copy of this options record with <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.WebApiHttpsPort"/> updated.
+            </summary>
+            <param name="newPort">New Web API / Frontend HTTPS TCP port.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildApplicationConnectionString(System.Boolean,System.Boolean)">
+            <summary>
+            Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
+            When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
+            swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
+            </summary>
+            <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service (or <c>host.docker.internal</c>).</param>
+            <param name="useHostGateway">When <see langword="true"/> and <paramref name="forDocker"/> is <see langword="true"/>, uses <c>host.docker.internal</c>.</param>
+            <returns>The resolved application connection string.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ExtractHostAndPort">
+            <summary>
+            Extracts the PostgreSQL host and port from <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ConnectionString"/>, falling back to <c>localhost:5432</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildMaskedConnectionString">
+            <summary>
+            Builds a log-safe PostgreSQL connection string with any password segment masked.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.MaskConnectionString(System.String)">
+            <summary>
+            Masks password segments in a PostgreSQL connection string.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver">
+            <summary>
+            Parses CLI arguments, defaults, repository resolution, and optional interactive prompts for <see cref="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver.IsHelpRequested(System.String[])">
+            <summary>
+            Checks whether help was requested in the command-line arguments.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver.PrintHelp">
+            <summary>
+            Prints CLI usage instructions to standard output.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver.Resolve(Microsoft.Extensions.Logging.ILogger,System.String[])">
+            <summary>
+            Resolves infrastructure options from CLI arguments and defaults.
+            </summary>
+            <param name="logger">Logger for configuration diagnostics.</param>
+            <param name="args">Command-line arguments.</param>
+            <returns>The resolved <see cref="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions"/>, or <c>null</c> if CLI arguments are invalid.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver.ResolveOrCloneRepositoryRootAsync(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Launcher.Steps.DependencyInstaller,MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions,System.Threading.CancellationToken)">
+            <summary>
+            Resolves the repository root from <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.RepositoryRoot"/>, local directories, or by cloning from GitHub
+            after asking the user which branch to use (defaulting to <c>main</c>).
+            </summary>
+            <param name="logger">Logger for repository resolution diagnostics.</param>
+            <param name="dependencyInstaller">Dependency installer used to ensure <c>git</c> is present before cloning.</param>
+            <param name="options">Resolved launcher infrastructure options.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The resolved repository root path, or <c>null</c> on failure.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext">
+            <summary>
+            Defines the contextual scopes passed to <c>MelloSilveiraTools.Database.Migrator</c>.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext.All">
+            <summary>
+            Executes all migration scripts across every domain context (Common, Optimizations, Plugins).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext.Common">
+            <summary>
+            Executes common baseline migrations only (<c>users</c>, <c>storage_entry_metadata</c>).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext.Optimizations">
+            <summary>
+            Executes experimental data, constitutive modeling, and parametric sweep migrations (includes Common as a prerequisite).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext.Plugins">
+            <summary>
+            Executes dynamic plugin cache and submission migrations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets">
+            <summary>
+            Resolves non-placeholder runtime secrets (<c>Jwt:EncryptionKey</c>, <c>Jwt:SigningKey</c>, and <c>Superuser:Password</c>)
+            required by <c>MelloSilveiraTools.WebApi.Host</c> outside Development.
+            Prefers explicit host environment variables and persists auto-generated local quickstart secrets
+            under the current user's profile directory so credentials remain stable across restarts.
+            </summary>
+            <param name="JwtEncryptionKey">32-byte UTF-8 AES-256-KW encryption key.</param>
+            <param name="JwtSigningKey">HMAC-SHA256 signing key.</param>
+            <param name="SuperuserPassword">Bootstrap password for the configured superuser account.</param>
+            <param name="SourceDescription">Human-readable origin of the resolved secrets (environment or file path).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Resolves non-placeholder runtime secrets (<c>Jwt:EncryptionKey</c>, <c>Jwt:SigningKey</c>, and <c>Superuser:Password</c>)
+            required by <c>MelloSilveiraTools.WebApi.Host</c> outside Development.
+            Prefers explicit host environment variables and persists auto-generated local quickstart secrets
+            under the current user's profile directory so credentials remain stable across restarts.
+            </summary>
+            <param name="JwtEncryptionKey">32-byte UTF-8 AES-256-KW encryption key.</param>
+            <param name="JwtSigningKey">HMAC-SHA256 signing key.</param>
+            <param name="SuperuserPassword">Bootstrap password for the configured superuser account.</param>
+            <param name="SourceDescription">Human-readable origin of the resolved secrets (environment or file path).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.JwtEncryptionKey">
+            <summary>32-byte UTF-8 AES-256-KW encryption key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.JwtSigningKey">
+            <summary>HMAC-SHA256 signing key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.SuperuserPassword">
+            <summary>Bootstrap password for the configured superuser account.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.SourceDescription">
+            <summary>Human-readable origin of the resolved secrets (environment or file path).</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.ResolveOrCreate">
+            <summary>
+            Resolves secrets from host environment variables, falling back to a persistent per-user secrets file
+            (<c>~/.mellosilveiratools/launcher-secrets.json</c>) created with cryptographically random values on first run.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.ApplyToEnvironment(System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean)">
+            <summary>
+            Injects the resolved secrets into a child process environment dictionary.
+            </summary>
+            <param name="environment">Target <see cref="P:System.Diagnostics.ProcessStartInfo.Environment"/> dictionary.</param>
+            <param name="uppercaseKeys">When <see langword="true"/>, emits uppercase Compose interpolation keys (<c>JWT__ENCRYPTIONKEY</c>, etc.); otherwise emits ASP.NET Core configuration keys.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver">
+            <summary>
+            Probes TCP port availability using native <see cref="T:System.Net.NetworkInformation.IPGlobalProperties"/> and interactively resolves port conflicts
+            by letting the user stop the conflicting service and retry or choose an alternate port without aborting the launcher.
+            </summary>
+            <param name="logger">Logger for port conflict diagnostics.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips interactive prompts and returns failure on conflict.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver},System.Boolean)">
+            <summary>
+            Probes TCP port availability using native <see cref="T:System.Net.NetworkInformation.IPGlobalProperties"/> and interactively resolves port conflicts
+            by letting the user stop the conflicting service and retry or choose an alternate port without aborting the launcher.
+            </summary>
+            <param name="logger">Logger for port conflict diagnostics.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips interactive prompts and returns failure on conflict.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver.EnsurePortAvailableOrResolveAsync(System.String,System.String,System.Int32,System.Func{System.Int32,System.Threading.Tasks.Task{System.Boolean}},System.Threading.CancellationToken)">
+            <summary>
+            Ensures <paramref name="currentPort"/> is available (or accepted by <paramref name="canReusePortAsync"/>),
+            otherwise prompts the user to either stop the service on that port and retry or enter a different port.
+            </summary>
+            <param name="serviceName">Human-readable service name (e.g., <c>PostgreSQL</c> or <c>WebApi.Host</c>).</param>
+            <param name="host">Target host name.</param>
+            <param name="currentPort">Initially configured TCP port.</param>
+            <param name="canReusePortAsync">Optional callback returning <see langword="true"/> if an already-listening service on that port can be reused.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A tuple containing resolution success, final port, and whether an existing service on the port is being reused.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver.PromptPortResolution(System.String,System.Int32)">
+            <summary>
+            Prompts the user after a runtime port-allocation failure (e.g. Docker <c>port is already allocated</c>)
+            to either stop the conflicting service and retry on the same port or switch to a new port.
+            </summary>
+            <param name="serviceName">Human-readable service name.</param>
+            <param name="currentPort">Port that failed to bind.</param>
+            <returns>A tuple indicating whether to retry and the port to use.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver.IsLocalPortInUse(System.String,System.Int32)">
+            <summary>
+            Checks whether a local TCP port currently has an active listener using <see cref="M:System.Net.NetworkInformation.IPGlobalProperties.GetActiveTcpListeners"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner">
+            <summary>
+            Cross-platform helper for executing external CLI commands and probing TCP/HTTP readiness.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner.RunCommandAsync(System.String,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Executes a command synchronously with captured stdout/stderr and returns its exit code and output.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner.RunInteractiveAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Executes an interactive command inheriting the user's terminal for package managers or installers.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep">
+            <summary>
+            Ensures local PostgreSQL is running and accepting protocol queries before migrations execute.
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="dependencyInstaller">Dependency installer providing PostgreSQL readiness probing.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep},System.Int32,System.Int32,MelloSilveiraTools.Launcher.Steps.DependencyInstaller)">
+            <summary>
+            Ensures local PostgreSQL is running and accepting protocol queries before migrations execute.
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="dependencyInstaller">Dependency installer providing PostgreSQL readiness probing.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Validates that local PostgreSQL is running and accepting queries.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.DatabaseMigrationStep">
+            <summary>
+            Executes idempotent DbUp PostgreSQL migrations via <c>MelloSilveiraTools.Database.Migrator</c>,
+            verifies that all expected schema tables exist in PostgreSQL, and tears down the temporary migration runner process.
+            </summary>
+            <param name="loggerFactory">Logger factory used to create loggers for migration execution.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="repositoryRoot">Root directory of the cloned or local repository.</param>
+            <param name="connectionString">PostgreSQL connection string.</param>
+            <param name="context">Target migration context.</param>
+            <param name="commandTimeoutInSeconds">Command timeout in seconds.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseMigrationStep.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,System.Int32,System.Int32,System.String,System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext,System.Int32)">
+            <summary>
+            Executes idempotent DbUp PostgreSQL migrations via <c>MelloSilveiraTools.Database.Migrator</c>,
+            verifies that all expected schema tables exist in PostgreSQL, and tears down the temporary migration runner process.
+            </summary>
+            <param name="loggerFactory">Logger factory used to create loggers for migration execution.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="repositoryRoot">Root directory of the cloned or local repository.</param>
+            <param name="connectionString">PostgreSQL connection string.</param>
+            <param name="context">Target migration context.</param>
+            <param name="commandTimeoutInSeconds">Command timeout in seconds.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseMigrationStep.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Starts the local migration project, runs migrations, validates created tables in PostgreSQL, and terminates/cleans up the migration process.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseMigrationStep.ValidateTablesCreatedAsync(Microsoft.Extensions.Logging.ILogger,System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext,System.Threading.CancellationToken)">
+            <summary>
+            Verifies in PostgreSQL <c>information_schema.tables</c> that <c>schemaversions</c> and all expected domain tables for <paramref name="context"/> exist.
+            </summary>
+            <param name="logger">Logger for validation output.</param>
+            <param name="connectionString">PostgreSQL connection string.</param>
+            <param name="context">Migration context whose tables must exist.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> when all expected tables exist; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseMigrationStep.GetExpectedTables(MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext)">
+            <summary>
+            Returns the expected PostgreSQL table names created for the given <see cref="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherMigrationContext"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo">
+            <summary>
+            Metadata describing an existing PostgreSQL container discovered in Docker.
+            </summary>
+            <param name="Name">Docker container name.</param>
+            <param name="Image">Container image name.</param>
+            <param name="IsRunning">Whether the container is currently running.</param>
+            <param name="HostPort">Published host TCP port mapped to container port <c>5432</c>, if any.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo.#ctor(System.String,System.String,System.Boolean,System.Nullable{System.Int32})">
+            <summary>
+            Metadata describing an existing PostgreSQL container discovered in Docker.
+            </summary>
+            <param name="Name">Docker container name.</param>
+            <param name="Image">Container image name.</param>
+            <param name="IsRunning">Whether the container is currently running.</param>
+            <param name="HostPort">Published host TCP port mapped to container port <c>5432</c>, if any.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo.Name">
+            <summary>Docker container name.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo.Image">
+            <summary>Container image name.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo.IsRunning">
+            <summary>Whether the container is currently running.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo.HostPort">
+            <summary>Published host TCP port mapped to container port <c>5432</c>, if any.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.DependencyInstaller">
+            <summary>
+            Resolves and installs system prerequisites (<c>PostgreSQL</c>, <c>Docker</c>, <c>.NET 10 SDK/Runtime</c>, and <c>git</c>)
+            following the launcher precedence:
+            native PostgreSQL -&gt; installed Docker (reusing existing Docker PostgreSQL when present) -&gt; prompt Docker install -&gt; prompt local PostgreSQL + .NET 10 install -&gt; fail clearly if both are declined.
+            </summary>
+            <param name="logger">Logger for diagnostics and interactive setup messages.</param>
+            <param name="connectionString">Target PostgreSQL connection string.</param>
+            <param name="allowDockerInstall">Optional CLI override for Docker installation.</param>
+            <param name="allowPostgresInstall">Optional CLI override for local PostgreSQL installation.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips interactive stdin prompts.</param>
+            <param name="timeProvider">Clock provider used for bounded retry delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DependencyInstaller},System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.TimeProvider)">
+            <summary>
+            Resolves and installs system prerequisites (<c>PostgreSQL</c>, <c>Docker</c>, <c>.NET 10 SDK/Runtime</c>, and <c>git</c>)
+            following the launcher precedence:
+            native PostgreSQL -&gt; installed Docker (reusing existing Docker PostgreSQL when present) -&gt; prompt Docker install -&gt; prompt local PostgreSQL + .NET 10 install -&gt; fail clearly if both are declined.
+            </summary>
+            <param name="logger">Logger for diagnostics and interactive setup messages.</param>
+            <param name="connectionString">Target PostgreSQL connection string.</param>
+            <param name="allowDockerInstall">Optional CLI override for Docker installation.</param>
+            <param name="allowPostgresInstall">Optional CLI override for local PostgreSQL installation.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips interactive stdin prompts.</param>
+            <param name="timeProvider">Clock provider used for bounded retry delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.ResolveExecutionInfrastructureAsync(MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Executes steps 1 through 7 of infrastructure detection and dependency installation, returning the resolved <see cref="T:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode"/>.
+            </summary>
+            <param name="requestedMode">Optional explicit mode override from CLI (<c>--mode</c> / <c>--docker</c>).</param>
+            <param name="modeExplicitlySet">Whether <paramref name="requestedMode"/> was explicitly forced via CLI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A tuple containing success status and the resolved <see cref="T:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.DetectDockerPostgresAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Inspects Docker containers to find an existing PostgreSQL container (<c>tools_postgres</c> or any <c>postgres</c> image bound to <paramref name="targetPort"/>).
+            </summary>
+            <param name="targetPort">Target PostgreSQL host port.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The matching <see cref="T:MelloSilveiraTools.Launcher.Steps.DockerPostgresContainerInfo"/>, or <see langword="null"/> if none was found.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.ParseDockerPostgresContainer(System.String,System.Int32)">
+            <summary>
+            Parses <c>docker ps -a</c> pipe-delimited output (<c>Names|Image|State|Ports</c>) to locate a reusable PostgreSQL container.
+            </summary>
+            <param name="dockerPsOutput">Standard output from <c>docker ps -a --format "{{.Names}}|{{.Image}}|{{.State}}|{{.Ports}}"</c>.</param>
+            <param name="targetPort">Target PostgreSQL host port.</param>
+            <returns>The prioritized matching container, or <see langword="null"/> when none matches.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.EnsureGitInstalledAsync(System.Threading.CancellationToken)">
+            <summary>
+            Ensures <c>git</c> CLI is available when the repository needs to be cloned from GitHub.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.EnsureDockerDaemonRunningAsync(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.Threading.CancellationToken)">
+            <summary>
+            Ensures the Docker daemon is running, starting Docker Desktop / systemd service when possible.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.CanQueryPostgresAsync(System.Threading.CancellationToken)">
+            <summary>
+            Probes whether PostgreSQL is accepting protocol queries using the configured connection string.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.CanQueryPostgresAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Probes whether PostgreSQL is accepting protocol queries using <paramref name="targetConnectionString"/>.
+            </summary>
+            <param name="targetConnectionString">PostgreSQL connection string to test.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.WaitForPostgresReadyAsync(System.Threading.CancellationToken)">
+            <summary>
+            Polls PostgreSQL until it accepts protocol queries or times out.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DependencyInstaller.WaitForPostgresReadyAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Polls PostgreSQL at <paramref name="targetConnectionString"/> until it accepts protocol queries or times out.
+            </summary>
+            <param name="targetConnectionString">PostgreSQL connection string to probe.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.DockerComposeStep">
+            <summary>
+            Orchestrates the Docker Compose stack sequentially:
+            reuses an existing Docker PostgreSQL container when present (or starts Compose <c>postgres</c> with interactive port-conflict resolution),
+            executes and validates <c>migrator</c>, removes the <c>migrator</c> container (<c>docker compose rm -f migrator</c>),
+            and starts the backend/frontend host (<c>webapi</c>).
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="repositoryRoot">Root directory containing <c>docker-compose.yml</c>.</param>
+            <param name="options">Resolved launcher infrastructure options.</param>
+            <param name="secrets">Resolved runtime secrets passed to Docker Compose interpolation.</param>
+            <param name="dependencyInstaller">Dependency installer providing Docker PostgreSQL detection and readiness checks.</param>
+            <param name="portConflictResolver">Interactive port conflict resolver for PostgreSQL and Web API ports.</param>
+            <param name="httpsCertificateStep">HTTPS certificate provisioning step allowing custom or local certificate setup.</param>
+            <param name="timeProvider">Clock provider used for health polling delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DockerComposeStep},System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions,MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets,MelloSilveiraTools.Launcher.Steps.DependencyInstaller,MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver,MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep,System.TimeProvider)">
+            <summary>
+            Orchestrates the Docker Compose stack sequentially:
+            reuses an existing Docker PostgreSQL container when present (or starts Compose <c>postgres</c> with interactive port-conflict resolution),
+            executes and validates <c>migrator</c>, removes the <c>migrator</c> container (<c>docker compose rm -f migrator</c>),
+            and starts the backend/frontend host (<c>webapi</c>).
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="repositoryRoot">Root directory containing <c>docker-compose.yml</c>.</param>
+            <param name="options">Resolved launcher infrastructure options.</param>
+            <param name="secrets">Resolved runtime secrets passed to Docker Compose interpolation.</param>
+            <param name="dependencyInstaller">Dependency installer providing Docker PostgreSQL detection and readiness checks.</param>
+            <param name="portConflictResolver">Interactive port conflict resolver for PostgreSQL and Web API ports.</param>
+            <param name="httpsCertificateStep">HTTPS certificate provisioning step allowing custom or local certificate setup.</param>
+            <param name="timeProvider">Clock provider used for health polling delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Ensures PostgreSQL is ready (reusing any existing Docker PostgreSQL container without pulling a new image),
+            runs and tears down the migrator container after table validation, and starts the Web API &amp; Frontend container.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.WaitForShutdownAsync(System.Threading.CancellationToken)">
+            <summary>
+            Waits until cancellation is requested (<c>Ctrl+C</c>) and stops the Docker Compose stack.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep">
+            <summary>
+            Ensures an HTTPS PKCS#12 (<c>.pfx</c>) certificate file is placed alongside the application binaries:
+            accepts a user-provided custom certificate path (via CLI or interactive prompt) or generates a local
+            development certificate using the native <c>dotnet dev-certs https</c> CLI tool only when no custom certificate is supplied.
+            </summary>
+            <param name="logger">Logger for certificate provisioning diagnostics.</param>
+            <param name="options">Resolved launcher infrastructure options.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep},MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions)">
+            <summary>
+            Ensures an HTTPS PKCS#12 (<c>.pfx</c>) certificate file is placed alongside the application binaries:
+            accepts a user-provided custom certificate path (via CLI or interactive prompt) or generates a local
+            development certificate using the native <c>dotnet dev-certs https</c> CLI tool only when no custom certificate is supplied.
+            </summary>
+            <param name="logger">Logger for certificate provisioning diagnostics.</param>
+            <param name="options">Resolved launcher infrastructure options.</param>
+        </member>
+        <member name="F:MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep.RootCertificateFileName">
+            <summary>
+            Standard file name expected by <c>MelloSilveiraTools.WebApi.Host</c> in its application root directory.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep.ResolveCertificateSelection">
+            <summary>
+            Prompts the user (once, when interactive and not passed via CLI) whether they want to use a custom <c>.pfx</c> certificate.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep.PrepareCertificateInDirectoryAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Copies the custom certificate (or generates a local certificate via <c>dotnet dev-certs https</c> only when
+            no custom certificate was supplied) into <paramref name="targetDirectory"/> as <c>https-cert.pfx</c>.
+            </summary>
+            <param name="targetDirectory">Application root or mounted certificate directory.</param>
+            <param name="allowDockerSdkFallback">When <see langword="true"/>, falls back to running <c>dotnet dev-certs</c> inside <c>mcr.microsoft.com/dotnet/sdk:10.0</c> if <c>dotnet</c> is not installed on the host.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Launcher.Steps.WebApiHostStep">
+            <summary>
+            Ensures <c>MelloSilveiraTools.WebApi.Host</c> (serving both the backend REST/NDJSON API and the Blazor WebAssembly frontend)
+            is published with ReadyToRun AOT enabled, running on both local HTTP and external HTTPS ports, healthy,
+            and optionally opened in the user's default browser.
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="repositoryRoot">Root directory of the repository.</param>
+            <param name="connectionString">PostgreSQL connection string passed to the host process.</param>
+            <param name="secrets">Resolved runtime secrets passed to the host process.</param>
+            <param name="portConflictResolver">Interactive port conflict resolver when the configured HTTP or HTTPS port is already occupied.</param>
+            <param name="httpsCertificateStep">HTTPS certificate provisioning step placing <c>https-cert.pfx</c> alongside the host executable/DLLs.</param>
+            <param name="webApiPort">Initial local HTTP TCP port where the Web API and frontend host listens (default: <c>26324</c>).</param>
+            <param name="webApiHttpsPort">Initial external HTTPS TCP port where the Web API and frontend host listens (default: <c>24263</c>).</param>
+            <param name="openBrowserOverride">Explicit CLI flag override, or <see langword="null"/> to prompt interactively.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips prompting.</param>
+            <param name="timeProvider">Clock provider used for health polling delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.WebApiHostStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.WebApiHostStep},System.Int32,System.Int32,System.String,System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets,MelloSilveiraTools.Launcher.Infrastructure.PortConflictResolver,MelloSilveiraTools.Launcher.Steps.HttpsCertificateStep,System.Int32,System.Int32,System.Nullable{System.Boolean},System.Boolean,System.TimeProvider)">
+            <summary>
+            Ensures <c>MelloSilveiraTools.WebApi.Host</c> (serving both the backend REST/NDJSON API and the Blazor WebAssembly frontend)
+            is published with ReadyToRun AOT enabled, running on both local HTTP and external HTTPS ports, healthy,
+            and optionally opened in the user's default browser.
+            </summary>
+            <param name="logger">Logger for execution diagnostics.</param>
+            <param name="currentStepNumber">Current 1-based step index.</param>
+            <param name="numberOfSteps">Total number of launcher steps.</param>
+            <param name="repositoryRoot">Root directory of the repository.</param>
+            <param name="connectionString">PostgreSQL connection string passed to the host process.</param>
+            <param name="secrets">Resolved runtime secrets passed to the host process.</param>
+            <param name="portConflictResolver">Interactive port conflict resolver when the configured HTTP or HTTPS port is already occupied.</param>
+            <param name="httpsCertificateStep">HTTPS certificate provisioning step placing <c>https-cert.pfx</c> alongside the host executable/DLLs.</param>
+            <param name="webApiPort">Initial local HTTP TCP port where the Web API and frontend host listens (default: <c>26324</c>).</param>
+            <param name="webApiHttpsPort">Initial external HTTPS TCP port where the Web API and frontend host listens (default: <c>24263</c>).</param>
+            <param name="openBrowserOverride">Explicit CLI flag override, or <see langword="null"/> to prompt interactively.</param>
+            <param name="nonInteractive">When <see langword="true"/>, skips prompting.</param>
+            <param name="timeProvider">Clock provider used for health polling delays.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.WebApiHostStep.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Checks if the backend and frontend host is already responding on <c>/api/health</c>; otherwise publishes with ReadyToRun AOT and launches it.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Steps.WebApiHostStep.WaitForShutdownAsync(System.Threading.CancellationToken)">
+            <summary>
+            Waits for the launched host process until cancellation is requested, ensuring graceful termination.
+            </summary>
+        </member>
+    </members>
+</doc>

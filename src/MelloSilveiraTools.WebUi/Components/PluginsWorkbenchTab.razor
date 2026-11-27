@@ -1,0 +1,582 @@
+@inject ApiClientService ApiClient
+
+<section class="card">
+    <div class="card-header-row">
+        <h2>Loaded Runtime Plugins (@_plugins.Count)</h2>
+        <div class="btn-row">
+            <input type="text" class="form-control" style="width: 180px;" placeholder="Filter name..." @bind="_pluginNameFilter" />
+            <input type="text" class="form-control" style="width: 120px;" placeholder="Version..." @bind="_pluginVersionFilter" />
+            <button class="btn btn-secondary" @onclick="LoadPluginsCatalogAsync" disabled="@_isBusy">Refresh</button>
+        </div>
+    </div>
+
+    @if (_plugins.Count == 0)
+    {
+        <p class="muted">No dynamic plugins currently loaded in memory cache.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Loaded At (UTC)</th>
+                        <th>Registered Types</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PluginInfoDto plugin in _plugins)
+                    {
+                        <tr>
+                            <td><strong>@plugin.Name</strong></td>
+                            <td>@(plugin.Version ?? "-")</td>
+                            <td>
+                                <span class="badge @(plugin.IsFullyLoaded == true ? "badge-ok" : "badge-warn")">
+                                    @(plugin.IsFullyLoaded == true ? "Fully Loaded" : "Partial")
+                                </span>
+                            </td>
+                            <td>@(plugin.FullyLoadedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                            <td>
+                                @if (plugin.TypesLoadedStatus is null || plugin.TypesLoadedStatus.Count == 0)
+                                {
+                                    <span class="muted">None</span>
+                                }
+                                else
+                                {
+                                    <div class="code-block">@string.Join(Environment.NewLine, plugin.TypesLoadedStatus.Where(kv => kv.Value).Select(kv => kv.Key))</div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<div class="grid stack-gap">
+    <section class="card">
+        <h2>Community Plugin Submission</h2>
+        <p class="muted" style="margin-bottom: 0.75rem;">
+            Authenticated users can submit versioned <code>.dll</code> plugins (e.g. <code>MyModel.v1.0.0.dll</code>) into <code>pending/</code> awaiting superuser moderation.
+        </p>
+
+        @if (!ApiClient.IsAuthenticated)
+        {
+            <div class="alert alert-info">Sign in via the top bar to submit plugins or view your submissions.</div>
+        }
+        else
+        {
+            <div class="form-group">
+                <label>Select Plugin Assembly (.dll)</label>
+                <InputFile OnChange="OnCommunityFileSelected" accept=".dll" class="form-control" />
+            </div>
+            <button class="btn btn-primary" @onclick="SubmitCommunityPluginAsync" disabled="@(_isBusy || _communityFile is null)">
+                Submit for Review (POST /submissions)
+            </button>
+        }
+    </section>
+
+    @if (ApiClient.IsSuperuser)
+    {
+        <section class="card">
+            <h2>Superuser Runtime &amp; Direct Publish</h2>
+
+            <div class="form-group">
+                <label>Direct Publish to incoming/ (Auto-Approved)</label>
+                <div class="btn-row">
+                    <InputFile OnChange="OnSuperuserFileSelected" accept=".dll" class="form-control" style="flex: 1;" />
+                    <button class="btn btn-primary" @onclick="UploadSuperuserPluginAsync" disabled="@(_isBusy || _superuserFile is null)">
+                        Publish Directly (POST /upload)
+                    </button>
+                </div>
+            </div>
+
+            <h3>Runtime Loader &amp; Two-Level Cache</h3>
+            <div class="form-grid" style="margin-bottom: 0.75rem;">
+                <div class="form-group">
+                    <label for="adm-name">Target Name (optional)</label>
+                    <input id="adm-name" type="text" class="form-control" @bind="_adminTargetName" />
+                </div>
+                <div class="form-group">
+                    <label for="adm-ver">Target Version (optional)</label>
+                    <input id="adm-ver" type="text" class="form-control" placeholder="v1.0.0" @bind="_adminTargetVersion" />
+                </div>
+                <div class="form-group">
+                    <label for="adm-cache">Cache Target</label>
+                    <input id="adm-cache" type="text" class="form-control" @bind="_cacheTarget" />
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-secondary" @onclick="LoadAllOrFilteredPluginsAsync" disabled="@_isBusy">Load Plugins</button>
+                <button class="btn btn-secondary" @onclick="@(() => ReloadPluginsAsync(force: false))" disabled="@_isBusy">Reload</button>
+                <button class="btn btn-secondary" @onclick="@(() => ReloadPluginsAsync(force: true))" disabled="@_isBusy">Force Reload</button>
+                <button class="btn btn-secondary" @onclick="PersistCacheAsync" disabled="@_isBusy">Persist Cache</button>
+                <button class="btn btn-secondary" @onclick="RestoreCacheAsync" disabled="@_isBusy">Restore Cache</button>
+                <button class="btn btn-danger" @onclick="ClearCacheAsync" disabled="@_isBusy">Clear Cache</button>
+            </div>
+        </section>
+    }
+</div>
+
+@if (ApiClient.IsSuperuser)
+{
+    <section class="card stack-gap">
+        <div class="card-header-row">
+            <h2>Superuser Storage Inspection (@_inspectedPlugins.Count)</h2>
+            <div class="btn-row">
+                <select class="form-control" style="width: 150px;" @bind="_inspectPartitionFilter">
+                    <option value="">All Partitions</option>
+                    <option value="loaded">loaded</option>
+                    <option value="incoming">incoming</option>
+                    <option value="pending">pending</option>
+                    <option value="archive">archive</option>
+                    <option value="quarantine">quarantine</option>
+                    <option value="rejected">rejected</option>
+                </select>
+                <input type="text" class="form-control" style="width: 160px;" placeholder="Filter name..." @bind="_inspectNameFilter" />
+                <input type="text" class="form-control" style="width: 110px;" placeholder="Version..." @bind="_inspectVersionFilter" />
+                <button class="btn btn-primary" @onclick="InspectPluginsAsync" disabled="@_isBusy">Inspect Storage (GET /inspect)</button>
+            </div>
+        </div>
+
+        @if (!_hasInspected)
+        {
+            <p class="muted">Click <strong>Inspect Storage</strong> to validate plugin assemblies across <code>loaded</code>, <code>incoming</code>, <code>pending</code>, <code>archive</code>, <code>quarantine</code>, and <code>rejected</code> partitions.</p>
+        }
+        else if (_inspectedPlugins.Count == 0)
+        {
+            <p class="muted">No plugin binaries found in the selected storage partitions.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Partition</th>
+                            <th>Plugin</th>
+                            <th>Validation</th>
+                            <th>Runtime Status</th>
+                            <th>File Metadata (StorageEntryMetadata)</th>
+                            <th>Types Loaded Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (PluginInfoDto item in _inspectedPlugins)
+                        {
+                            <tr>
+                                <td><span class="badge @GetPartitionBadgeClass(item.Partition ?? string.Empty)">@(item.Partition ?? "-")</span></td>
+                                <td>
+                                    <strong>@item.Name</strong><br />
+                                    <span class="muted">@(item.Version ?? "invalid-version")</span>
+                                </td>
+                                <td>
+                                    <span class="badge @(item.IsValidAssembly == true ? "badge-ok" : "badge-danger")">
+                                        @(item.IsValidAssembly == true ? "Valid" : "Invalid")
+                                    </span>
+                                    @if (!string.IsNullOrWhiteSpace(item.ValidationError))
+                                    {
+                                        <div class="muted" style="margin-top: 0.25rem;">@item.ValidationError</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @(item.IsFullyLoaded == true ? "badge-ok" : "badge-warn")">
+                                        @(item.IsFullyLoaded == true ? "Fully Loaded" : "Not Loaded")
+                                    </span>
+                                    @if (item.FullyLoadedAt.HasValue)
+                                    {
+                                        <div class="muted" style="margin-top: 0.25rem;">@item.FullyLoadedAt.Value.ToString("yyyy-MM-dd HH:mm") UTC</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.File is not null)
+                                    {
+                                        <div><strong>@(item.File.FileName ?? "-")</strong> (@item.File.StorageProvider)</div>
+                                        <div><code>@item.File.Location</code></div>
+                                        <div class="muted">@FormatBytes(item.File.SizeBytes) · @item.File.CreatedAt.ToString("yyyy-MM-dd HH:mm") UTC</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TypesLoadedStatus is null || item.TypesLoadedStatus.Count == 0)
+                                    {
+                                        <span class="muted">None</span>
+                                    }
+                                    else
+                                    {
+                                        <div class="code-block">@string.Join(Environment.NewLine, item.TypesLoadedStatus.Select(kv => $"{kv.Key}: {(kv.Value ? "Loaded" : "Pending")}"))</div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
+
+@if (ApiClient.IsAuthenticated)
+{
+    <section class="card stack-gap">
+        <div class="card-header-row">
+            <h2>Plugin Submissions Queue (@_submissions.Count)</h2>
+            <div class="btn-row">
+                <select class="form-control" style="width: 150px;" @bind="_submissionStatusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button class="btn btn-secondary" @onclick="LoadSubmissionsAsync" disabled="@_isBusy">Refresh Queue</button>
+            </div>
+        </div>
+
+        @if (ApiClient.IsSuperuser)
+        {
+            <div class="form-group" style="max-width: 420px;">
+                <label for="review-notes">Moderation Review Notes (applied on Approve/Reject)</label>
+                <input id="review-notes" type="text" class="form-control" placeholder="Optional audit notes..." @bind="_reviewNotes" />
+            </div>
+        }
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Plugin</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Storage Entry</th>
+                        <th>SHA-256</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PluginInfoDto sub in _submissions)
+                    {
+                        string status = sub.Status ?? string.Empty;
+                        string sha = sub.Sha256Hash ?? string.Empty;
+                        long submissionId = sub.EntityId ?? 0L;
+                        <tr>
+                            <td>@submissionId</td>
+                            <td><strong>@sub.Name</strong></td>
+                            <td>@(sub.Version ?? "-")</td>
+                            <td><span class="badge @GetStatusBadgeClass(status)">@status</span></td>
+                            <td>#@(sub.StorageEntryMetadataEntityId ?? 0L)</td>
+                            <td><code>@(sha.Length > 12 ? sha[..12] + "..." : sha)</code></td>
+                            <td>@(sub.ReviewNotes ?? "-")</td>
+                            <td>
+                                <div class="btn-row">
+                                    @if (status == "Pending" && submissionId > 0)
+                                    {
+                                        <button class="btn btn-sm btn-danger" @onclick="@(() => CancelSubmissionAsync(submissionId))" disabled="@_isBusy">Cancel</button>
+                                        @if (ApiClient.IsSuperuser)
+                                        {
+                                            <button class="btn btn-sm btn-primary" @onclick="@(() => ApproveSubmissionAsync(submissionId))" disabled="@_isBusy">Approve</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="@(() => RejectSubmissionAsync(submissionId))" disabled="@_isBusy">Reject</button>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@code {
+    /// <summary>Callback raised whenever this tab emits a status or error notification.</summary>
+    [Parameter]
+    public EventCallback<(string Message, bool IsError)> OnStatus { get; set; }
+
+    /// <summary>Monotonic authentication state counter triggering reloads on login/logout.</summary>
+    [Parameter]
+    public int AuthVersion { get; set; }
+
+    private int _lastAuthVersion = -1;
+    private bool _isBusy;
+
+    private List<PluginInfoDto> _plugins = [];
+    private List<PluginInfoDto> _inspectedPlugins = [];
+    private List<PluginInfoDto> _submissions = [];
+
+    private string _pluginNameFilter = string.Empty;
+    private string _pluginVersionFilter = string.Empty;
+    private string _inspectPartitionFilter = string.Empty;
+    private string _inspectNameFilter = string.Empty;
+    private string _inspectVersionFilter = string.Empty;
+    private bool _hasInspected;
+    private string _submissionStatusFilter = string.Empty;
+
+    private IBrowserFile? _communityFile;
+    private IBrowserFile? _superuserFile;
+    private string _reviewNotes = string.Empty;
+    private string _adminTargetName = string.Empty;
+    private string _adminTargetVersion = string.Empty;
+    private string _cacheTarget = "file";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_lastAuthVersion == AuthVersion)
+            return;
+
+        _lastAuthVersion = AuthVersion;
+        await LoadPluginsCatalogAsync();
+        if (ApiClient.IsAuthenticated)
+            await LoadSubmissionsAsync();
+        else
+            _submissions = [];
+
+        if (!ApiClient.IsSuperuser)
+        {
+            _inspectedPlugins = [];
+            _hasInspected = false;
+        }
+    }
+
+    private void OnCommunityFileSelected(InputFileChangeEventArgs args) => _communityFile = args.File;
+
+    private void OnSuperuserFileSelected(InputFileChangeEventArgs args) => _superuserFile = args.File;
+
+    private async Task InspectPluginsAsync()
+    {
+        if (!ApiClient.IsSuperuser)
+            return;
+
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<List<PluginInfoDto>> result = await ApiClient.InspectPluginsAsync(
+                _inspectNameFilter,
+                _inspectVersionFilter,
+                partition: _inspectPartitionFilter);
+
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Could not inspect plugin storage." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _inspectedPlugins = result.Data ?? [];
+            _hasInspected = true;
+            await NotifyAsync($"Storage inspection completed: {_inspectedPlugins.Count} plugin file(s) inspected.", isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Could not inspect plugin storage: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task LoadPluginsCatalogAsync()
+    {
+        _isBusy = true;
+        try
+        {
+            _plugins = await ApiClient.GetPluginsAsync(_pluginNameFilter, _pluginVersionFilter);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Could not load plugins catalog: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task LoadSubmissionsAsync()
+    {
+        if (!ApiClient.IsAuthenticated)
+            return;
+
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<List<PluginInfoDto>> result = await ApiClient.GetPluginSubmissionsAsync(status: _submissionStatusFilter);
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Could not load submissions." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            _submissions = result.Data ?? [];
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Could not load plugin submissions: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task SubmitCommunityPluginAsync()
+    {
+        if (_communityFile is null)
+            return;
+
+        await ExecutePluginMutationAsync(
+            () => ApiClient.SubmitPluginAsync(_communityFile),
+            "Plugin submitted for superuser moderation.",
+            refreshCatalog: false);
+        _communityFile = null;
+    }
+
+    private async Task UploadSuperuserPluginAsync()
+    {
+        if (_superuserFile is null)
+            return;
+
+        await ExecutePluginMutationAsync(
+            () => ApiClient.UploadPluginAsSuperuserAsync(_superuserFile),
+            "Plugin published directly to incoming/ and auto-approved.",
+            refreshCatalog: true);
+        _superuserFile = null;
+    }
+
+    private Task CancelSubmissionAsync(long id) => ExecuteActionAsync(
+        () => ApiClient.CancelPluginSubmissionAsync(id),
+        $"Cancelled pending submission #{id}.");
+
+    private Task ApproveSubmissionAsync(long id) => ExecutePluginMutationAsync(
+        () => ApiClient.ApprovePluginSubmissionAsync(id, string.IsNullOrWhiteSpace(_reviewNotes) ? null : _reviewNotes),
+        $"Approved submission #{id} and promoted to incoming/.",
+        refreshCatalog: true);
+
+    private Task RejectSubmissionAsync(long id) => ExecutePluginMutationAsync(
+        () => ApiClient.RejectPluginSubmissionAsync(id, string.IsNullOrWhiteSpace(_reviewNotes) ? null : _reviewNotes),
+        $"Rejected submission #{id}.",
+        refreshCatalog: false);
+
+    private Task LoadAllOrFilteredPluginsAsync() => ExecuteActionAsync(
+        () => ApiClient.LoadPluginsAsync(_adminTargetName, _adminTargetVersion),
+        "Plugin load completed.",
+        refreshCatalog: true);
+
+    private Task ReloadPluginsAsync(bool force) => ExecuteActionAsync(
+        () => ApiClient.ReloadPluginsAsync(_adminTargetName, _adminTargetVersion, force),
+        force ? "Forced plugin reload completed." : "Plugin reload completed.",
+        refreshCatalog: true);
+
+    private Task ClearCacheAsync() => ExecuteActionAsync(
+        () => ApiClient.ClearPluginCacheAsync(),
+        "Plugin cache cleared.",
+        refreshCatalog: true);
+
+    private Task PersistCacheAsync() => ExecuteActionAsync(
+        () => ApiClient.PersistPluginCacheAsync(_cacheTarget, _adminTargetName, _adminTargetVersion),
+        $"Persisted plugin cache to '{_cacheTarget}'.");
+
+    private Task RestoreCacheAsync() => ExecuteActionAsync(
+        () => ApiClient.RestorePluginCacheAsync(_cacheTarget, _adminTargetName, _adminTargetVersion),
+        $"Restored plugin cache from '{_cacheTarget}'.",
+        refreshCatalog: true);
+
+    private async Task ExecutePluginMutationAsync(
+        Func<Task<ApiResultDto<PluginInfoDto>>> action,
+        string successMessage,
+        bool refreshCatalog)
+    {
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<PluginInfoDto> result = await action();
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Plugin operation failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            if (refreshCatalog)
+                await LoadPluginsCatalogAsync();
+            await LoadSubmissionsAsync();
+            await NotifyAsync(successMessage, isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Plugin error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task ExecuteActionAsync(
+        Func<Task<ApiResultDto<object>>> action,
+        string successMessage,
+        bool refreshCatalog = false)
+    {
+        _isBusy = true;
+        try
+        {
+            ApiResultDto<object> result = await action();
+            if (!result.Success)
+            {
+                await NotifyAsync(string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Plugin action failed." : result.JoinedMessages, isError: true);
+                return;
+            }
+
+            if (refreshCatalog)
+                await LoadPluginsCatalogAsync();
+            if (ApiClient.IsAuthenticated)
+                await LoadSubmissionsAsync();
+            await NotifyAsync(successMessage, isError: false);
+        }
+        catch (Exception ex)
+        {
+            await NotifyAsync($"Plugin action error: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private static string GetStatusBadgeClass(string status) => status switch
+    {
+        "Approved" => "badge-ok",
+        "Rejected" => "badge-danger",
+        _ => "badge-warn"
+    };
+
+    private static string GetPartitionBadgeClass(string partition) => partition switch
+    {
+        "loaded" => "badge-ok",
+        "quarantine" or "rejected" => "badge-danger",
+        _ => "badge-warn"
+    };
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024)
+            return $"{bytes} B";
+
+        double kb = bytes / 1024.0;
+        if (kb < 1024.0)
+            return $"{kb:F1} KB";
+
+        double mb = kb / 1024.0;
+        return $"{mb:F2} MB";
+    }
+
+    private Task NotifyAsync(string message, bool isError) => OnStatus.InvokeAsync((message, isError));
+}
