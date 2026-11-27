@@ -135,11 +135,16 @@ public sealed class PluginFileProcessorAdditionalTests
         storageMock.Setup(s => s.OpenReadAsync(depsLoc, It.IsAny<CancellationToken>())).ReturnsAsync(() => new MemoryStream(depsBytes));
 
         PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
+        PluginFileProcessor siblingProcessor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
         DiscoveredPlugin plugin = new("MyMod", new PluginVersion(1, 0, 0), dllLoc, DateTimeOffset.UtcNow);
 
         (string shadowDll, string shadowDir) = await processor.CreateShadowCopyAsync(plugin);
         Assert.True(File.Exists(shadowDll));
         Assert.True(File.Exists(Path.Combine(shadowDir, "MyMod.v1.0.0.deps.json")));
+
+        // Cleaning on a separate processor instance must never delete another instance's active shadow copy.
+        siblingProcessor.CleanShadowCopies();
+        Assert.True(File.Exists(shadowDll));
 
         processor.CleanShadowCopies();
         Assert.False(Directory.Exists(shadowDir));

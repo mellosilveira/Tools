@@ -57,3 +57,8 @@ This document centralizes improvement opportunities, architectural extensions, a
     3. **Stream startup resilience & write idempotency:** Evaluate Polly retry before the first `yield return` in `GetAsync`/`GetDistinctAsync` and audit `InsertAsync` idempotency on post-`COMMIT` response drops;
     4. **Load benchmarks:** Execute concurrent stress tests against real PgBouncer in `pool_mode = transaction`, verifying zero RLS context (`app.current_user_id`) leakage and clean transient failure recovery.
   - **Current Decision Rationale:** At the current project scale (few API instances and low connection concurrency), `NpgsqlDataSource`'s built-in pool connected directly to PostgreSQL via single-round-trip `NpgsqlBatch` yields lower latency, simpler operations, and fewer failure points.
+
+- **Removal of `Creep` Modeling Code Paths (`MechanicsOfMaterials`, `Optimizations`, `WebUi`)**
+  - **Context:** Viscoelastic Constitutive Modeling (`ViscoelasticEffect.Creep`, creep compliance methods, and UI selectors).
+  - **Description:** Remove all residual `Creep` branches, stub/unimplemented methods throwing `NotImplementedException` (e.g., `CalculateCreepCompliance`, `Creep` branches in `LinearModelCalculator`, `QuasiLinearModelCalculator`, `SchaperyModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `MechanicalModelCalculatorFacade`), and `Creep` UI options in future major versions once backward compatibility allows.
+  - **Rationale:** There is no research or product forecast to use creep modeling (all thesis and optimization pipelines target ramp-and-hold stress relaxation exclusively); keeping dead or partially unimplemented `Creep` paths adds unnecessary maintenance burden, surface area, and risk of incomplete/silent error paths.

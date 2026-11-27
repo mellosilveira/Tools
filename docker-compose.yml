@@ -55,6 +55,7 @@ services:
       Jwt__SigningKey: ${JWT__SIGNINGKEY:-}
       Superuser__Password: ${SUPERUSER__PASSWORD:-}
       ASPNETCORE_URLS: ${TOOLS_DOCKER_URLS:-http://+:26324}
+      URLS: ${TOOLS_DOCKER_URLS:-http://+:26324}
       Kestrel__Certificates__Default__Password: ${TOOLS_DOCKER_CERT_PASSWORD:-mellosilveiratools}
     ports:
       - "${TOOLS_WEBAPI_HTTP_PORT:-26324}:${TOOLS_WEBAPI_HTTP_PORT:-26324}"

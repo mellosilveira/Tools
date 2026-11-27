@@ -1447,7 +1447,8 @@
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.CleanShadowCopies">
             <summary>
-            Purges all temporary shadow copy directories and files generated during plugin loading across all sessions.
+            Purges all temporary shadow copy directories and files created by this <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor"/> instance
+            without deleting active shadow copies owned by sibling hosts or concurrent test fixtures.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.MoveToLoadedFolderAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">

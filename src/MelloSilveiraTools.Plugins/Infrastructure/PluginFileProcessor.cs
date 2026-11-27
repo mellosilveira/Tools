@@ -29,6 +29,7 @@ public class PluginFileProcessor(
     PluginSettings settings)
 {
     private static readonly Regex PluginFileRegex = new(@"^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$", RegexOptions.Compiled);
+    private readonly string _shadowCopyRoot = Path.Combine(Path.GetTempPath(), "MelloSilveiraTools", "Plugins", "ShadowCopy", Guid.NewGuid().ToString("N"));
 
     /// <summary>
     /// Asynchronously lists raw <see cref="StorageEntryMetadata"/> entries in the specified plugin <paramref name="partition"/>
@@ -157,7 +158,7 @@ public class PluginFileProcessor(
         CancellationToken cancellationToken = default)
     {
         string fileName = Path.GetFileName(plugin.FullPath);
-        string shadowDir = Path.Combine(Path.GetTempPath(), "MelloSilveiraTools", "Plugins", "ShadowCopy", $"{plugin.Name}_{plugin.Version}_{Guid.NewGuid():N}");
+        string shadowDir = Path.Combine(_shadowCopyRoot, $"{plugin.Name}_{plugin.Version}_{Guid.NewGuid():N}");
         Directory.CreateDirectory(shadowDir);
         string shadowPath = Path.Combine(shadowDir, fileName);
 
@@ -181,17 +182,17 @@ public class PluginFileProcessor(
     }
 
     /// <summary>
-    /// Purges all temporary shadow copy directories and files generated during plugin loading across all sessions.
+    /// Purges all temporary shadow copy directories and files created by this <see cref="PluginFileProcessor"/> instance
+    /// without deleting active shadow copies owned by sibling hosts or concurrent test fixtures.
     /// </summary>
     public void CleanShadowCopies()
     {
-        string rootShadowDir = Path.Combine(Path.GetTempPath(), "MelloSilveiraTools", "Plugins", "ShadowCopy");
-        if (!Directory.Exists(rootShadowDir))
+        if (!Directory.Exists(_shadowCopyRoot))
             return;
 
         try
         {
-            foreach (string dir in Directory.GetDirectories(rootShadowDir))
+            foreach (string dir in Directory.GetDirectories(_shadowCopyRoot))
             {
                 try
                 {
@@ -202,10 +203,13 @@ public class PluginFileProcessor(
                     logger.LogDebug(ex, "Could not delete shadow copy directory '{Directory}'. It may still be in use.", dir);
                 }
             }
+
+            if (!Directory.EnumerateFileSystemEntries(_shadowCopyRoot).Any())
+                Directory.Delete(_shadowCopyRoot, recursive: false);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to purge shadow copy directory '{Directory}'.", rootShadowDir);
+            logger.LogWarning(ex, "Failed to purge shadow copy directory '{Directory}'.", _shadowCopyRoot);
         }
     }
 
