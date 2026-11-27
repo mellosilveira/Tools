@@ -10,7 +10,7 @@ on:
   release:
     types: [published]
   push:
-    branches: [main, develop]
+    branches: [main]
     tags:
       - 'v*'
     paths:
